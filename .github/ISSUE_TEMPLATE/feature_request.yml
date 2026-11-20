@@ -1,0 +1,44 @@
+name: Feature request
+description: Suggest a cozy addition to Moss & Ember
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is the problem or opportunity?
+      placeholder: I want a way to group tiles into named terraces.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Describe the solution you would like
+      placeholder: A terrace label that appears when hovering the courtyard.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Building / placement
+        - Tasks / economy
+        - Camera / rendering
+        - Art / models
+        - UI / accessibility
+        - Docs / tooling
+    validations:
+      required: true
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: This can stay client-only (no backend or accounts).
+          required: true
+        - label: This respects the existing palette and 1×1 miniature scale.
