@@ -1,0 +1,49 @@
+name: Bug report
+description: Report something broken in Moss & Ember
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug. Please include a save state if the issue is about placement or persistence.
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      placeholder: I expected the prop to sit on top of the base tile.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened?
+      placeholder: The prop floated 0.2 units above the tile.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Start from the starter world
+        2. Buy a Stone Lantern
+        3. Select it and click a base tile
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Chrome 131 / macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: console
+    attributes:
+      label: Console errors or screenshots
+      description: Paste errors or drag in images.
+  - type: textarea
+    id: save
+    attributes:
+      label: Save state (optional)
+      description: Paste the value of localStorage["moss-and-ember-v1"].
