@@ -29,14 +29,14 @@
     "models": "bash scripts/generate_models.sh"
   },
   "dependencies": {
-    "@react-three/drei": "^9.117.3",
-    "@react-three/fiber": "^8.17.10",
-    "@react-three/postprocessing": "^2.19.1",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "@react-three/postprocessing": "^3.2.2",
     "lucide-react": "^0.468.0",
     "n8ao": "^2.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.170.0",
+    "three": "^0.187.0",
     "three-stdlib": "^2.35.6",
     "zustand": "^5.0.1"
   },
@@ -45,7 +45,7 @@
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "@types/three": "^0.170.0",
+    "@types/three": "^0.187.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.15.0",
