@@ -894,13 +894,13 @@ def make_rose_planter():
 
 
 def make_blossom_tree():
-    trunk_mat = material("#7A5A40", 0.9)
-    trunk_light = material("#8F6C4D", 0.9)
+    trunk_mat = material("#9E6538", 0.9)
+    trunk_light = material("#B87B45", 0.9)
     shades = [
-        material("#E7B6C4", 0.86),
-        material("#D79BAF", 0.88),
-        material("#F3D2DC", 0.85),
-        material("#CFA0B2", 0.88),
+        material("#EFB4C4", 0.86),
+        material("#E198B1", 0.88),
+        material("#F9D0DC", 0.85),
+        material("#D79EB4", 0.88),
     ]
     tube(
         "tree_trunk",
