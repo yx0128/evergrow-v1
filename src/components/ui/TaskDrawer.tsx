@@ -77,12 +77,12 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
         <button
           type="button"
           onClick={onToggle}
-          className="glass-pill focus-ring pointer-events-auto flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[12px] font-semibold text-ink shadow-float transition hover:-translate-y-0.5"
+          className="glass-pill focus-ring pointer-events-auto flex items-center gap-2 rounded-full px-3.5 py-2.5 text-[12.5px] font-semibold text-ink shadow-float transition hover:-translate-y-0.5"
           aria-label={`Open task list. ${pending} tasks remaining.`}
         >
           <ListTodo size={16} className="text-sage-deep" />
           <span className="hidden sm:inline">Tasks</span>
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta/20 px-1.5 text-[10px] font-bold text-terracotta-deep">
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta/20 px-1.5 text-[10.5px] font-bold text-terracotta-deep">
             {pending}
           </span>
           <span className="hidden items-center gap-1 border-l border-ink/10 pl-2 text-gold-deep md:flex">
@@ -102,12 +102,9 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
             <h2 className="font-display text-[19px] leading-tight text-ink">
               Today&apos;s Tasks
             </h2>
-            <p className="pt-0.5 text-[11px] text-ink-soft/100">
-              Small steps grow a whole world.
-            </p>
           </div>
           <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 rounded-full bg-gold/15 px-2 py-1 text-[11px] font-semibold text-gold-deep">
+            <div className="flex items-center gap-1 rounded-full bg-gold/15 px-2 py-1 text-[11.5px] font-semibold text-gold-deep">
               <Coins size={12} />
               {coins.toLocaleString()}
             </div>
@@ -124,7 +121,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
         </header>
 
         <div className="px-4 pb-3">
-          <div className="flex items-center justify-between pb-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-soft/60">
+          <div className="flex items-center justify-between pb-1.5 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-ink-soft/60">
             <span>{done} of {tasks.length} done</span>
             <span>{pending} remaining</span>
           </div>
@@ -170,7 +167,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
                     setTier(entry);
                     playSound('ui');
                   }}
-                  className={`focus-ring rounded-xl border px-1.5 py-1.5 text-[10.5px] font-semibold transition ${
+                  className={`focus-ring rounded-xl border px-1.5 py-1.5 text-[11px] font-semibold transition ${
                     active
                       ? 'border-terracotta/40 bg-terracotta/15 text-terracotta-deep shadow-inner-soft'
                       : 'border-ink/10 bg-white/40 text-ink-soft/100 hover:border-ink/15 hover:bg-white/60'
@@ -178,7 +175,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
                   aria-pressed={active}
                 >
                   <span className="block leading-tight">{TASK_TIER_LABELS[entry]}</span>
-                  <span className="mt-0.5 flex items-center justify-center gap-0.5 text-[9.5px] font-bold text-gold-deep">
+                  <span className="mt-0.5 flex items-center justify-center gap-0.5 text-[10px] font-bold text-gold-deep">
                     <Coins size={9} />+{TASK_REWARDS[entry]}
                   </span>
                 </button>
@@ -186,7 +183,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
             })}
           </div>
           {error ? (
-            <p className="pt-1.5 text-[10.5px] font-medium text-terracotta-deep" role="alert">
+            <p className="pt-1.5 text-[11px] font-medium text-terracotta-deep" role="alert">
               {error}
             </p>
           ) : null}
@@ -196,7 +193,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
           {tasks.length === 0 ? (
             <div className="mx-1 rounded-2xl border border-dashed border-sage/35 px-4 py-7 text-center">
               <p className="font-display text-[14px] text-ink">A quiet, empty list.</p>
-              <p className="pt-1 text-[11px] leading-relaxed text-ink-soft/100">
+              <p className="pt-1 text-[11.5px] leading-relaxed text-ink-soft/100">
                 Add one tiny thing above. Then check it off to earn your first coins.
               </p>
             </div>
@@ -226,7 +223,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
                     <Check size={12} strokeWidth={3} />
                   </button>
                   <span
-                    className={`min-w-0 flex-1 truncate text-[12px] ${
+                    className={`min-w-0 flex-1 truncate text-[12.5px] ${
                       task.done
                         ? 'text-ink-soft/55 line-through decoration-sage-deep/40'
                         : 'font-medium text-ink'
@@ -235,7 +232,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
                   >
                     {task.title}
                   </span>
-                  <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[9.5px] font-bold text-gold-deep">
+                  <span className="flex shrink-0 items-center gap-0.5 rounded-full bg-gold/15 px-1.5 py-0.5 text-[10px] font-bold text-gold-deep">
                     <Coins size={9} />+{TASK_REWARDS[task.tier]}
                   </span>
                   <button
@@ -256,13 +253,13 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
         </div>
 
         <footer className="flex items-center justify-between gap-2 border-t border-ink/10 px-4 py-2.5">
-          <p className="text-[10px] leading-snug text-ink-soft/60">
+          <p className="text-[10.5px] leading-snug text-ink-soft/60">
             Checked tasks pay once. Coins never expire.
           </p>
           <button
             type="button"
             onClick={handleReset}
-            className="focus-ring flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold text-ink-soft/60 transition hover:bg-terracotta/10 hover:text-terracotta-deep"
+            className="focus-ring flex shrink-0 items-center gap-1 rounded-full px-2 py-1 text-[10.5px] font-semibold text-ink-soft/60 transition hover:bg-terracotta/10 hover:text-terracotta-deep"
             title="Reset world"
           >
             <RefreshCw size={11} />
