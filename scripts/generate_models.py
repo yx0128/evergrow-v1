@@ -417,7 +417,7 @@ def flame(name, location, height, radius, seed):
         t = index / (steps - 1)
         r = radius * math.sin(math.pi * (t**0.7)) * (1 - 0.55 * t) + 0.002
         profile.append((max(r, 0.002), height * t))
-    material_flame = material("#FFB347", 0.55, emission="#FF9A3C", strength=4.0)
+    material_flame = material("#FFA235", 0.5, emission="#FF7A24", strength=4.0)
     obj = lathe(name, profile, location, material_flame, segments=16, cap_bottom=True, cap_top=False, angle=70)
     obj.rotation_euler = (
         rng.uniform(-0.15, 0.15),
@@ -807,7 +807,7 @@ def make_firepot():
     puff_stone = material("#E8E2D6", 0.88)
     terracotta = material("#B27056", 0.86)
     rim = material("#8A523F", 0.88)
-    coal = material("#F07B3F", 0.5, emission="#FF6B2B", strength=2.2)
+    coal = material("#FFB24A", 0.5, emission="#FF9A2E", strength=2.2)
     for index, (x, y, radius) in enumerate(
         ((-0.08, 0.05, 0.115), (0.09, 0.07, 0.1), (0.02, -0.09, 0.105), (0.0, 0.02, 0.085))
     ):

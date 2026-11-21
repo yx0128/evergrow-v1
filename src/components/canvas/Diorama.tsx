@@ -8,6 +8,8 @@ import { useWorldStore } from '../../store/useWorldStore';
 import type { ActionResult, ItemCategory, ItemDef, Rotation } from '../../types';
 import {
   InstancedItemBatch,
+  FIRE_DAY_EMISSIVE,
+  FIRE_NIGHT_EMISSIVE,
   WARM_DAY_EMISSIVE,
   WARM_NIGHT_EMISSIVE,
 } from './InstancedItemBatch';
@@ -239,7 +241,13 @@ export function Diorama({ onFeedback }: DioramaProps) {
             themeMode === 'night' ? 2.4 : graphicsQuality === 'high' ? 1.4 : 1.8
           }
           warmEmissiveColor={
-            themeMode === 'night' ? WARM_NIGHT_EMISSIVE : WARM_DAY_EMISSIVE
+            item.light === 'fire'
+              ? themeMode === 'night'
+                ? FIRE_NIGHT_EMISSIVE
+                : FIRE_DAY_EMISSIVE
+              : themeMode === 'night'
+                ? WARM_NIGHT_EMISSIVE
+                : WARM_DAY_EMISSIVE
           }
           onPieceClick={handlePieceClick}
           onPieceContext={handlePieceContext}
