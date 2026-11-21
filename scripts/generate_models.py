@@ -293,10 +293,10 @@ def tube(name, points, radius, mat, radii=None, resolution=12):
 def grass_field(seed):
     rng = random.Random(seed)
     greens = [
-        material("#6E8B3D", 0.9),
-        material("#7C9A49", 0.9),
-        material("#5D7A33", 0.9),
-        material("#88A557", 0.9),
+        material("#86A34B", 0.9),
+        material("#93B054", 0.9),
+        material("#789740", 0.9),
+        material("#A0BC63", 0.9),
     ]
     mesh = bpy.data.meshes.new("grass_field")
     vertices = []
@@ -495,7 +495,7 @@ def make_slate():
 
 def make_grass():
     soil = material("#5C4B36", 0.95)
-    turf = material("#6E8B3D", 0.9)
+    turf = material("#86A34B", 0.9)
     cube("grass_base", (1.0, 1.0, 0.25), (0, 0, 0.125), soil, bevel=0.035, segments=4)
     cube("grass_turf", (0.985, 0.985, 0.025), (0, 0, 0.2625), turf, bevel=0.02, segments=3)
     grass_field(51)
