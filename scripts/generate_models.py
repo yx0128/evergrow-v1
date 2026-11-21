@@ -480,17 +480,6 @@ def make_slate():
             segments=2,
             angle=50,
         )
-    rng = random.Random(41)
-    for index in range(3):
-        cube(
-            f"slate_crack_{index}",
-            (rng.uniform(0.14, 0.26), 0.008, 0.006),
-            (rng.uniform(-0.18, 0.18), rng.uniform(-0.2, 0.2), 0.352),
-            groove,
-            bevel=0.0,
-            rotation=(0, 0, math.radians(rng.uniform(-35, 35))),
-            angle=50,
-        )
 
 
 def make_grass():
