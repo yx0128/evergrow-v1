@@ -428,20 +428,20 @@ def flame(name, location, height, radius, seed):
 def make_sandstone():
     stone = material("#D9A773", 0.9)
     deep = material("#C08E5B", 0.9)
-    cube("base_slab", (1.0, 1.0, 0.25), (0, 0, 0.125), deep, bevel=0.03, segments=4)
+    cube("base_slab", (1.0, 1.0, 0.30), (0, 0, 0.15), deep, bevel=0.03, segments=4)
     tones = [
         material("#D9A773", 0.9),
         material("#CFA06C", 0.9),
     ]
     rng = random.Random(21)
     for index, x in enumerate((-0.225, 0.225)):
-        height = rng.uniform(0.094, 0.1)
+        height = rng.uniform(0.048, 0.055)
         cube(
             f"paver_{index}",
             (0.435, 0.955, height),
-            (x + rng.uniform(-0.005, 0.005), 0.0, 0.35 - height / 2),
+            (x + rng.uniform(-0.005, 0.005), 0.0, 0.30 + height / 2),
             tones[index],
-            bevel=0.016,
+            bevel=0.01,
             segments=3,
             rotation=(0, 0, math.radians(rng.uniform(-0.6, 0.6))),
             angle=40,
@@ -450,7 +450,7 @@ def make_sandstone():
         ico(
             f"pebble_{pebble_index}",
             0.018,
-            (x, y, 0.262),
+            (x, y, 0.31),
             stone,
             subdivisions=1,
             scale=(1.2, 0.9, 0.7),
