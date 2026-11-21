@@ -632,9 +632,9 @@ def make_stone_stairs():
 
 
 def make_stone_lantern():
-    stone = material("#7E7A73", 0.9)
-    stone_dark = material("#5D5A54", 0.92)
-    stone_light = material("#9A958D", 0.88)
+    stone = material("#8A8075", 0.9)
+    stone_dark = material("#5F574D", 0.94)
+    stone_light = material("#A99D8C", 0.88)
     glow = material("#FFC46B", 0.45, emission="#FFB347", strength=4.0)
     lathe(
         "lantern_foot",
