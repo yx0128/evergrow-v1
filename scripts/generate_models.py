@@ -901,8 +901,8 @@ def make_firepot():
 
 
 def make_rose_planter():
-    terracotta = material("#B86F52", 0.87)
-    terracotta_light = material("#C98466", 0.87)
+    terracotta = material("#AD715A", 0.87)
+    terracotta_light = material("#BF866E", 0.87)
     soil = material("#4C3B2C", 0.95)
     leaf = material("#5F7D45", 0.88)
     leaf_dark = material("#496236", 0.9)
