@@ -135,6 +135,16 @@ export const ITEMS: ItemDef[] = [
     glyph: 'tree',
   },
   {
+    id: 'leafy_tree',
+    name: 'Leafy Tree',
+    category: 'prop',
+    cost: 80,
+    modelUrl: asset('leafy_tree.glb'),
+    blurb: 'A round green canopy for a shady little corner.',
+    accent: '#8EBB5C',
+    glyph: 'tree',
+  },
+  {
     id: 'market_stall',
     name: 'Market Stall',
     category: 'prop',
@@ -142,6 +152,16 @@ export const ITEMS: ItemDef[] = [
     modelUrl: asset('market_stall.glb'),
     blurb: 'A striped canopy and crates of tiny produce.',
     accent: '#D6A05E',
+    glyph: 'store',
+  },
+  {
+    id: 'blue_market_stall',
+    name: 'Blue Market Stall',
+    category: 'prop',
+    cost: 115,
+    modelUrl: asset('blue_market_stall.glb'),
+    blurb: 'A sky-blue canopy over the same tiny produce.',
+    accent: '#5B9BD5',
     glyph: 'store',
   },
   {

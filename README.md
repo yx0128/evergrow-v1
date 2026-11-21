@@ -99,12 +99,14 @@ npm run preview
 | Water Basin | 30 | Firepot | 48 |
 | Stone Stairs | 34 | Rose Planter | 30 |
 | | | Blossom Tree | 85 |
+| | | Leafy Tree | 80 |
 | | | Market Stall | 110 |
+| | | Blue Market Stall | 115 |
 | | | Wooden Bench | 32 |
 
 ## Real sculpted GLB art
 
-All thirteen miniatures are authored by `scripts/generate_models.py` through Blender's Python API. The script uses bevels, subdivision, lathe profiles, bmesh jitter, layered rose petals, flame profiles, and Principled BSDF materials. Lantern cores and flames use emission strength `4.0` so the WebGL bloom pass catches them at night.
+All fifteen miniatures are authored by `scripts/generate_models.py` through Blender's Python API. The script uses bevels, subdivision, lathe profiles, bmesh jitter, layered rose petals, flame profiles, and Principled BSDF materials. Lantern cores and flames use emission strength `4.0` so the WebGL bloom pass catches them at night.
 
 ```bash
 # Blender on PATH
@@ -134,7 +136,7 @@ src/
 scripts/
   generate_models.py   Blender-authored GLB pipeline
   generate_models.sh   Blender launcher
-public/models/         13 committed GLB assets
+public/models/         15 committed GLB assets
 docs/                  Architecture, art, QA, reproduction, design
 skill/                 Portable AI-agent skill backup
 ```

@@ -8,7 +8,7 @@ from mathutils import Vector
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "public", "models")
 BASE_HEIGHT = 0.2333
-MODEL_STRETCH = {"blossom_tree": 1.15}
+MODEL_STRETCH = {"blossom_tree": 1.15, "leafy_tree": 1.15}
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MATERIALS = {}
@@ -911,15 +911,17 @@ def make_rose_planter():
         rose_bloom((x, y, z), size, bloom_mat, crimson_dark if bloom_mat != crimson_dark else crimson, 140 + index)
 
 
-def make_blossom_tree():
+def make_blossom_tree(palette=None):
     trunk_mat = material("#916846", 0.9)
     trunk_light = material("#AA7E56", 0.9)
-    shades = [
-        material("#FFABC5", 0.86),
-        material("#FF8BB7", 0.88),
-        material("#FFBCDE", 0.85),
-        material("#F695BA", 0.88),
-    ]
+    if palette is None:
+        palette = [
+            ("#FFABC5", 0.86),
+            ("#FF8BB7", 0.88),
+            ("#FFBCDE", 0.85),
+            ("#F695BA", 0.88),
+        ]
+    shades = [material(color, roughness) for color, roughness in palette]
     tube(
         "tree_trunk",
         [(0, 0, 0), (0.02, 0.01, 0.18), (-0.03, 0.02, 0.36), (0.02, 0.0, 0.52), (0.0, 0.0, 0.72)],
@@ -983,12 +985,12 @@ def make_blossom_tree():
         )
 
 
-def make_market_stall():
+def make_market_stall(awning_color="#EB8551"):
     timber = material("#6B4A32", 0.88)
     timber_light = material("#8A6244", 0.88)
     counter_top = material("#A9774C", 0.86)
     cream = material("#F1E7D2", 0.9)
-    terracotta = material("#EB8551", 0.88)
+    terracotta = material(awning_color, 0.88)
     produce_colors = [
         material("#D9774F", 0.8),
         material("#E3B04B", 0.8),
@@ -1156,6 +1158,19 @@ def make_wooden_bench():
         )
 
 
+def make_leafy_tree():
+    make_blossom_tree(
+        [
+            ("#7EA84E", 0.85),
+            ("#6B9440", 0.85),
+        ]
+    )
+
+
+def make_blue_market_stall():
+    make_market_stall("#5B9BD5")
+
+
 BUILDERS = {
     "sandstone_tile": (make_sandstone, True),
     "slate_tile": (make_slate, True),
@@ -1168,7 +1183,9 @@ BUILDERS = {
     "firepot": (make_firepot, False),
     "rose_planter": (make_rose_planter, False),
     "blossom_tree": (make_blossom_tree, False),
+    "leafy_tree": (make_leafy_tree, False),
     "market_stall": (make_market_stall, False),
+    "blue_market_stall": (make_blue_market_stall, False),
     "wooden_bench": (make_wooden_bench, False),
 }
 

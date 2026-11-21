@@ -117,7 +117,7 @@ npm run dev
 
 Confirm:
 
-- all 13 files exist and are non-zero;
+- all 15 files exist and are non-zero;
 - base tiles print `1.000 × 1.000 × 0.233` during generation;
 - props print a footprint `≤ 0.925`;
 - the app loads without a placeholder block (a missing GLB shows a beveled fallback with a label);
