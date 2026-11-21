@@ -847,9 +847,9 @@ def make_firepot():
 
 
 def make_rose_planter():
-    terracotta = material("#AD715A", 0.87)
-    terracotta_light = material("#BF866E", 0.87)
-    soil = material("#4C3B2C", 0.95)
+    terracotta = material("#668280", 0.35)
+    terracotta_light = material("#849E9C", 0.35)
+    soil = material("#6B5440", 0.95)
     leaf = material("#5F7D45", 0.88)
     leaf_dark = material("#496236", 0.9)
     crimson = material("#B83B4E", 0.82)
@@ -872,23 +872,31 @@ def make_rose_planter():
         (0.1, 0.13, 0.44, 0.048, crimson_dark),
     ]
     for index, (x, y, z, size, bloom_mat) in enumerate(blooms):
+        stem_mid = (x * 0.35, y * 0.35, z - 0.12)
         tube(
             f"rose_stem_{index}",
-            [(-0.01, 0.01, 0.33), (x * 0.35, y * 0.35, z - 0.12), (x, y, z - 0.02)],
+            [(-0.01, 0.01, 0.34), stem_mid, (x, y, z + 0.005)],
             0.009,
             leaf_dark,
             radii=[1.0, 0.8, 0.55],
             resolution=8,
         )
+        stem_angle = math.atan2(y, x)
         for leaf_index in range(2):
+            side = 1 if leaf_index else -1
+            leaf_angle = stem_angle + side * 1.05
             ico(
                 f"rose_leaf_{index}_{leaf_index}",
                 0.026,
-                (x * 0.5 + (0.03 if leaf_index else -0.03), y * 0.5, z - 0.1),
+                (
+                    stem_mid[0] + math.cos(leaf_angle) * 0.022,
+                    stem_mid[1] + math.sin(leaf_angle) * 0.022,
+                    stem_mid[2] + 0.008,
+                ),
                 leaf if leaf_index else leaf_dark,
                 subdivisions=1,
                 scale=(1.5, 0.5, 0.3),
-                rotation=(0, 0, (leaf_index + 1) * 1.2),
+                rotation=(0, 0, leaf_angle),
                 seed=130 + index * 2 + leaf_index,
             )
         rose_bloom((x, y, z), size, bloom_mat, crimson_dark if bloom_mat != crimson_dark else crimson, 140 + index)
