@@ -17,7 +17,8 @@ import { MiniatureModel } from './MiniatureModel';
 
 const CHUNK_SIZE = 512;
 const PLACEMENT_MS = 460;
-const WARM_DAY_EMISSIVE = '#FFC400';
+export const WARM_DAY_EMISSIVE = '#FFA62B';
+export const WARM_NIGHT_EMISSIVE = '#FFC400';
 
 interface BatchProps {
   item: ItemDef;
@@ -25,6 +26,7 @@ interface BatchProps {
   hiddenIds: Set<string>;
   warmEmissive: boolean;
   warmEmissiveIntensity: number;
+  warmEmissiveColor: string;
   onPieceClick: (id: string) => void;
   onPieceContext: (id: string) => void;
 }
@@ -44,6 +46,7 @@ function useNormalizedPrimitives(
   item: ItemDef,
   warmEmissive: boolean,
   warmEmissiveIntensity: number,
+  warmEmissiveColor: string,
 ): Primitive[] {
   const { scene } = useGLTF(item.modelUrl);
 
@@ -78,7 +81,7 @@ function useNormalizedPrimitives(
       const cached = warmMaterials.get(material);
       if (cached) return cached;
       const cloneMaterial = standard.clone();
-      cloneMaterial.emissive.set(WARM_DAY_EMISSIVE);
+      cloneMaterial.emissive.set(warmEmissiveColor);
       cloneMaterial.emissiveIntensity = warmEmissiveIntensity;
       warmMaterials.set(material, cloneMaterial);
       return cloneMaterial;
@@ -98,7 +101,13 @@ function useNormalizedPrimitives(
       });
     });
     return primitives;
-  }, [scene, item.category, warmEmissive, warmEmissiveIntensity]);
+  }, [
+    scene,
+    item.category,
+    warmEmissive,
+    warmEmissiveIntensity,
+    warmEmissiveColor,
+  ]);
 }
 
 function InstancedPrimitive({
@@ -248,6 +257,7 @@ function BatchContent({
   pieces,
   warmEmissive,
   warmEmissiveIntensity,
+  warmEmissiveColor,
   onPieceClick,
   onPieceContext,
 }: BatchProps) {
@@ -255,6 +265,7 @@ function BatchContent({
     item,
     warmEmissive,
     warmEmissiveIntensity,
+    warmEmissiveColor,
   );
   const chunks = useMemo(() => {
     const result: PlacedItem[][] = [];
@@ -289,6 +300,7 @@ export function InstancedItemBatch({
   hiddenIds,
   warmEmissive,
   warmEmissiveIntensity,
+  warmEmissiveColor,
   onPieceClick,
   onPieceContext,
 }: BatchProps) {
@@ -317,6 +329,7 @@ export function InstancedItemBatch({
           hiddenIds={hiddenIds}
           warmEmissive={warmEmissive}
           warmEmissiveIntensity={warmEmissiveIntensity}
+          warmEmissiveColor={warmEmissiveColor}
           onPieceClick={onPieceClick}
           onPieceContext={onPieceContext}
         />

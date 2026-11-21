@@ -6,7 +6,11 @@ import { findBase, findProp, isBasePiece } from '../../lib/grid';
 import { playSound } from '../../lib/sound';
 import { useWorldStore } from '../../store/useWorldStore';
 import type { ActionResult, ItemCategory, ItemDef, Rotation } from '../../types';
-import { InstancedItemBatch } from './InstancedItemBatch';
+import {
+  InstancedItemBatch,
+  WARM_DAY_EMISSIVE,
+  WARM_NIGHT_EMISSIVE,
+} from './InstancedItemBatch';
 import { MiniatureModel } from './MiniatureModel';
 import { preloadMiniatures } from './preloadMiniatures';
 
@@ -232,7 +236,10 @@ export function Diorama({ onFeedback }: DioramaProps) {
           hiddenIds={hiddenIds}
           warmEmissive={Boolean(item.light)}
           warmEmissiveIntensity={
-            themeMode === 'night' ? 2.4 : graphicsQuality === 'high' ? 2.2 : 3
+            themeMode === 'night' ? 2.4 : graphicsQuality === 'high' ? 1.4 : 1.8
+          }
+          warmEmissiveColor={
+            themeMode === 'night' ? WARM_NIGHT_EMISSIVE : WARM_DAY_EMISSIVE
           }
           onPieceClick={handlePieceClick}
           onPieceContext={handlePieceContext}
