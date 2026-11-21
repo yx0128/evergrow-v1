@@ -104,8 +104,8 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
             </h2>
           </div>
           <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 rounded-full bg-gold/15 px-2 py-1 text-[11.5px] font-semibold text-gold-deep">
-              <Coins size={12} />
+            <div className="flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1.5 text-[13px] font-semibold text-gold-deep">
+              <Coins size={14} />
               {coins.toLocaleString()}
             </div>
             <button
