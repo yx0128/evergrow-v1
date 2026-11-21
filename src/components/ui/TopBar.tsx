@@ -30,7 +30,6 @@ export function TopBar({
           title={day ? 'Night mode' : 'Day mode'}
         >
           {day ? <Moon size={15} /> : <Sun size={15} />}
-          <span className="hidden sm:inline">{day ? 'Night' : 'Day'}</span>
         </button>
 
         <button
