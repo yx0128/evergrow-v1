@@ -6,6 +6,7 @@ import { playSound } from './lib/sound';
 import { useWorldStore } from './store/useWorldStore';
 import { WorldCanvas } from './components/canvas/Scene';
 import { BuildShop } from './components/ui/BuildShop';
+import { CoinCounter } from './components/ui/CoinCounter';
 import { ControlsLegend } from './components/ui/ControlsLegend';
 import { InventoryHotbar } from './components/ui/InventoryHotbar';
 import { TaskDrawer } from './components/ui/TaskDrawer';
@@ -201,7 +202,6 @@ export default function App() {
       ) : (
         <>
           <TopBar
-            coins={coins}
             themeMode={themeMode}
             graphicsQuality={graphicsQuality}
             onToggleTheme={handleToggleTheme}
@@ -265,6 +265,8 @@ export default function App() {
               playSound('ui');
             }}
           />
+
+          <CoinCounter coins={coins} />
 
           <Toasts toasts={toasts} onDismiss={dismissToast} />
 

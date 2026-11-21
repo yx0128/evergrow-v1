@@ -19,10 +19,11 @@ App.tsx
 │       ├── Grid (infinite, faded, non-interactive)
 │       └── Effects (lazy Bloom → ACES tone mapping)
 └── HUD
-    ├── TopBar (coins, theme, reset camera, photo mode)
+    ├── TopBar (theme, reset camera, photo mode)
     ├── TaskDrawer (add / complete / delete / reset)
     ├── InventoryHotbar (1–9, rotate, store, shop)
     ├── BuildShop modal (base / prop tabs)
+    ├── CoinCounter (single balance, bottom-right)
     ├── ControlsLegend
     └── Toasts
 ```

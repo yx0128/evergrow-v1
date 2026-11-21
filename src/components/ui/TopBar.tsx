@@ -1,8 +1,7 @@
-import { Coins, EyeOff, Gauge, Moon, RotateCcw, Sun } from 'lucide-react';
+import { EyeOff, Gauge, Moon, RotateCcw, Sun } from 'lucide-react';
 import type { GraphicsQuality, ThemeMode } from '../../types';
 
 interface TopBarProps {
-  coins: number;
   themeMode: ThemeMode;
   graphicsQuality: GraphicsQuality;
   onToggleTheme: () => void;
@@ -12,7 +11,6 @@ interface TopBarProps {
 }
 
 export function TopBar({
-  coins,
   themeMode,
   graphicsQuality,
   onToggleTheme,
@@ -24,19 +22,6 @@ export function TopBar({
   return (
     <div className="pointer-events-none absolute left-4 top-4 z-30 flex items-center gap-2">
       <div className="glass-pill pointer-events-auto flex items-center gap-1 rounded-full p-1.5">
-        <div
-          className="flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1.5 text-ink"
-          title="Coins earned from completed tasks"
-        >
-          <Coins size={15} className="text-gold-deep" />
-          <span
-            key={coins}
-            className="animate-coin-pop font-display text-[15px] font-semibold tabular-nums leading-none text-ink"
-          >
-            {coins.toLocaleString()}
-          </span>
-        </div>
-
         <button
           type="button"
           onClick={onToggleTheme}
