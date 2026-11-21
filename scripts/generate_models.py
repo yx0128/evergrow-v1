@@ -407,42 +407,6 @@ def rose_bloom(center, size, outer, inner, seed):
             )
 
 
-def bird(center):
-    x, y, z = center
-    body = material("#8E9AA3", 0.82)
-    belly = material("#C9D0D4", 0.84)
-    beak = material("#D9A441", 0.7)
-    eye = material("#2B2A28", 0.5)
-    ico("bird_body", 0.07, (x, y, z), body, subdivisions=2, scale=(1.15, 0.8, 0.92), jitter=0.003, seed=71)
-    ico("bird_belly", 0.052, (x + 0.01, y, z - 0.018), belly, subdivisions=2, scale=(1.05, 0.75, 0.55), jitter=0.002, seed=72)
-    ico("bird_head", 0.045, (x + 0.075, y, z + 0.055), body, subdivisions=2, scale=(1.0, 0.9, 1.0), jitter=0.002, seed=73)
-    bpy.ops.mesh.primitive_cone_add(vertices=12, radius1=0.016, radius2=0.001, depth=0.055, location=(x + 0.125, y, z + 0.05))
-    beak_obj = bpy.context.object
-    beak_obj.name = "bird_beak"
-    beak_obj.rotation_euler = (0, math.radians(90), 0)
-    add_material(beak_obj, beak)
-    smooth(beak_obj, full=True)
-    bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=0.038, radius2=0.003, depth=0.09, location=(x - 0.075, y, z - 0.01))
-    tail = bpy.context.object
-    tail.name = "bird_tail"
-    tail.rotation_euler = (0, math.radians(-95), 0)
-    tail.scale = (1.0, 0.55, 0.45)
-    select_only(tail)
-    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    add_material(tail, body)
-    smooth(tail, full=True)
-    for side in (-1, 1):
-        ico(
-            "bird_eye",
-            0.008,
-            (x + 0.104, y + side * 0.03, z + 0.065),
-            eye,
-            subdivisions=1,
-            jitter=0,
-            seed=74 + side,
-        )
-
-
 def flame(name, location, height, radius, seed):
     rng = random.Random(seed)
     profile = []
@@ -799,7 +763,6 @@ def make_birdbath():
             major_segments=40,
             minor_segments=6,
         )
-    bird((0.235, 0.015, 0.575))
 
 
 def make_balustrade():
