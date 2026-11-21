@@ -56,7 +56,7 @@ function useNormalizedPrimitives(
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const horizontal = Math.max(size.x, size.z, 0.0001);
-    const scale = FOOTPRINT / horizontal;
+    const scale = (FOOTPRINT * (item.modelScale ?? 1)) / horizontal;
     const verticalScale =
       item.category === 'base' ? BASE_HEIGHT / Math.max(size.y, 0.0001) : scale;
 
@@ -104,6 +104,7 @@ function useNormalizedPrimitives(
   }, [
     scene,
     item.category,
+    item.modelScale,
     warmEmissive,
     warmEmissiveIntensity,
     warmEmissiveColor,

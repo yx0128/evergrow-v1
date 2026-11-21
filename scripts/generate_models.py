@@ -849,12 +849,12 @@ def make_firepot():
 def make_rose_planter():
     terracotta = material("#668280", 0.35)
     terracotta_light = material("#849E9C", 0.35)
-    soil = material("#6B5440", 0.95)
+    soil = material("#886546", 0.95)
     leaf = material("#5F7D45", 0.88)
     leaf_dark = material("#496236", 0.9)
-    crimson = material("#B83B4E", 0.82)
-    crimson_dark = material("#8E2739", 0.84)
-    pink = material("#D9788A", 0.84)
+    crimson = material("#A04250", 0.82)
+    crimson_dark = material("#7A2D3A", 0.84)
+    pink = material("#C67D8B", 0.84)
     lathe(
         "planter_pot",
         [(0.13, 0.0), (0.17, 0.02), (0.205, 0.1), (0.225, 0.22), (0.21, 0.275), (0.235, 0.295), (0.235, 0.33)],
@@ -872,31 +872,39 @@ def make_rose_planter():
         (0.1, 0.13, 0.44, 0.048, crimson_dark),
     ]
     for index, (x, y, z, size, bloom_mat) in enumerate(blooms):
+        stem_start = (-0.01, 0.01, 0.34)
         stem_mid = (x * 0.35, y * 0.35, z - 0.12)
+        stem_end = (x, y, z + 0.005)
         tube(
             f"rose_stem_{index}",
-            [(-0.01, 0.01, 0.34), stem_mid, (x, y, z + 0.005)],
-            0.009,
+            [stem_start, stem_mid, stem_end],
+            0.008,
             leaf_dark,
-            radii=[1.0, 0.8, 0.55],
-            resolution=8,
+            radii=[1.0, 0.75, 0.45],
+            resolution=10,
         )
         stem_angle = math.atan2(y, x)
-        for leaf_index in range(2):
-            side = 1 if leaf_index else -1
-            leaf_angle = stem_angle + side * 1.05
+        leaf_specs = (
+            (stem_start, stem_mid, 0.62, 0.85, 0.030, leaf_dark),
+            (stem_mid, stem_end, 0.38, -0.95, 0.026, leaf),
+        )
+        for leaf_index, (a, b, t, angle_offset, leaf_size, leaf_mat) in enumerate(leaf_specs):
+            lx = a[0] + (b[0] - a[0]) * t
+            ly = a[1] + (b[1] - a[1]) * t
+            lz = a[2] + (b[2] - a[2]) * t
+            leaf_angle = stem_angle + angle_offset
             ico(
                 f"rose_leaf_{index}_{leaf_index}",
-                0.026,
+                leaf_size,
                 (
-                    stem_mid[0] + math.cos(leaf_angle) * 0.022,
-                    stem_mid[1] + math.sin(leaf_angle) * 0.022,
-                    stem_mid[2] + 0.008,
+                    lx + math.cos(leaf_angle) * 0.014,
+                    ly + math.sin(leaf_angle) * 0.014,
+                    lz,
                 ),
-                leaf if leaf_index else leaf_dark,
+                leaf_mat,
                 subdivisions=1,
-                scale=(1.5, 0.5, 0.3),
-                rotation=(0, 0, leaf_angle),
+                scale=(1.45, 0.62, 0.3),
+                rotation=(math.radians(-12), 0, leaf_angle),
                 seed=130 + index * 2 + leaf_index,
             )
         rose_bloom((x, y, z), size, bloom_mat, crimson_dark if bloom_mat != crimson_dark else crimson, 140 + index)

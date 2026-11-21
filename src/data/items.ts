@@ -119,6 +119,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A cedar box crowded with blush roses.',
     accent: '#D98A92',
     glyph: 'flower',
+    modelScale: 0.65,
   },
   {
     id: 'blossom_tree',

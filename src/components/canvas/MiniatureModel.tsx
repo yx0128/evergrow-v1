@@ -99,7 +99,7 @@ function ModelContent({
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
     const horizontal = Math.max(size.x, size.z, 0.0001);
-    const scale = FOOTPRINT / horizontal;
+    const scale = (FOOTPRINT * (item.modelScale ?? 1)) / horizontal;
     const verticalScale =
       item.category === 'base' ? BASE_HEIGHT / Math.max(size.y, 0.0001) : scale;
     const offset: [number, number, number] = [
@@ -129,7 +129,7 @@ function ModelContent({
     });
 
     return { clone, scale, verticalScale, offset, ghostMaterial };
-  }, [scene, ghost, valid, item.category]);
+  }, [scene, ghost, valid, item.category, item.modelScale]);
 
   useEffect(() => {
     return () => {
