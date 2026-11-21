@@ -1084,9 +1084,9 @@ def make_market_stall():
 
 
 def make_wooden_bench():
-    wood = material("#B9855B", 0.86)
-    wood_light = material("#C99A6C", 0.86)
-    wood_dark = material("#8B5F3D", 0.88)
+    wood = material("#A9682F", 0.86)
+    wood_light = material("#C07C3A", 0.86)
+    wood_dark = material("#6F4523", 0.88)
     iron = material("#6F6A62", 0.75, metallic=0.25)
     for index, y in enumerate((-0.1, 0.0, 0.1)):
         cube(
