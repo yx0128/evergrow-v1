@@ -40,7 +40,6 @@ export function TopBar({
           title={graphicsQuality === 'high' ? 'High quality — click for Low' : 'Low quality — click for High'}
         >
           <Gauge size={15} />
-          <span className="hidden sm:inline">{graphicsQuality === 'high' ? 'High' : 'Low'}</span>
         </button>
 
         <button
