@@ -979,7 +979,7 @@ def make_market_stall():
     timber_light = material("#8A6244", 0.88)
     counter_top = material("#A9774C", 0.86)
     cream = material("#F1E7D2", 0.9)
-    terracotta = material("#E38758", 0.88)
+    terracotta = material("#EB8551", 0.88)
     produce_colors = [
         material("#D9774F", 0.8),
         material("#E3B04B", 0.8),
