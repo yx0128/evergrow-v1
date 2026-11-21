@@ -252,10 +252,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
           )}
         </div>
 
-        <footer className="flex items-center justify-between gap-2 border-t border-ink/10 px-4 py-2.5">
-          <p className="text-[10.5px] leading-snug text-ink-soft/60">
-            Checked tasks pay once. Coins never expire.
-          </p>
+        <footer className="flex items-center justify-end gap-2 border-t border-ink/10 px-4 py-2.5">
           <button
             type="button"
             onClick={handleReset}
