@@ -894,17 +894,17 @@ def make_rose_planter():
 
 
 def make_blossom_tree():
-    trunk_mat = material("#9E6538", 0.9)
-    trunk_light = material("#B87B45", 0.9)
+    trunk_mat = material("#916846", 0.9)
+    trunk_light = material("#AA7E56", 0.9)
     shades = [
-        material("#EFB4C4", 0.86),
-        material("#E198B1", 0.88),
-        material("#F9D0DC", 0.85),
-        material("#D79EB4", 0.88),
+        material("#FFABC5", 0.86),
+        material("#FF8BB7", 0.88),
+        material("#FFBCDE", 0.85),
+        material("#F695BA", 0.88),
     ]
     tube(
         "tree_trunk",
-        [(0, 0, 0), (0.02, 0.01, 0.18), (-0.03, 0.02, 0.36), (0.02, 0.0, 0.52), (0.0, 0.0, 0.66)],
+        [(0, 0, 0), (0.02, 0.01, 0.18), (-0.03, 0.02, 0.36), (0.02, 0.0, 0.52), (0.0, 0.0, 0.72)],
         0.055,
         trunk_mat,
         radii=[1.6, 1.35, 1.1, 0.9, 0.7],
@@ -934,6 +934,7 @@ def make_blossom_tree():
         radii=[1.0, 0.8, 0.5],
         resolution=12,
     )
+    blossom_cluster((0.0, 0.0, 0.80), 0.18, shades, 150)
     blossom_cluster((0.0, 0.0, 0.88), 0.29, shades, 151)
     blossom_cluster((-0.22, 0.02, 0.78), 0.2, shades, 152)
     blossom_cluster((0.23, 0.03, 0.8), 0.21, shades, 153)
