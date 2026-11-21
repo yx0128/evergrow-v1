@@ -468,27 +468,20 @@ def make_sandstone():
     tones = [
         material("#D9A773", 0.9),
         material("#CFA06C", 0.9),
-        material("#E0B182", 0.9),
-        material("#D3A574", 0.9),
-        material("#C99A66", 0.9),
-        material("#DEAE7E", 0.9),
     ]
     rng = random.Random(21)
-    index = 0
-    for x in (-0.225, 0.225):
-        for y in (-0.315, 0.0, 0.315):
-            height = rng.uniform(0.094, 0.1)
-            cube(
-                f"paver_{index}",
-                (0.435, 0.295, height),
-                (x + rng.uniform(-0.005, 0.005), y + rng.uniform(-0.004, 0.004), 0.35 - height / 2),
-                tones[index],
-                bevel=0.016,
-                segments=3,
-                rotation=(0, 0, math.radians(rng.uniform(-1.4, 1.4))),
-                angle=40,
-            )
-            index += 1
+    for index, x in enumerate((-0.225, 0.225)):
+        height = rng.uniform(0.094, 0.1)
+        cube(
+            f"paver_{index}",
+            (0.435, 0.955, height),
+            (x + rng.uniform(-0.005, 0.005), 0.0, 0.35 - height / 2),
+            tones[index],
+            bevel=0.016,
+            segments=3,
+            rotation=(0, 0, math.radians(rng.uniform(-0.6, 0.6))),
+            angle=40,
+        )
     for pebble_index, (x, y) in enumerate(((-0.45, 0.45), (0.45, -0.45), (0.44, 0.44))):
         ico(
             f"pebble_{pebble_index}",
