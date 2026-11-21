@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { ITEM_MAP } from '../../data/items';
+import { findProp, isBasePiece } from '../../lib/grid';
 import { useWorldStore } from '../../store/useWorldStore';
 
 const POOL_SIZE = 6;
@@ -17,14 +18,28 @@ interface LightCandidate {
 export function LightingPool() {
   const placedItems = useWorldStore((state) => state.placedItems);
   const themeMode = useWorldStore((state) => state.themeMode);
+  const movingItemId = useWorldStore((state) => state.movingItemId);
   const controls = useThree((state) => state.controls) as
     | { target?: THREE.Vector3 }
     | null;
   const pool = useRef<(THREE.PointLight | null)[]>([]);
 
+  const hiddenIds = useMemo(() => {
+    const ids = new Set<string>();
+    const moving = placedItems.find((piece) => piece.id === movingItemId);
+    if (!moving) return ids;
+    ids.add(moving.id);
+    if (isBasePiece(moving)) {
+      const attached = findProp(placedItems, moving.x, moving.z);
+      if (attached) ids.add(attached.id);
+    }
+    return ids;
+  }, [placedItems, movingItemId]);
+
   const candidates = useMemo<LightCandidate[]>(
     () =>
       placedItems.flatMap((piece) => {
+        if (hiddenIds.has(piece.id)) return [];
         const item = ITEM_MAP[piece.itemId];
         if (!item?.light) return [];
         const height = item.light === 'fire' ? 0.42 : 0.52;
@@ -37,7 +52,7 @@ export function LightingPool() {
           },
         ];
       }),
-    [placedItems],
+    [placedItems, hiddenIds],
   );
 
   useFrame(() => {

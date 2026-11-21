@@ -150,7 +150,7 @@ function InstancedPrimitive({
     if (!mesh) return;
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     applyMatrices();
-  }, [applyMatrices]);
+  }, [applyMatrices, geometry, material]);
 
 
   useFrame(() => {
