@@ -6,7 +6,6 @@ import { playSound } from './lib/sound';
 import { useWorldStore } from './store/useWorldStore';
 import { WorldCanvas } from './components/canvas/Scene';
 import { BuildShop } from './components/ui/BuildShop';
-import { CoinCounter } from './components/ui/CoinCounter';
 import { ControlsLegend } from './components/ui/ControlsLegend';
 import { InventoryHotbar } from './components/ui/InventoryHotbar';
 import { TaskDrawer } from './components/ui/TaskDrawer';
@@ -16,7 +15,6 @@ import type { ActionResult } from './types';
 import type { ToastItem, ToastTone } from './types-ui';
 
 export default function App() {
-  const coins = useWorldStore((state) => state.coins);
   const inventory = useWorldStore((state) => state.inventory);
   const placedItems = useWorldStore((state) => state.placedItems);
   const themeMode = useWorldStore((state) => state.themeMode);
@@ -265,8 +263,6 @@ export default function App() {
               playSound('ui');
             }}
           />
-
-          <CoinCounter coins={coins} />
 
           <Toasts toasts={toasts} onDismiss={dismissToast} />
 

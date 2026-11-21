@@ -47,14 +47,12 @@ Rules:
 │                                                              │
 │ [controls]                                   [task drawer]   │
 │                    [hotbar · rotate · store · shop]          │
-│                                              [coin counter]  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 - HUD margins: `16px`.
 - Top-left pill: day/night + High/Low graphics quality + reset camera + photo mode.
-- Top-right: task drawer `370px` wide, collapsible to a pill.
-- Bottom-right: the single coin counter; the balance is never shown twice.
+- Top-right: task drawer `370px` wide, collapsible to a pill; the coin balance lives here.
 - Bottom center: hotbar with nine `54px` slots; side controls for rotate/store/shop.
 - Bottom-left: controls legend, only above `xl` width.
 - The diorama is framed left/center because the task drawer owns the right edge.

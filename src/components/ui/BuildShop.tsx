@@ -73,6 +73,10 @@ export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5 text-[13px] font-semibold text-gold-deep">
+              <Coins size={14} />
+              {coins.toLocaleString()}
+            </div>
             <button
               type="button"
               onClick={onClose}

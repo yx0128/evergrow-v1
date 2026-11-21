@@ -24,6 +24,7 @@ interface TaskDrawerProps {
 
 export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
   const tasks = useWorldStore((state) => state.tasks);
+  const coins = useWorldStore((state) => state.coins);
   const addTask = useWorldStore((state) => state.addTask);
   const toggleTask = useWorldStore((state) => state.toggleTask);
   const deleteTask = useWorldStore((state) => state.deleteTask);
@@ -84,6 +85,10 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
           <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-terracotta/20 px-1.5 text-[10px] font-bold text-terracotta-deep">
             {pending}
           </span>
+          <span className="hidden items-center gap-1 border-l border-ink/10 pl-2 text-gold-deep md:flex">
+            <Coins size={13} />
+            {coins}
+          </span>
         </button>
       </div>
     );
@@ -102,6 +107,10 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
             </p>
           </div>
           <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 rounded-full bg-gold/15 px-2 py-1 text-[11px] font-semibold text-gold-deep">
+              <Coins size={12} />
+              {coins.toLocaleString()}
+            </div>
             <button
               type="button"
               onClick={onToggle}

@@ -23,7 +23,6 @@ App.tsx
     ├── TaskDrawer (add / complete / delete / reset)
     ├── InventoryHotbar (1–9, rotate, store, shop)
     ├── BuildShop modal (base / prop tabs)
-    ├── CoinCounter (single balance, bottom-right)
     ├── ControlsLegend
     └── Toasts
 ```
