@@ -858,8 +858,8 @@ def make_balustrade():
 
 def make_firepot():
     puff_stone = material("#E8E2D6", 0.88)
-    terracotta = material("#B86F52", 0.86)
-    rim = material("#8F513C", 0.88)
+    terracotta = material("#B27056", 0.86)
+    rim = material("#8A523F", 0.88)
     coal = material("#F07B3F", 0.5, emission="#FF6B2B", strength=2.2)
     for index, (x, y, radius) in enumerate(
         ((-0.08, 0.05, 0.115), (0.09, 0.07, 0.1), (0.02, -0.09, 0.105), (0.0, 0.02, 0.085))
