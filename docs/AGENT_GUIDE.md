@@ -31,7 +31,7 @@ Open the app at `1440×900`. You should see a floating courtyard, a task drawer 
 
 ## Invariants to protect
 
-1. Base tiles are exactly `0.35` tall in world space; props sit at `y=0.35`.
+1. Base tiles are exactly `0.2333` tall in world space; props sit at `y=0.2333`.
 2. `placedItems` has at most one base and one prop per cell; props require a base. Selecting a piece does not move it; rotating a selected base rotates its prop; moving a base moves its prop.
 3. Task completion pays once and is one-way.
 4. Persisted data is untrusted; extend the sanitizer with every new field.

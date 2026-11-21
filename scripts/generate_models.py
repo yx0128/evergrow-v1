@@ -7,6 +7,7 @@ from mathutils import Vector
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "public", "models")
+BASE_HEIGHT = 0.2333
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MATERIALS = {}
@@ -435,7 +436,7 @@ def make_sandstone():
     ]
     rng = random.Random(21)
     for index, x in enumerate((-0.225, 0.225)):
-        height = rng.uniform(0.048, 0.055)
+        height = 0.05
         cube(
             f"paver_{index}",
             (0.435, 0.955, height),
@@ -460,9 +461,9 @@ def make_sandstone():
 
 
 def make_slate():
-    limestone = material("#CFCBC4", 0.9)
-    top = material("#DAD6CF", 0.88)
-    groove = material("#A39E96", 0.92)
+    limestone = material("#C8C2B6", 0.9)
+    top = material("#D2CCC0", 0.88)
+    groove = material("#9C9588", 0.92)
     cube("slate_base", (1.0, 1.0, 0.30), (0, 0, 0.15), limestone, bevel=0.035, segments=4)
     cube("slate_inset", (0.88, 0.88, 0.05), (0, 0, 0.325), top, bevel=0.025, segments=4)
     for x, y, width, depth in (
@@ -1210,7 +1211,7 @@ def finalize(name, is_base):
     if is_base:
         scale_x = 1.0 / max(size_x, 1e-6)
         scale_y = 1.0 / max(size_y, 1e-6)
-        scale_z = 0.35 / max(size_z, 1e-6)
+        scale_z = BASE_HEIGHT / max(size_z, 1e-6)
         for vertex in mesh.vertices:
             vertex.co.x *= scale_x
             vertex.co.y *= scale_y
@@ -1238,7 +1239,7 @@ def finalize(name, is_base):
     depth = max_y - min_y
     height = max_z - min_z
     if is_base:
-        if abs(width - 1.0) > 0.01 or abs(depth - 1.0) > 0.01 or abs(height - 0.35) > 0.01:
+        if abs(width - 1.0) > 0.01 or abs(depth - 1.0) > 0.01 or abs(height - BASE_HEIGHT) > 0.01:
             raise RuntimeError(f"{name}: base bounds {width:.4f} x {depth:.4f} x {height:.4f}")
     else:
         if width > 0.925 or depth > 0.925:

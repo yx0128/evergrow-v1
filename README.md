@@ -117,7 +117,7 @@ blender --background --python scripts/generate_models.py
 npm run models
 ```
 
-Outputs are written to `public/models/*.glb`. Each model is centered on X/Z, grounded at `Z = 0` in Blender, and exported with `export_yup=True` and `export_apply=True`. At runtime, `<MiniatureModel />` measures the GLB, scales the largest horizontal edge to `0.96` world units, grounds the bounding box to `y = 0`, and enables `castShadow`/`receiveShadow`. Base tiles receive a tiny vertical height lock so their surface stays exactly at `y = 0.35`; props sit flush there.
+Outputs are written to `public/models/*.glb`. Each model is centered on X/Z, grounded at `Z = 0` in Blender, and exported with `export_yup=True` and `export_apply=True`. At runtime, `<MiniatureModel />` measures the GLB, scales the largest horizontal edge to `0.96` world units, grounds the bounding box to `y = 0`, and enables `castShadow`/`receiveShadow`. Base tiles receive a tiny vertical height lock so their surface stays exactly at `y = 0.2333`; props sit flush there.
 
 See [docs/ART_PIPELINE.md](docs/ART_PIPELINE.md) for the coordinate contract, material rules, and per-model notes.
 
@@ -145,7 +145,7 @@ Key contracts:
 - Persisted fields only: `coins`, `tasks`, `inventory`, `placedItems`, `themeMode`, `graphicsQuality`.
 - `placedItems` are validated on every read: known item IDs, integer cells, unique cells per layer, and props require a base tile.
 - One invisible `220×220` raycast plane receives clicks for both layers; placed pieces stop propagation so right-click storage is reliable.
-- Camera: `fov 32`, position `[7.4, 8.4, 9.6]`, target `[0, 0.35, 0]`, right-drag orbit, clamped polar angle.
+- Camera: `fov 32`, position `[7.4, 8.4, 9.6]`, target `[0, 0.2333, 0]`, right-drag orbit, clamped polar angle.
 - Effects: lazy-loaded Bloom (`luminanceThreshold 1.1`, intensity `0.45`) + ACES Filmic tone mapping. No AO, hue/saturation, brightness/contrast, or vignette, so High-quality colors match Low; lantern glow panels and firepot flames use a warm golden-yellow emissive in every mode, keeping them visible day and night.
 - Lights: six permanent pooled point lights; day sets all to zero, night assigns the six nearest lanterns/firepots.
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ThreeEvent } from '@react-three/fiber';
 import { DoubleSide } from 'three';
-import { ITEMS, ITEM_MAP } from '../../data/items';
+import { BASE_HEIGHT, ITEMS, ITEM_MAP } from '../../data/items';
 import { findBase, findProp, isBasePiece } from '../../lib/grid';
 import { playSound } from '../../lib/sound';
 import { useWorldStore } from '../../store/useWorldStore';
@@ -251,7 +251,7 @@ export function Diorama({ onFeedback }: DioramaProps) {
           rotation={[-Math.PI / 2, 0, 0]}
           position={[
             selectedPiece.x,
-            selectedPieceItem.category === 'base' ? 0.365 : 0.352,
+            selectedPieceItem.category === 'base' ? BASE_HEIGHT + 0.015 : BASE_HEIGHT + 0.002,
             selectedPiece.z,
           ]}
         >
@@ -272,7 +272,7 @@ export function Diorama({ onFeedback }: DioramaProps) {
             rotation={[-Math.PI / 2, 0, 0]}
             position={[
               ghost.cell.x,
-              ghost.layer === 'base' ? 0.37 : 0.362,
+              ghost.layer === 'base' ? BASE_HEIGHT + 0.02 : BASE_HEIGHT + 0.012,
               ghost.cell.z,
             ]}
           >
@@ -286,7 +286,7 @@ export function Diorama({ onFeedback }: DioramaProps) {
             />
           </mesh>
           <group
-            position={[ghost.cell.x, ghost.layer === 'base' ? 0 : 0.35, ghost.cell.z]}
+            position={[ghost.cell.x, ghost.layer === 'base' ? 0 : BASE_HEIGHT, ghost.cell.z]}
           >
             <MiniatureModel
               item={ghost.item}
@@ -295,7 +295,7 @@ export function Diorama({ onFeedback }: DioramaProps) {
               rotation={ghost.rotation}
             />
             {ghost.extraItem ? (
-              <group position={[0, 0.35, 0]}>
+              <group position={[0, BASE_HEIGHT, 0]}>
                 <MiniatureModel
                   item={ghost.extraItem}
                   ghost

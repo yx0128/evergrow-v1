@@ -38,7 +38,7 @@ npm run preview -- --port 4183
 ## Art
 
 - [ ] `npm run models` succeeds; all 13 files are non-zero.
-- [ ] Base tiles print `1.000 × 1.000 × 0.350`.
+- [ ] Base tiles print `1.000 × 1.000 × 0.233`.
 - [ ] Props print footprints `≤ 0.925`.
 - [ ] Lantern/flame emission is visible at night and blooms correctly.
 - [ ] No `.blend`, `.blend1`, or temporary files.

@@ -60,7 +60,7 @@ Rules:
 
 ## Camera
 
-- Reference: `position [7.4, 8.4, 9.6]`, `target [0, 0.35, 0]`, `fov 32`.
+- Reference: `position [7.4, 8.4, 9.6]`, `target [0, 0.2333, 0]`, `fov 32`.
 - This is a low-FOV, near-isometric read: tiles stay legible without fisheye distortion.
 - Right-drag orbit, middle-drag pan, wheel zoom. Left click is reserved for building.
 - Clamp polar angle to `0.2–0.475π` so the floating island never flips under the camera.

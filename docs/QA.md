@@ -61,7 +61,7 @@ Run it at `1440×900`; the default viewport is set in the script.
 | Select a base tile | Ghost appears, valid cells are green |
 | Hover an occupied base cell | Ghost turns coral |
 | Place a prop with no base | Coral ghost and “needs a base tile” toast |
-| Place a prop on a base | Piece sits flush at `y = 0.35` |
+| Place a prop on a base | Piece sits flush at `y = 0.2333` |
 | Place a second prop on the same cell | Rejected |
 | Click a placed prop | Selects it in place; sage tint + selection pill; item does not follow the mouse |
 | HUD Rotate / `R` on a selected prop | Rotates in place; coordinates unchanged |

@@ -21,7 +21,7 @@ npm run models   # Blender 4.2+; see docs/ART_PIPELINE.md
 
 - Desktop-first at `1440×900`. Keep the HUD usable; do not let the diorama hide behind the task drawer.
 - Palette: cream, sand, sage, moss, terracotta, rose, gold, slate. No neon, pure white, or pure black.
-- Every item is `1×1`. Base tiles are `0.35` tall in world space; props sit flush at `y = 0.35`.
+- Every item is `1×1`. Base tiles are `0.2333` tall in world space; props sit flush at `y = 0.2333`.
 - `placedItems` is the single source of truth for the world. Inventory is unplaced stock. Coins never refund.
 - Clicking a placed piece selects it in place; `R`/HUD Rotate rotates it, and Move/`M` lifts it. Moving never changes inventory, and a base carries its surface prop.
 - Task completion pays once and cannot be undone by toggling a completed checkbox.
@@ -72,7 +72,7 @@ Bump the key version, extend `sanitizePersisted`, and keep backward compatibilit
 
 | Symptom | Fix |
 | --- | --- |
-| Props float above base tiles | Base tile height normalization must stay locked to `0.35`; keep `verticalScale` in `MiniatureModel`. |
+| Props float above base tiles | Base tile height normalization must stay locked to `0.2333`; keep `verticalScale` in `MiniatureModel`. |
 | Ghost never updates over a tile | The invisible raycast plane must stay at `y = 0` and placed pieces must call `stopPropagation`. |
 | Shader stutters when placing lanterns | A point light was added outside `LightingPool`; keep the pool at exactly six. |
 | Instanced pieces cannot be clicked | Map `event.instanceId` back to the visible piece array in `InstancedItemBatch`. |

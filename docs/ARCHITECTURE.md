@@ -99,7 +99,7 @@ Transient UI state (`selectedItemId`, `selectedPieceId`, `movingItemId`, `moving
 
 ## Placement and the two-layer grid
 
-Coordinates are integer cell centers. A base tile renders at `[x, 0, z]`; a prop renders at `[x, 0.35, z]`. The grid is infinite and uses `1`-unit cells.
+Coordinates are integer cell centers. A base tile renders at `[x, 0, z]`; a prop renders at `[x, 0.2333, z]`. The grid is infinite and uses `1`-unit cells.
 
 Rather than attaching pointer handlers to every tile, the scene has one invisible `220×220` plane at `y = 0`. It receives `pointermove` and `click` for both layers:
 
@@ -139,7 +139,7 @@ HUD **Store** returns the selected piece to inventory without entering store mod
 4. Horizontal scale: `0.96 / max(size.x, size.z)`.
 5. Vertical scale:
    - Props: same as horizontal (uniform).
-   - Base tiles: `0.35 / size.y` (height lock). Blender authors base tiles at exactly `0.35`; the horizontal normalization would otherwise make them `0.336` tall and leave a visible gap under props.
+   - Base tiles: `0.2333 / size.y` (height lock). Blender authors base tiles at exactly `0.2333`; the horizontal normalization would otherwise make them `0.336` tall and leave a visible gap under props.
 6. Offset: `[-center.x * scale, -box.min.y * verticalScale, -center.z * scale]`.
 7. Traverse: enable `castShadow`/`receiveShadow`; ghost mode swaps in a translucent tint material.
 8. A class error boundary and Suspense fallback render a beveled block with the item name if a file is missing.
@@ -150,7 +150,7 @@ Placement bounce uses `Date.now()` for both the stored timestamp and the animati
 ## Camera
 
 - Perspective `fov: 32`, `near: 0.1`, `far: 160`.
-- Default position `[7.4, 8.4, 9.6]`, target `[0, 0.35, 0]`.
+- Default position `[7.4, 8.4, 9.6]`, target `[0, 0.2333, 0]`.
 - `OrbitControls`: left mouse disabled (`LEFT: -1`), right drag rotates, middle drag pans, wheel zooms.
 - Distances `4.5..48`; polar angle `0.2..0.475π` keeps the camera above the floating plane.
 - Reset button remounts the target/position through a signal; no page reload.
@@ -208,7 +208,7 @@ The UI and WebGL layers are verified visually with the headless-Chrome script in
 
 ## Known trade-offs
 
-- Base tiles are height-locked after horizontal normalization. This is intentional: it keeps props flush at `y = 0.35` while preserving a small seam between adjacent tiles.
+- Base tiles are height-locked after horizontal normalization. This is intentional: it keeps props flush at `y = 0.2333` while preserving a small seam between adjacent tiles.
 - There is no auth or cloud sync; `localStorage` is the product boundary.
 - The scene is desktop-first. Small screens get a usable but denser HUD.
 - Instanced rendering groups by material primitive, so a multi-material GLB still emits one draw call per material primitive (one per type per chunk), not one total.

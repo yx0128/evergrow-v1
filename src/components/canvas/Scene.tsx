@@ -3,6 +3,7 @@ import { Canvas, useThree } from '@react-three/fiber';
 import { Grid, OrbitControls, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { BASE_HEIGHT } from '../../data/items';
 import { useWorldStore } from '../../store/useWorldStore';
 import type { ActionResult, GraphicsQuality } from '../../types';
 import { LightingPool } from './LightingPool';
@@ -11,7 +12,7 @@ import { Diorama } from './Diorama';
 const DAY_BG = '#F3EFE6';
 const NIGHT_BG = '#16181D';
 const DAY_CAMERA: [number, number, number] = [7.4, 8.4, 9.6];
-const CAMERA_TARGET: [number, number, number] = [0, 0.35, 0];
+const CAMERA_TARGET: [number, number, number] = [0, BASE_HEIGHT, 0];
 
 const Effects = lazy(() => import('./Effects'));
 

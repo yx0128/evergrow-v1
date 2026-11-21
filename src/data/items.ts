@@ -14,7 +14,7 @@ export const TASK_TIER_LABELS: Record<TaskTier, string> = {
   deep: 'Deep Work',
 };
 
-export const BASE_HEIGHT = 0.35;
+export const BASE_HEIGHT = 0.2333;
 export const FOOTPRINT = 0.96;
 
 export const ITEMS: ItemDef[] = [

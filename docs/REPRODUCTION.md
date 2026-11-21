@@ -122,7 +122,7 @@ Create `src/data/items.ts`:
 - costs: 12/16/14/30/34 for bases; 40/55/22/48/30/85/110/32 for props.
 - rewards: quick 10, standard 25, deep 50.
 - starter: 80 coins, 9 sandstone tiles at `(-1..1, -1..1)`, inventory `{ stone_lantern: 1, rose_planter: 1 }`, three gentle starter tasks.
-- `BASE_HEIGHT = 0.35`, `FOOTPRINT = 0.96`.
+- `BASE_HEIGHT = 0.2333`, `FOOTPRINT = 0.96`.
 
 Create `src/lib/grid.ts` (`cellKey`, `findBase`, `findProp`, `worldToCell`, `rotationToRadians`), `src/lib/id.ts` (`crypto.randomUUID` with fallback), `src/lib/sound.ts` (Web Audio chime/place/buy/store/error/UI).
 
@@ -172,7 +172,7 @@ Traverse to enable shadows and swap materials in ghost mode. Wrap with an error 
 
 `Diorama.tsx`:
 
-- render base pieces at `y = 0`, props at `y = 0.35`;
+- render base pieces at `y = 0`, props at `y = 0.2333`;
 - piece `onClick`/`onContextMenu` call `stopPropagation` and either remove or explain the invalid placement;
 - one invisible `planeGeometry` `220×220` at `y = 0` handles `pointermove` and `click`;
 - ghost uses the same model with green/coral material and a faint cell tint;
@@ -218,7 +218,7 @@ The script must:
 1. Use bevel, subdivision, bmesh jitter, lathe, and bezier tubes; no bare cubes.
 2. Create Principled BSDF materials with roughness `0.82–0.90`, translucent water, and emission strength `4.0` for lanterns/flames.
 3. Join all parts, apply modifiers, center X/Z, ground at `Z = 0`.
-4. Enforce base tiles `1.0×1.0×0.35` and props `≤0.92×0.92`.
+4. Enforce base tiles `1.0×1.0×0.2333` and props `≤0.92×0.92`.
 5. Export each model with `export_format="GLB"`, `export_apply=True`, `export_yup=True`.
 
 Verify all 13 files and dimensions. Full details: [ART_PIPELINE.md](ART_PIPELINE.md).
@@ -279,7 +279,7 @@ Expected URL: `https://USER.github.io/REPO/`. Verify the HTML, the JS chunks, an
 
 ## 12. Agent prompt (optional starting point)
 
-> Build a desktop-first React 18 + TypeScript + Vite app called Moss & Ember: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and two props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 13 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.35 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
+> Build a desktop-first React 18 + TypeScript + Vite app called Moss & Ember: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and two props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 13 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.2333 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
 
 ## 13. Pitfalls that cost time
 
@@ -287,7 +287,7 @@ Expected URL: `https://USER.github.io/REPO/`. Verify the HTML, the JS chunks, an
 | --- | --- |
 | React 19 peer conflicts | Pin React 18 / R3F 8 / drei 9. |
 | `LEFT: -1` type error | Cast to `unknown as THREE.MOUSE`. |
-| Base tiles sink or props float | Height-lock base tiles to `0.35` after horizontal normalization. |
+| Base tiles sink or props float | Height-lock base tiles to `0.2333` after horizontal normalization. |
 | jsdom has no `localStorage` on Node 26 | Polyfill in `src/test/setup.ts` and use a safe storage adapter. |
 | Blender 5.x socket KeyError | Use `Emission Color`, `Emission Strength`, `Transmission Weight`. |
 | Blender exporter ignores bevels | `export_apply=True`. |

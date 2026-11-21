@@ -9,7 +9,7 @@ Moss & Ember ships thirteen real GLB models. They are authored procedurally with
 | Up axis | `+Z` | `+Y` (`export_yup=True`) |
 | Ground | `Z = 0` | `y = 0` |
 | Footprint plane | `X/Y` | `X/Z` |
-| Base tile size | `1.0 × 1.0 × 0.35` | normalized to `0.96 × 0.35 × 0.96` |
+| Base tile size | `1.0 × 1.0 × 0.2333` | normalized to `0.96 × 0.2333 × 0.96` |
 | Prop footprint | `≤ 0.92 × 0.92` | normalized to `0.96` max horizontal |
 | Origin | centered on `X/Z`, grounded | centered, grounded |
 
@@ -18,7 +18,7 @@ Moss & Ember ships thirteen real GLB models. They are authored procedurally with
 1. Apply all modifiers and convert curves to meshes.
 2. Join everything into one mesh (one node, one primitive per material).
 3. Apply object transforms, then center vertices on X/Z and set the minimum Z to `0`.
-4. Base tiles: scale X/Y to exactly `1.0` and Z to exactly `0.35`.
+4. Base tiles: scale X/Y to exactly `1.0` and Z to exactly `0.2333`.
 5. Props: uniform-scale down if the footprint exceeds `0.92`.
 6. Re-center/ground, verify dimensions, and export.
 
@@ -103,7 +103,7 @@ No textures are used. All variation comes from geometry and material color, whic
 
 ## Runtime normalization
 
-`MiniatureModel` measures each loaded GLB with `Box3`. Props scale uniformly to a `0.96` horizontal footprint and ground at `y=0`. Base tiles scale horizontally to `0.96` but use a separate vertical scale of `0.35 / size.y`; Blender already authors them at `0.35`, so the height lock preserves the exact surface where props sit. This is why props never float, even though the horizontal normalization shrinks every model to `96%` of its cell.
+`MiniatureModel` measures each loaded GLB with `Box3`. Props scale uniformly to a `0.96` horizontal footprint and ground at `y=0`. Base tiles scale horizontally to `0.96` but use a separate vertical scale of `0.2333 / size.y`; Blender already authors them at `0.2333`, so the height lock preserves the exact surface where props sit. This is why props never float, even though the horizontal normalization shrinks every model to `96%` of its cell.
 
 ## Verification
 
@@ -118,7 +118,7 @@ npm run dev
 Confirm:
 
 - all 13 files exist and are non-zero;
-- base tiles print `1.000 × 1.000 × 0.350` during generation;
+- base tiles print `1.000 × 1.000 × 0.233` during generation;
 - props print a footprint `≤ 0.925`;
 - the app loads without a placeholder block (a missing GLB shows a beveled fallback with a label);
 - day and night screenshots show lantern/fire emission;
