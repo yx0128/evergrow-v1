@@ -8,6 +8,7 @@ from mathutils import Vector
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "public", "models")
 BASE_HEIGHT = 0.2333
+MODEL_STRETCH = {"blossom_tree": 1.15}
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MATERIALS = {}
@@ -1245,6 +1246,10 @@ def finalize(name, is_base):
         vertex.co.x -= (min_x + max_x) / 2.0
         vertex.co.y -= (min_y + max_y) / 2.0
         vertex.co.z -= min_z
+    stretch = MODEL_STRETCH.get(name, 1.0)
+    if stretch != 1.0:
+        for vertex in mesh.vertices:
+            vertex.co.z *= stretch
     mesh.update()
 
     model.location = (0, 0, 0)

@@ -78,6 +78,7 @@ export const ITEMS: ItemDef[] = [
     accent: '#F0C87A',
     glyph: 'lamp',
     light: 'lantern',
+    modelScale: 0.9,
   },
   {
     id: 'birdbath_fountain',
@@ -88,6 +89,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A shallow basin with a drowsy little spout.',
     accent: '#A8CBD8',
     glyph: 'waves',
+    modelScale: 0.9,
   },
   {
     id: 'balustrade',
@@ -109,6 +111,7 @@ export const ITEMS: ItemDef[] = [
     accent: '#E58C5B',
     glyph: 'flame',
     light: 'fire',
+    modelScale: 0.65,
   },
   {
     id: 'rose_planter',
@@ -150,6 +153,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A quiet seat for watching petals drift.',
     accent: '#B9855B',
     glyph: 'bench',
+    modelScale: 0.85,
   },
 ];
 
