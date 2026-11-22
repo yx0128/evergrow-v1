@@ -65,6 +65,29 @@ function CameraRig({ resetSignal }: { resetSignal: number }) {
 const STAR_COUNT = 200;
 
 function NightSky() {
+  const starTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const context = canvas.getContext('2d');
+    if (context) {
+      const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gradient.addColorStop(0, 'rgba(255, 252, 240, 1)');
+      gradient.addColorStop(0.25, 'rgba(255, 248, 230, 0.45)');
+      gradient.addColorStop(0.55, 'rgba(255, 248, 230, 0.08)');
+      gradient.addColorStop(1, 'rgba(255, 248, 230, 0)');
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, 32, 32);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+  const starColor = useMemo(() => new THREE.Color(1.25, 1.2, 1.1), []);
+
+  useEffect(() => () => starTexture.dispose(), [starTexture]);
+
   const starPositions = useMemo(() => {
     const positions = new Float32Array(STAR_COUNT * 3);
     let seed = 7;
@@ -90,11 +113,14 @@ function NightSky() {
         <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        color="#FFFFFF"
-        size={1.4}
-        sizeAttenuation={false}
+        map={starTexture}
+        color={starColor}
+        size={0.8}
+        sizeAttenuation={true}
         transparent
-        opacity={0.9}
+        opacity={0.85}
+        blending={THREE.AdditiveBlending}
+        depthTest
         depthWrite={false}
         fog={false}
         toneMapped={false}

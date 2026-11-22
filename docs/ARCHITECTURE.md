@@ -164,7 +164,7 @@ Placement bounce uses `Date.now()` for both the stored timestamp and the animati
 - Day mode is intentionally free of floating confetti or particle effects.
 
 **Night**
-- Page backdrop is CSS night `#221F1D`; the alpha-transparent Canvas lets it show through. A world-space spherical shell of 200 white specks surrounds the island at radius 45–90 with `y = -45–45`; depth testing lets tiles and props occlude stars behind them, while the surrounding void stays starry with real parallax. Fog uses `#221F1D`.
+- Page backdrop is CSS night `#221F1D`; the alpha-transparent Canvas lets it show through. A world-space spherical shell of 200 soft white star sprites (32px radial-gradient texture, additive blending) surrounds the island at radius 45–90 with `y = -45–45`; depth testing lets tiles and props occlude stars behind them, while the surrounding void stays starry with real parallax. Fog uses `#221F1D`.
 - Soft neutral-warm moon `#9E9B94` at `0.45`; hemisphere `#6E6A63` / `#2E2A25` at `0.85`; ambient `#6B655D` at `0.25`.
 - Lanterns and firepots are lit by the fixed `LightingPool`: ten permanent point lights follow the ten light-emitting props nearest the camera target. Every night light uses butter-gold `#FFD97D` at intensity `2.2`, distance `4.5`, decay `2`. Day mode sets all ten intensities to zero. Emissive GLB panels/flames use strength `4.0` and still bloom at night.
 - Pooled lantern/firepot lights and emissive materials provide the night glow. High-quality Bloom adds a subtle halo; it does not shift flat base-tile colors.
