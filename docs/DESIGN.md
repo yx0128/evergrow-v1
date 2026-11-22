@@ -20,12 +20,12 @@ Moss & Ember should feel like a quiet tabletop garden at the edge of a window: w
 | Slate | `#7E8B99` | Slate tile, moonlit shadows |
 | Ink | `#3A3730` | Primary text |
 | Ink soft | `#635E54` | Secondary text |
-| Night | `#221F1D` | Night sky / backdrop |
+| Night | `#161412` | Night sky / backdrop |
 | Night soft | `#20242C` | Night panel tint |
 
 Rules:
 
-- No neon, pure white, or pure black. The darkest surface is `#221F1D`; the lightest is `#FBF8F1`.
+- No neon, pure white, or pure black. The darkest surface is `#161412`; the lightest is `#FBF8F1`.
 - Coins are always gold; errors and removal are terracotta.
 - Use color + shape + label, never color alone.
 - Glass panels remain cream in both themes; the world changes behind them.

@@ -19,9 +19,9 @@ import { tuneMaterial } from './tuneMaterial';
 const CHUNK_SIZE = 512;
 const PLACEMENT_MS = 460;
 export const WARM_DAY_EMISSIVE = '#FFA62B';
-export const WARM_NIGHT_EMISSIVE = '#FFC400';
+export const WARM_NIGHT_EMISSIVE = '#FFF6DB';
 export const FIRE_DAY_EMISSIVE = '#FF741F';
-export const FIRE_NIGHT_EMISSIVE = '#FF8F2E';
+export const FIRE_NIGHT_EMISSIVE = '#FF5E0E';
 
 interface BatchProps {
   item: ItemDef;

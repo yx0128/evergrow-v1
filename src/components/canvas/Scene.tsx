@@ -10,7 +10,7 @@ import { LightingPool } from './LightingPool';
 import { Diorama } from './Diorama';
 
 const DAY_BG = '#F3EFE6';
-const NIGHT_BG = '#221F1D';
+const NIGHT_BG = '#161412';
 const DAY_CAMERA: [number, number, number] = [7.4, 8.4, 9.6];
 const CAMERA_TARGET: [number, number, number] = [0, BASE_HEIGHT, 0];
 
@@ -96,10 +96,14 @@ function NightSky() {
       return (seed - 1) / 2147483646;
     };
     for (let index = 0; index < STAR_COUNT; index += 1) {
-      const radius = 45 + next() * 45;
-      const y = next() * 90 - 45;
+      let y = 1.5;
+      let horizontal = 0;
+      do {
+        const radius = 45 + next() * 45;
+        y = 1.5 + next() * 43.5;
+        horizontal = Math.sqrt(Math.max(radius * radius - y * y, 1));
+      } while (horizontal < 22);
       const angle = next() * Math.PI * 2;
-      const horizontal = Math.sqrt(Math.max(radius * radius - y * y, 1));
       positions[index * 3] = Math.cos(angle) * horizontal;
       positions[index * 3 + 1] = y;
       positions[index * 3 + 2] = Math.sin(angle) * horizontal;
@@ -129,6 +133,14 @@ function NightSky() {
   );
 }
 
+function ExposureController({ night }: { night: boolean }) {
+  const gl = useThree((state) => state.gl);
+  useEffect(() => {
+    gl.toneMappingExposure = night ? 1.15 : 1.05;
+  }, [gl, night]);
+  return null;
+}
+
 function DprController({ quality }: { quality: GraphicsQuality }) {
   const setDpr = useThree((state) => state.setDpr);
   useEffect(() => {
@@ -152,18 +164,18 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
   return (
     <>
       <ambientLight
-        intensity={day ? 0.62 : 0.25}
-        color={day ? '#FFF8EA' : '#6B655D'}
+        intensity={day ? 0.62 : 0.45}
+        color={day ? '#FFF8EA' : '#7E7188'}
       />
       <hemisphereLight
-        args={[day ? '#FFF6E6' : '#6E6A63', day ? '#C9B9A6' : '#2E2A25', day ? 0.95 : 0.85]}
+        args={[day ? '#FFF6E6' : '#9E9382', day ? '#C9B9A6' : '#6B5038', day ? 0.95 : 0.75]}
       />
       <directionalLight
         ref={sunRef}
         castShadow
         position={day ? [9, 14, 7] : [-8, 11, -6]}
-        intensity={day ? 2.35 : 0.45}
-        color={day ? '#FFF5E4' : '#9E9B94'}
+        intensity={day ? 2.35 : 0.85}
+        color={day ? '#FFF5E4' : '#EDE6D6'}
         shadow-mapSize-width={shadowSize}
         shadow-mapSize-height={shadowSize}
         shadow-camera-left={-14}
@@ -174,11 +186,12 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
         shadow-camera-far={45}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
+        shadow-radius={3}
       />
       <directionalLight
-        position={day ? [-7, 8, -9] : [7, 6, 8]}
-        intensity={day ? 0.55 : 0.22}
-        color={day ? '#FFE9C9' : '#7A746C'}
+        position={day ? [-7, 8, -9] : [-7, 8, -9]}
+        intensity={day ? 0.55 : 0.35}
+        color={day ? '#FFE9C9' : '#9BA4D4'}
       />
     </>
   );
@@ -214,6 +227,7 @@ function Scene({ resetSignal, onFeedback }: WorldCanvasProps) {
       />
       <CameraRig resetSignal={resetSignal} />
       <DprController quality={graphicsQuality} />
+      <ExposureController night={!day} />
       {highQuality ? (
         <Suspense fallback={null}>
           <Effects />

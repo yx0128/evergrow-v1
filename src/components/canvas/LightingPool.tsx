@@ -46,9 +46,9 @@ export function LightingPool() {
         return [
           {
             position: new THREE.Vector3(piece.x, BASE_HEIGHT + height, piece.z),
-            color: '#FFD97D',
-            intensity: 2.2,
-            distance: 4.5,
+            color: item.light === 'fire' ? '#FF731C' : '#FFF0C8',
+            intensity: item.light === 'fire' ? 2.2 : 3.0,
+            distance: 9.5,
           },
         ];
       }),
@@ -95,10 +95,10 @@ export function LightingPool() {
           ref={(node) => {
             pool.current[index] = node;
           }}
-          color="#FFD97D"
+          color="#FFC978"
           intensity={0}
-          distance={4.5}
-          decay={2}
+          distance={9.5}
+          decay={1.15}
           castShadow={false}
         />
       ))}
