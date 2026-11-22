@@ -212,6 +212,27 @@ try {
   const readState = () =>
     page.evaluate((key) => JSON.parse(localStorage.getItem(key) || '{}').state, STORAGE_KEY);
 
+  const focusTaskGrip = () =>
+    page.evaluate(() => {
+      const handle = [...document.querySelectorAll('button')].find((button) =>
+        (button.getAttribute('aria-label') || '').startsWith(
+          'Reorder Water the windowsill herbs',
+        ),
+      );
+      handle?.focus();
+    });
+
+  await focusTaskGrip();
+  await page.keyboard.press('ArrowDown');
+  await wait(400);
+  const movedTask = await readState();
+  assert(movedTask.tasks[1].id === 'sd1', 'keyboard reorder did not move the task down');
+  await focusTaskGrip();
+  await page.keyboard.press('ArrowUp');
+  await wait(400);
+  const restoredTask = await readState();
+  assert(restoredTask.tasks[0].id === 'sd1', 'keyboard reorder did not move the task up');
+
   const beforeTask = await readState();
   await page.click('button[aria-label="Complete Water the windowsill herbs"]');
   await wait(700);

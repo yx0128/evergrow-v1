@@ -19,7 +19,7 @@ App.tsx
 │       └── Effects (lazy Bloom → ACES tone mapping)
 └── HUD
     ├── TopBar (theme, reset camera, photo mode)
-    ├── TaskDrawer (add / complete / delete / reset)
+    ├── TaskDrawer (add / complete / delete / drag-reorder / reset)
     ├── InventoryHotbar (two fixed pages, 1–9, page pager, rotate/move/store/shop rail)
     ├── BuildShop modal (base / prop tabs)
     ├── ControlsLegend

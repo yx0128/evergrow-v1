@@ -324,6 +324,27 @@ describe('world store', () => {
     expect(useWorldStore.getState().graphicsQuality).toBe('high');
   });
 
+  it('reorders tasks by id without touching the world', () => {
+    const before = useWorldStore.getState();
+    const ids = before.tasks.map((task) => task.id);
+    const coins = before.coins;
+
+    useWorldStore.getState().reorderTask(ids[2], 0);
+    expect(useWorldStore.getState().tasks.map((task) => task.id)).toEqual([
+      ids[2],
+      ids[0],
+      ids[1],
+    ]);
+
+    useWorldStore.getState().reorderTask(ids[2], 99);
+    expect(useWorldStore.getState().tasks.map((task) => task.id)).toEqual(ids);
+
+    useWorldStore.getState().reorderTask('missing', 1);
+    useWorldStore.getState().reorderTask(ids[0], Number.NaN);
+    expect(useWorldStore.getState().tasks.map((task) => task.id)).toEqual(ids);
+    expect(useWorldStore.getState().coins).toBe(coins);
+  });
+
   it('resets the whole world', () => {
     useWorldStore.setState({ coins: 1 });
     useWorldStore.getState().resetWorld();

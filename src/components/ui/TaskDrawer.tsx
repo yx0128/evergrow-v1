@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type DragEvent, type FormEvent } from 'react';
 import {
   Check,
   ChevronRight,
   Coins,
+  GripVertical,
   ListTodo,
   Plus,
   RefreshCw,
@@ -29,10 +30,16 @@ export function TaskDrawer({ open, onToggle, onToast, onReset }: TaskDrawerProps
   const addTask = useWorldStore((state) => state.addTask);
   const toggleTask = useWorldStore((state) => state.toggleTask);
   const deleteTask = useWorldStore((state) => state.deleteTask);
+  const reorderTask = useWorldStore((state) => state.reorderTask);
   const resetWorld = useWorldStore((state) => state.resetWorld);
   const [title, setTitle] = useState('');
   const [tier, setTier] = useState<TaskTier>('standard');
   const [error, setError] = useState('');
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    id: string;
+    edge: 'before' | 'after';
+  } | null>(null);
 
   const done = tasks.filter((task) => task.done).length;
   const pending = tasks.length - done;
@@ -71,6 +78,37 @@ export function TaskDrawer({ open, onToggle, onToast, onReset }: TaskDrawerProps
       playSound('store');
       onToast('A fresh courtyard is waiting.', 'info');
     }
+  }
+
+  function reorderTo(taskId: string, insertIndex: number) {
+    reorderTask(taskId, insertIndex);
+    playSound('ui');
+  }
+
+  function clearDrag() {
+    setDraggingId(null);
+    setDropTarget(null);
+  }
+
+  function handleDrop(event: DragEvent<HTMLLIElement>, targetId: string) {
+    event.preventDefault();
+    const sourceId = draggingId;
+    if (!sourceId || sourceId === targetId) {
+      clearDrag();
+      return;
+    }
+    const sourceIndex = tasks.findIndex((task) => task.id === sourceId);
+    const targetIndex = tasks.findIndex((task) => task.id === targetId);
+    if (sourceIndex === -1 || targetIndex === -1) {
+      clearDrag();
+      return;
+    }
+    const edge = dropTarget?.id === targetId ? dropTarget.edge : 'after';
+    let insertIndex = edge === 'before' ? targetIndex : targetIndex + 1;
+    if (sourceIndex < insertIndex) insertIndex -= 1;
+    reorderTask(sourceId, insertIndex);
+    playSound('ui');
+    clearDrag();
   }
 
   if (!open) {
@@ -204,15 +242,86 @@ export function TaskDrawer({ open, onToggle, onToast, onReset }: TaskDrawerProps
             </div>
           ) : (
             <ul className="flex flex-col gap-1.5">
-              {tasks.map((task) => (
+              {tasks.map((task, index) => {
+                const isDragging = draggingId === task.id;
+                const edge = dropTarget?.id === task.id ? dropTarget.edge : null;
+                return (
                 <li
                   key={task.id}
-                  className={`group flex items-center gap-2.5 rounded-2xl border px-2.5 py-2 transition ${
+                  onDragOver={(event) => {
+                    if (!draggingId || draggingId === task.id) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = 'move';
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const nextEdge =
+                      event.clientY < rect.top + rect.height / 2
+                        ? 'before'
+                        : 'after';
+                    setDropTarget((current) =>
+                      current?.id === task.id && current.edge === nextEdge
+                        ? current
+                        : { id: task.id, edge: nextEdge },
+                    );
+                  }}
+                  onDragLeave={(event) => {
+                    if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                      return;
+                    }
+                    setDropTarget((current) =>
+                      current?.id === task.id ? null : current,
+                    );
+                  }}
+                  onDrop={(event) => handleDrop(event, task.id)}
+                  className={`group relative flex items-center gap-2 rounded-2xl border px-2 py-2 transition ${
                     task.done
                       ? 'border-sage/25 bg-sage/10'
                       : 'border-ink/10 bg-white/40 hover:border-ink/10 hover:bg-white/60'
+                  } ${isDragging ? 'opacity-45' : ''} ${
+                    edge ? 'bg-white/70 ring-1 ring-sage-deep/35' : ''
                   }`}
                 >
+                  {edge === 'before' ? (
+                    <span
+                      className="pointer-events-none absolute inset-x-3 -top-[2px] h-[2px] rounded-full bg-sage-deep"
+                      aria-hidden
+                    />
+                  ) : null}
+                  {edge === 'after' ? (
+                    <span
+                      className="pointer-events-none absolute inset-x-3 -bottom-[2px] h-[2px] rounded-full bg-sage-deep"
+                      aria-hidden
+                    />
+                  ) : null}
+                  <button
+                    type="button"
+                    draggable
+                    onDragStart={(event) => {
+                      const row = event.currentTarget.closest('li');
+                      if (row) event.dataTransfer.setDragImage(row, 18, 18);
+                      event.dataTransfer.effectAllowed = 'move';
+                      event.dataTransfer.setData('text/plain', task.id);
+                      setDraggingId(task.id);
+                      setDropTarget(null);
+                    }}
+                    onDragEnd={clearDrag}
+                    onKeyDown={(event) => {
+                      if (event.key === 'ArrowUp' && index > 0) {
+                        event.preventDefault();
+                        reorderTo(task.id, index - 1);
+                      } else if (
+                        event.key === 'ArrowDown' &&
+                        index < tasks.length - 1
+                      ) {
+                        event.preventDefault();
+                        reorderTo(task.id, index + 1);
+                      }
+                    }}
+                    className="focus-ring -ml-0.5 shrink-0 cursor-grab touch-none rounded p-0.5 text-ink-soft/35 transition hover:text-ink-soft/80 active:cursor-grabbing"
+                    aria-label={`Reorder ${task.title}. Drag, or press arrow up or down.`}
+                    title="Drag to reorder · ↑/↓"
+                  >
+                    <GripVertical size={13} />
+                  </button>
                   <button
                     type="button"
                     onClick={() => handleToggle(task.id)}
@@ -252,7 +361,8 @@ export function TaskDrawer({ open, onToggle, onToast, onReset }: TaskDrawerProps
                     <Trash2 size={12} />
                   </button>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

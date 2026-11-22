@@ -74,6 +74,8 @@ Run it at `1440×900`; the default viewport is set in the script.
 | Right-click a base with a prop on it | Rejected with “Store the surface prop first.” |
 | Press `R` | Placement ghost rotates 90°, persists while selecting |
 | Press `R` or HUD **Rotate** while moving | Lifted piece (and its prop) rotates 90°; dropping persists it |
+| Drag a task grip | Inserts the task before or after the hovered row; order persists |
+| Focus a task grip, press `↑` / `↓` | Reorders the task without a mouse |
 | Press `1–9` | Selects the matching owned item on the current page |
 | Press `[` / `]` | Pages the hotbar without changing slot identities |
 | Click a zero-stock slot | Opens the shop focused on that item |
@@ -95,6 +97,7 @@ Look for:
 - Day shadows read warm; night shadows read cool but not black.
 - The diorama is not hidden by the task drawer or hotbar.
 - The hotbar shows fixed slots with owned stock counts; zero-stock slots are dashed and open the shop.
+- Dragged tasks show a sage insertion line and settle in the new order after reload.
 - The task drawer stops above the hotbar at 1440 and 1280 with a long task list.
 - The grid fades toward the horizon and does not look like clipped text at the top edge.
 - Text is legible on the glass panels at 100% zoom.

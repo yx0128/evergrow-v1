@@ -91,6 +91,7 @@ Rules:
 
 - Quick / Standard / Deep Work are always visible with their coin value, so the reward is never a surprise.
 - Completing a task is one-way; the checkbox becomes a sage check and the row is struck through. This protects the economy and gives a clear “done” moment.
+- Each task row has a grip handle for drag reordering, with a sage insertion line. A focused grip also reorders with `↑` / `↓`, and the order persists.
 - Purchases go to the hotbar, not directly into the world. Buying reveals the item’s fixed page; the next action is always “select, then click”.
 - Each slot carries a category cue: a sage underline for bases, terracotta for surface props.
 - Store mode is explicit, but right-click storage is always available as a shortcut.

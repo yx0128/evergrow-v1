@@ -39,6 +39,7 @@ export interface WorldState extends PersistedWorld {
   addTask: (title: string, tier: TaskTier) => ActionResult;
   toggleTask: (id: string) => ActionResult;
   deleteTask: (id: string) => void;
+  reorderTask: (taskId: string, insertIndex: number) => void;
   buyItem: (itemId: string) => ActionResult;
   selectItem: (itemId: string | null) => void;
   selectPiece: (placedId: string | null) => void;
@@ -297,6 +298,22 @@ export const useWorldStore = create<WorldState>()(
 
       deleteTask: (id) => {
         set((state) => ({ tasks: state.tasks.filter((task) => task.id !== id) }));
+      },
+
+      reorderTask: (taskId, insertIndex) => {
+        if (!Number.isFinite(insertIndex)) return;
+        set((state) => {
+          const fromIndex = state.tasks.findIndex((task) => task.id === taskId);
+          if (fromIndex === -1) return {};
+          const tasks = [...state.tasks];
+          const [task] = tasks.splice(fromIndex, 1);
+          const toIndex = Math.max(
+            0,
+            Math.min(tasks.length, Math.floor(insertIndex)),
+          );
+          tasks.splice(toIndex, 0, task);
+          return { tasks };
+        });
       },
 
       buyItem: (itemId) => {

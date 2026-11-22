@@ -23,7 +23,7 @@ No install required. The demo is a static build deployed from `main` by GitHub A
 
 Finish a small task, earn coins, and place a hand-sculpted miniature into a floating courtyard in space. Every tile is `1×1`; every prop is art, not an emoji. The world is quiet, tactile, and deliberately low-pressure.
 
-- **Task → coin loop.** Quick tasks pay `10`, standard tasks `25`, deep work `50`. Completion is one-way, so the economy cannot be farmed by unchecking.
+- **Task → coin loop.** Quick tasks pay `10`, standard tasks `25`, deep work `50`. Completion is one-way, so the economy cannot be farmed by unchecking. Drag a task's grip to reorder the list; the order is saved.
 - **Two-layer building.** Place base tiles on empty cells, then place surface props on top of a base tile. Props never float and never share a cell. Click a placed piece to select it in place: `R`/HUD **Rotate** reorients it, **Move**/`M` lifts it for repositioning, and HUD **Store** returns it to inventory. A base tile carries its prop along.
 - **Real `.glb` engine.** Thirteen Blender-sculpted GLB miniatures are loaded at runtime, auto-normalized to a `0.96` footprint, auto-grounded, and shadow-enabled.
 - **Performance-minded.** Placed tiles and props render through instanced batches, ten pooled point lights keep the shader light count fixed, and a saved High/Low graphics toggle lazy-loads post-processing only when needed.
@@ -68,6 +68,7 @@ npm run preview
 | --- | --- |
 | Left click | Place the selected item on a valid cell |
 | Left click a placed piece | Select it in place (sage ring + selection pill) |
+| Drag a task grip | Reorder tasks (focus it and use `↑` / `↓`) |
 | `1`–`9` | Select a slot on the current hotbar page |
 | `[` / `]` | Previous / next hotbar page |
 | `R` or HUD **Rotate** | Rotate placement, the selected piece, or a lifted piece in 90° steps |
