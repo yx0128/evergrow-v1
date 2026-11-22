@@ -10,12 +10,11 @@ App.tsx
 │   └── Scene
 │       ├── CameraRig (OrbitControls, fov 32)
 │       ├── Lights (day/night directional + ambient + hemisphere)
-│       ├── NightSky (stars + moon, night only)
 │       ├── Diorama
 │       │   ├── placed items → InstancedItemBatch (per item type)
 │       │   ├── ghost preview → MiniatureModel (ghost)
 │       │   └── invisible raycast plane (both layers)
-│       ├── LightingPool (6 fixed point lights)
+│       ├── LightingPool (10 fixed point lights)
 │       ├── Grid (infinite, faded, non-interactive)
 │       └── Effects (lazy Bloom → ACES tone mapping)
 └── HUD
@@ -66,7 +65,7 @@ Transient UI state (`selectedItemId`, `selectedPieceId`, `movingItemId`, `moving
 5. Coins are clamped to `0..9,999,999`; inventory per item to `0..999`; coordinates to `±250`.
 6. Unknown item IDs, duplicate IDs, non-integer cells, invalid rotations, and orphaned props are dropped on hydration.
 7. Persistence writes only `PersistedWorld`; hydration merges sanitized data over the default state.
-8. The point-light count is always six. Never add or remove lights at runtime; pooled lights change position/color/intensity only.
+8. The point-light count is always ten. Never add or remove lights at runtime; pooled lights change position/color/intensity only.
 
 ### Actions
 
@@ -165,9 +164,9 @@ Placement bounce uses `Date.now()` for both the stored timestamp and the animati
 - Day mode is intentionally free of floating confetti or particle effects.
 
 **Night**
-- Page backdrop is CSS night `#16181D`; the alpha-transparent Canvas lets it show through. drei `<Stars>` and the moon sphere render in the scene; fog uses `#16181D`.
-- Cool moon `#AFC4FF` at `1.15`; ambient `#68789F` at `0.24`.
-- Lanterns and firepots are lit by the fixed `LightingPool`: six permanent point lights follow the six light-emitting props nearest the camera target. Day mode sets all six intensities to zero. Emissive GLB panels/flames use strength `4.0` and still bloom at night.
+- Page backdrop is CSS night `#221F1D`; the alpha-transparent Canvas lets it show through. A world-space spherical shell of 200 white specks surrounds the island at radius 45–90 with `y = -45–45`; depth testing lets tiles and props occlude stars behind them, while the surrounding void stays starry with real parallax. Fog uses `#221F1D`.
+- Soft neutral-warm moon `#9E9B94` at `0.45`; hemisphere `#6E6A63` / `#2E2A25` at `0.85`; ambient `#6B655D` at `0.25`.
+- Lanterns and firepots are lit by the fixed `LightingPool`: ten permanent point lights follow the ten light-emitting props nearest the camera target. Every night light uses butter-gold `#FFD97D` at intensity `2.2`, distance `4.5`, decay `2`. Day mode sets all ten intensities to zero. Emissive GLB panels/flames use strength `4.0` and still bloom at night.
 - Pooled lantern/firepot lights and emissive materials provide the night glow. High-quality Bloom adds a subtle halo; it does not shift flat base-tile colors.
 
 **Post stack** — `EffectComposer` → `Bloom` (`mipmapBlur`, `luminanceThreshold 1.1`, intensity `0.45`) → `ToneMapping` (`ACES_FILMIC`). There is no N8AO, brightness/contrast, hue/saturation, or vignette pass. High-quality colors therefore match Low while HDR lantern cores and flames still bloom. Lantern glow panels and firepot flames are re-tinted to a warm golden yellow (`#FFC400`) in every mode through cloned emissive materials; intensity is `2.2` for High day, `3.0` for Low day, and `2.4` at night. Coals, props, and other colors are untouched, and the warm emissive keeps the fixtures visible when switching themes. Renderer exposure is `1.05`; the composer disables renderer tone mapping while active and the ACES effect supplies the same mode once.
@@ -188,7 +187,7 @@ The infinite grid uses low-contrast day/night colors, `fadeDistance 30`, and `fa
 - The raycast surface is one plane; pieces stop propagation only for their own interactions.
 - High-quality DPR is capped at `1.75`; Low caps it at `1.25`.
 - Preload runs once on the first Diorama mount. Models are cached by `useGLTF`.
-- A fixed six-light pool means shader programs never change when lanterns are placed or stored.
+- A fixed ten-light pool means shader programs never change when lanterns are placed or stored.
 - Instanced batches scale to hundreds of repeated pieces; a 400+ item stress seed renders without console errors.
 - The effects chunk is code-split and only fetched when High is active; it contains Bloom + ACES tone mapping only.
 

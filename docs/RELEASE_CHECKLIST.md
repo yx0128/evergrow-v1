@@ -26,7 +26,7 @@ npm run preview -- --port 4183
 - [ ] Production build succeeds.
 - [ ] Headless QA passes with zero console/page errors.
 - [ ] All 13 GLBs load (no fallback labels).
-- [ ] Exactly six pooled point lights; day zero, night nearest six.
+- [ ] Exactly ten pooled point lights; day zero, night nearest ten.
 - [ ] Placed items are instanced and still support select/rotate/move/store.
 - [ ] Low quality skips post-processing; High lazy-loads it.
 - [ ] High/Low persists across reload.

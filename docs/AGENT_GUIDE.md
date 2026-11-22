@@ -23,7 +23,7 @@ Open the app at `1440×900`. You should see a floating courtyard, a task drawer 
 - `src/components/canvas/MiniatureModel.tsx` turns any GLB into a normalized, grounded, shadow-casting miniature.
 - `src/components/canvas/Diorama.tsx` owns placement, selection, moving, ghosting, picking up, and the invisible raycast plane.
 - `src/components/canvas/InstancedItemBatch.tsx` renders placed items through per-material `InstancedMesh` batches.
-- `src/components/canvas/LightingPool.tsx` owns the fixed six point lights.
+- `src/components/canvas/LightingPool.tsx` owns the fixed ten point lights.
 - `src/components/canvas/Effects.tsx` is the lazy post-processing entry point.
 - `src/components/canvas/Scene.tsx` owns camera, lights, post-processing, and day/night.
 - `src/App.tsx` owns keyboard shortcuts, toasts, feedback sounds, and HUD composition.
@@ -52,7 +52,7 @@ Open the app at `1440×900`. You should see a floating courtyard, a task drawer 
 
 **Performance review**
 
-Keep the light count at six, keep placed items instanced, and keep `Effects.tsx` behind the lazy High-quality gate. The QA script should report zero console errors and the Low preset must not request the `postprocessing` chunk.
+Keep the light count at ten, keep placed items instanced, and keep `Effects.tsx` behind the lazy High-quality gate. The QA script should report zero console errors and the Low preset must not request the `postprocessing` chunk.
 
 **Fix a move bug**
 

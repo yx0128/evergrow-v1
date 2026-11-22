@@ -20,7 +20,7 @@ export default {
         rose: '#D98A92',
         sky: '#8FC6D8',
         slate: '#7E8B99',
-        night: '#16181D',
+        night: '#221F1D',
         'night-soft': '#20242C',
       },
       fontFamily: {

@@ -1,6 +1,6 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
-import { Grid, OrbitControls, Stars } from '@react-three/drei';
+import { Grid, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { BASE_HEIGHT } from '../../data/items';
@@ -10,7 +10,7 @@ import { LightingPool } from './LightingPool';
 import { Diorama } from './Diorama';
 
 const DAY_BG = '#F3EFE6';
-const NIGHT_BG = '#16181D';
+const NIGHT_BG = '#221F1D';
 const DAY_CAMERA: [number, number, number] = [7.4, 8.4, 9.6];
 const CAMERA_TARGET: [number, number, number] = [0, BASE_HEIGHT, 0];
 
@@ -62,33 +62,44 @@ function CameraRig({ resetSignal }: { resetSignal: number }) {
   );
 }
 
+const STAR_COUNT = 200;
+
 function NightSky() {
+  const starPositions = useMemo(() => {
+    const positions = new Float32Array(STAR_COUNT * 3);
+    let seed = 7;
+    const next = () => {
+      seed = (seed * 16807) % 2147483647;
+      return (seed - 1) / 2147483646;
+    };
+    for (let index = 0; index < STAR_COUNT; index += 1) {
+      const radius = 45 + next() * 45;
+      const y = next() * 90 - 45;
+      const angle = next() * Math.PI * 2;
+      const horizontal = Math.sqrt(Math.max(radius * radius - y * y, 1));
+      positions[index * 3] = Math.cos(angle) * horizontal;
+      positions[index * 3 + 1] = y;
+      positions[index * 3 + 2] = Math.sin(angle) * horizontal;
+    }
+    return positions;
+  }, []);
+
   return (
-    <group>
-      <Stars
-        radius={70}
-        depth={45}
-        count={1500}
-        factor={3.4}
-        saturation={0}
-        fade
-        speed={0.35}
+    <points position={[0, 0, 0]}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial
+        color="#FFFFFF"
+        size={1.4}
+        sizeAttenuation={false}
+        transparent
+        opacity={0.9}
+        depthWrite={false}
+        fog={false}
+        toneMapped={false}
       />
-      <mesh position={[-16, 12.5, -24]}>
-        <sphereGeometry args={[1.5, 24, 24]} />
-        <meshBasicMaterial color="#EDE6D2" toneMapped={false} />
-      </mesh>
-      <mesh position={[-16, 12.5, -24]}>
-        <sphereGeometry args={[2.4, 24, 24]} />
-        <meshBasicMaterial
-          color="#EDE6D2"
-          transparent
-          opacity={0.07}
-          depthWrite={false}
-          toneMapped={false}
-        />
-      </mesh>
-    </group>
+    </points>
   );
 }
 
@@ -115,18 +126,18 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
   return (
     <>
       <ambientLight
-        intensity={day ? 0.62 : 0.24}
-        color={day ? '#FFF8EA' : '#68789F'}
+        intensity={day ? 0.62 : 0.25}
+        color={day ? '#FFF8EA' : '#6B655D'}
       />
       <hemisphereLight
-        args={[day ? '#FFF6E6' : '#3A4566', day ? '#C9B9A6' : '#181B23', day ? 0.95 : 0.5]}
+        args={[day ? '#FFF6E6' : '#6E6A63', day ? '#C9B9A6' : '#2E2A25', day ? 0.95 : 0.85]}
       />
       <directionalLight
         ref={sunRef}
         castShadow
         position={day ? [9, 14, 7] : [-8, 11, -6]}
-        intensity={day ? 2.35 : 1.15}
-        color={day ? '#FFF5E4' : '#AFC4FF'}
+        intensity={day ? 2.35 : 0.45}
+        color={day ? '#FFF5E4' : '#9E9B94'}
         shadow-mapSize-width={shadowSize}
         shadow-mapSize-height={shadowSize}
         shadow-camera-left={-14}
@@ -140,8 +151,8 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
       />
       <directionalLight
         position={day ? [-7, 8, -9] : [7, 6, 8]}
-        intensity={day ? 0.55 : 0.42}
-        color={day ? '#FFE9C9' : '#7C93C8'}
+        intensity={day ? 0.55 : 0.22}
+        color={day ? '#FFE9C9' : '#7A746C'}
       />
     </>
   );
@@ -166,10 +177,10 @@ function Scene({ resetSignal, onFeedback }: WorldCanvasProps) {
         args={[10, 10]}
         cellSize={1}
         cellThickness={0.6}
-        cellColor={day ? '#D9CDBA' : '#343A46'}
+        cellColor={day ? '#D9CDBA' : '#3B352F'}
         sectionSize={5}
         sectionThickness={1.1}
-        sectionColor={day ? '#BFB29B' : '#4B5568'}
+        sectionColor={day ? '#BFB29B' : '#574D42'}
         fadeDistance={30}
         fadeStrength={2}
         infiniteGrid

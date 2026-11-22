@@ -26,7 +26,7 @@ Finish a small task, earn coins, and place a hand-sculpted miniature into a floa
 - **Task → coin loop.** Quick tasks pay `10`, standard tasks `25`, deep work `50`. Completion is one-way, so the economy cannot be farmed by unchecking.
 - **Two-layer building.** Place base tiles on empty cells, then place surface props on top of a base tile. Props never float and never share a cell. Click a placed piece to select it in place: `R`/HUD **Rotate** reorients it, **Move**/`M` lifts it for repositioning, and HUD **Store** returns it to inventory. A base tile carries its prop along.
 - **Real `.glb` engine.** Thirteen Blender-sculpted GLB miniatures are loaded at runtime, auto-normalized to a `0.96` footprint, auto-grounded, and shadow-enabled.
-- **Performance-minded.** Placed tiles and props render through instanced batches, six pooled point lights keep the shader light count fixed, and a saved High/Low graphics toggle lazy-loads post-processing only when needed.
+- **Performance-minded.** Placed tiles and props render through instanced batches, ten pooled point lights keep the shader light count fixed, and a saved High/Low graphics toggle lazy-loads post-processing only when needed.
 - **Day and night.** Warm cream daylight with clean negative space; a charcoal starfield with moonlight, lantern point lights, firepot glow, subtle bloom, and ACES tone mapping.
 - **Desktop-first HUD.** Glass task drawer, inventory hotbar (`1–9`), build shop (`B`), photo mode (`H`), and a camera reset that always brings you home.
 - **No backend.** No accounts, analytics, network calls, or API keys. Only `localStorage` — validated on read.
@@ -149,7 +149,7 @@ Key contracts:
 - One invisible `220×220` raycast plane receives clicks for both layers; placed pieces stop propagation so right-click storage is reliable.
 - Camera: `fov 32`, position `[7.4, 8.4, 9.6]`, target `[0, 0.2333, 0]`, right-drag orbit, clamped polar angle.
 - Effects: lazy-loaded Bloom (`luminanceThreshold 1.1`, intensity `0.45`) + ACES Filmic tone mapping. No AO, hue/saturation, brightness/contrast, or vignette, so High-quality colors match Low; lantern glow panels and firepot flames use a warm golden-yellow emissive in every mode, keeping them visible day and night.
-- Lights: six permanent pooled point lights; day sets all to zero, night assigns the six nearest lanterns/firepots.
+- Lights: ten permanent pooled point lights; day sets all to zero, night assigns the ten nearest lanterns/firepots.
 
 Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full data flow and invariants.
 

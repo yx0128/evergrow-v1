@@ -116,7 +116,7 @@ Confirm:
 - [ ] Visual script passes with zero console errors.
 - [ ] All 13 GLBs load (no fallback labels visible).
 - [ ] Repeated tiles/props are instanced and still respond to click/selection/rotation/move/store.
-- [ ] The point-light count is fixed at six; night assigns the nearest six lights and day sets all to zero.
+- [ ] The point-light count is fixed at ten; night assigns the nearest ten lights and day sets all to zero.
 - [ ] Low quality does not request the post-processing chunk and renders at the lower DPR/shadow size.
 - [ ] High-quality tile, prop, and backdrop colors match Low (same ACES mode, no AO/grading/vignette, transparent Canvas over CSS backdrop).
 - [ ] Lantern panels and firepot flames are warm golden yellow in day/night and High/Low; coals remain orange.
