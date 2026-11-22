@@ -61,7 +61,9 @@ function useNormalizedPrimitives(
     const horizontal = Math.max(size.x, size.z, 0.0001);
     const scale = (FOOTPRINT * (item.modelScale ?? 1)) / horizontal;
     const verticalScale =
-      item.category === 'base' ? BASE_HEIGHT / Math.max(size.y, 0.0001) : scale;
+      item.category === 'base'
+        ? BASE_HEIGHT / Math.max(size.y, 0.0001)
+        : scale * (item.modelHeightScale ?? 1);
 
     clone.position.set(
       -center.x * scale,
@@ -108,6 +110,7 @@ function useNormalizedPrimitives(
     scene,
     item.category,
     item.modelScale,
+    item.modelHeightScale,
     warmEmissive,
     warmEmissiveIntensity,
     warmEmissiveColor,
@@ -132,6 +135,15 @@ function InstancedPrimitive({
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const animating = useRef(true);
+  const waterMaterials = useMemo(
+    () =>
+      (Array.isArray(material) ? material : [material]).filter(
+        (entry): entry is THREE.MeshPhysicalMaterial =>
+          entry.name === 'water_surface' &&
+          (entry as THREE.MeshPhysicalMaterial).isMeshPhysicalMaterial,
+      ),
+    [material],
+  );
   const layerY = item.category === 'base' ? 0 : BASE_HEIGHT;
   const applyMatrices = useCallback(() => {
     const mesh = meshRef.current;
@@ -166,7 +178,15 @@ function InstancedPrimitive({
   }, [applyMatrices, geometry, material]);
 
 
-  useFrame(() => {
+  useFrame(({ clock }) => {
+    if (waterMaterials.length > 0) {
+      const shimmer = 0.5 + 0.5 * Math.sin(clock.elapsedTime * 0.7);
+      for (const entry of waterMaterials) {
+        entry.roughness = 0.19 + shimmer * 0.02;
+        entry.clearcoatRoughness = 0.17 + shimmer * 0.02;
+        entry.envMapIntensity = 0.23 + shimmer * 0.04;
+      }
+    }
     if (!animating.current) return;
     applyMatrices();
   });

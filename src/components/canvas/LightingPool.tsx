@@ -42,7 +42,14 @@ export function LightingPool() {
         if (hiddenIds.has(piece.id)) return [];
         const item = ITEM_MAP[piece.itemId];
         if (!item?.light) return [];
-        const height = item.light === 'fire' ? 0.42 : item.id === 'cottage' ? 0.35 : 0.52;
+        const height =
+          item.light === 'fire'
+            ? 0.36
+            : item.id === 'paper_lantern'
+              ? 0.47
+              : item.id === 'cottage'
+                ? 0.35
+                : 0.52;
         return [
           {
             position: new THREE.Vector3(piece.x, BASE_HEIGHT + height, piece.z),

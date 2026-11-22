@@ -9,6 +9,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT_DIR = os.path.join(ROOT, "public", "models")
 BASE_HEIGHT = 0.2333
 MODEL_STRETCH = {"blossom_tree": 1.15, "leafy_tree": 1.15}
+MODEL_SLIM = {"stone_lantern": 0.78}
 os.makedirs(OUT_DIR, exist_ok=True)
 
 MATERIALS = {}
@@ -42,6 +43,9 @@ def material(
     transmission=0.0,
     ior=1.45,
     alpha=1.0,
+    clearcoat=0.0,
+    clearcoat_roughness=0.03,
+    name=None,
 ):
     key = (
         color,
@@ -51,10 +55,13 @@ def material(
         round(strength, 2),
         round(transmission, 2),
         round(alpha, 2),
+        round(clearcoat, 2),
+        round(clearcoat_roughness, 2),
+        name,
     )
     if key in MATERIALS:
         return MATERIALS[key]
-    mat = bpy.data.materials.new(f"mat_{len(MATERIALS):03d}")
+    mat = bpy.data.materials.new(name or f"mat_{len(MATERIALS):03d}")
     mat.use_nodes = True
     mat.blend_method = "BLEND" if alpha < 1.0 else "OPAQUE"
     bsdf = mat.node_tree.nodes.get("Principled BSDF")
@@ -65,6 +72,9 @@ def material(
     bsdf.inputs["Alpha"].default_value = alpha
     if transmission > 0:
         bsdf.inputs["Transmission Weight"].default_value = transmission
+    if clearcoat > 0:
+        bsdf.inputs["Coat Weight"].default_value = clearcoat
+        bsdf.inputs["Coat Roughness"].default_value = clearcoat_roughness
     if emission:
         bsdf.inputs["Emission Color"].default_value = srgb(emission)
         bsdf.inputs["Emission Strength"].default_value = strength
@@ -292,67 +302,6 @@ def tube(name, points, radius, mat, radii=None, resolution=12):
     return obj
 
 
-def grass_field(seed):
-    rng = random.Random(seed)
-    greens = [
-        material("#86A34B", 0.9),
-        material("#93B054", 0.9),
-        material("#789740", 0.9),
-        material("#A0BC63", 0.9),
-    ]
-    mesh = bpy.data.meshes.new("grass_field")
-    vertices = []
-    faces = []
-    indices = []
-    for _ in range(25):
-        angle_value = rng.uniform(0, math.tau)
-        distance = math.sqrt(rng.uniform(0, 1)) * 0.4
-        base_x = math.cos(angle_value) * distance
-        base_y = math.sin(angle_value) * distance
-        height = rng.uniform(0.055, 0.085)
-        width = rng.uniform(0.008, 0.014)
-        lean_angle = rng.uniform(0, math.tau)
-        lean_x = math.cos(lean_angle)
-        lean_y = math.sin(lean_angle)
-        perpendicular = (-lean_y, lean_x)
-        start = len(vertices)
-        for segment in range(4):
-            t = segment / 3.0
-            center_x = base_x + lean_x * (t**1.8) * height * 0.55
-            center_y = base_y + lean_y * (t**1.8) * height * 0.55
-            center_z = 0.268 + height * t - 0.01 * t * t
-            half_width = width * (1.0 - 0.86 * t)
-            vertices.append(
-                (
-                    center_x + perpendicular[0] * half_width,
-                    center_y + perpendicular[1] * half_width,
-                    center_z,
-                )
-            )
-            vertices.append(
-                (
-                    center_x - perpendicular[0] * half_width,
-                    center_y - perpendicular[1] * half_width,
-                    center_z,
-                )
-            )
-            if segment > 0:
-                lower = start + (segment - 1) * 2
-                faces.append((lower, lower + 1, lower + 3, lower + 2))
-                indices.append(rng.randrange(len(greens)))
-    mesh.from_pydata(vertices, [], faces)
-    mesh.validate()
-    for mat in greens:
-        mesh.materials.append(mat)
-    for polygon, index in zip(mesh.polygons, indices):
-        polygon.material_index = index
-        polygon.use_smooth = True
-    mesh.update()
-    obj = bpy.data.objects.new("grass_field", mesh)
-    bpy.context.collection.objects.link(obj)
-    return obj
-
-
 def blossom_cluster(center, size, shades, seed):
     rng = random.Random(seed)
     x, y, z = center
@@ -489,27 +438,37 @@ def make_grass():
     turf = material("#86A34B", 0.9)
     cube("grass_base", (1.0, 1.0, 0.25), (0, 0, 0.125), soil, bevel=0.035, segments=4)
     cube("grass_turf", (0.985, 0.985, 0.025), (0, 0, 0.2625), turf, bevel=0.02, segments=3)
-    grass_field(51)
     rng = random.Random(52)
     petals = [
         material("#E9C7D2", 0.85),
-        material("#F0E3B8", 0.85),
-        material("#D9B8E0", 0.85),
+        material("#A9B8E8", 0.85),
+        material("#C9A0DC", 0.85),
         material("#F2D5C4", 0.85),
     ]
+    placements = []
     for flower in range(7):
-        angle_value = rng.uniform(0, math.tau)
-        distance = rng.uniform(0.08, 0.36)
-        x = math.cos(angle_value) * distance
-        y = math.sin(angle_value) * distance
+        for _ in range(60):
+            angle_value = rng.uniform(0, math.tau)
+            distance = math.sqrt(rng.uniform(0.02, 1)) * 0.38
+            candidate = (
+                math.cos(angle_value) * distance,
+                math.sin(angle_value) * distance,
+            )
+            if all(
+                (candidate[0] - px) ** 2 + (candidate[1] - py) ** 2 >= 0.19**2
+                for px, py in placements
+            ):
+                break
+        placements.append(candidate)
+        x, y = candidate
         z = rng.uniform(0.305, 0.33)
         petal = petals[flower % len(petals)]
         for index in range(5):
             petal_angle = (index / 5.0) * math.tau
             ico(
                 f"wildflower_{flower}_{index}",
-                0.016,
-                (x + math.cos(petal_angle) * 0.018, y + math.sin(petal_angle) * 0.018, z),
+                0.026,
+                (x + math.cos(petal_angle) * 0.03, y + math.sin(petal_angle) * 0.03, z),
                 petal,
                 subdivisions=1,
                 scale=(1.0, 0.65, 0.4),
@@ -518,7 +477,7 @@ def make_grass():
             )
         ico(
             f"wildflower_center_{flower}",
-            0.008,
+            0.014,
             (x, y, z + 0.004),
             material("#E4C25E", 0.8),
             subdivisions=1,
@@ -530,10 +489,21 @@ def make_water_basin():
     brick = material("#A68978", 0.92)
     brick_dark = material("#947768", 0.92)
     brick_light = material("#B39684", 0.9)
-    basin_floor = material("#7D6355", 0.94)
-    water = material("#6B9396", 0.08, transmission=0.55, ior=1.33, alpha=0.82)
-    ripple = material("#9EC4C4", 0.3, emission="#7FB2B2", strength=0.35, alpha=0.8)
+    basin_floor = material("#8E9B99", 0.94)
+    inner_wall = material("#4A676E", 0.82)
+    water = material(
+        "#557D87",
+        0.2,
+        metallic=0.02,
+        ior=1.45,
+        alpha=0.65,
+        clearcoat=0.12,
+        clearcoat_roughness=0.18,
+        name="water_surface",
+    )
     cube("basin_floor", (1.0, 1.0, 0.10), (0, 0, 0.05), basin_floor, bevel=0.02, segments=3)
+    for x, y, sx, sy in ((0.385, 0, 0.03, 0.77), (-0.385, 0, 0.03, 0.77), (0, 0.385, 0.77, 0.03), (0, -0.385, 0.77, 0.03)):
+        cube("inner_wall", (sx, sy, 0.16), (x, y, 0.18), inner_wall, bevel=0.008, segments=2)
     brick_mats = [brick, brick_dark, brick_light]
     rng = random.Random(61)
     index = 0
@@ -572,36 +542,61 @@ def make_water_basin():
                 segments=3,
             )
             index += 1
-    cube("water_surface", (0.78, 0.78, 0.02), (0, 0, 0.265), water, bevel=0.01, segments=2, angle=50)
-    for ripple_index, radius in enumerate((0.09, 0.16, 0.24)):
-        torus(
-            f"ripple_{ripple_index}",
-            radius,
-            0.005,
-            (0.03 * ripple_index - 0.02, 0.02 * ripple_index, 0.278),
-            ripple,
-            major_segments=36,
-            minor_segments=6,
-        )
-    for pad_index, (x, y) in enumerate(((-0.18, 0.16), (0.16, -0.17))):
-        cylinder(
-            f"lily_pad_{pad_index}",
-            0.055,
-            0.006,
-            (x, y, 0.279),
-            material("#7F9A63", 0.9),
-            vertices=16,
-            bevel=0.002,
-        )
+    pebble_mats = (material("#636E70", 0.9), material("#A8B0AE", 0.9))
+    for pebble_index, (x, y, radius) in enumerate(
+        ((-0.22, -0.19, 0.048), (0.04, 0.21, 0.038), (0.24, 0.1, 0.043))
+    ):
         ico(
-            f"lily_flower_{pad_index}",
-            0.016,
-            (x + 0.018, y, 0.292),
-            material("#F0D7DC", 0.85),
-            subdivisions=1,
-            scale=(1.0, 1.0, 0.6),
-            seed=70 + pad_index,
+            f"basin_pebble_{pebble_index}",
+            radius,
+            (x, y, 0.1 + radius * 0.45),
+            pebble_mats[pebble_index % 2],
+            subdivisions=2,
+            scale=(1.0, 0.82, 0.5),
+            jitter=0.003,
+            rotation=(0, 0, pebble_index * 0.7),
+            seed=300 + pebble_index,
         )
+
+    segments = 18
+    extent = 0.372
+    verts = []
+    for iy in range(segments + 1):
+        y = -extent + 2 * extent * iy / segments
+        for ix in range(segments + 1):
+            x = -extent + 2 * extent * ix / segments
+            z = 0.267 + 0.005 * math.sin(x * 5.5 + y * 3.4)
+            verts.append((x, y, z))
+    faces = []
+    for iy in range(segments):
+        for ix in range(segments):
+            a = iy * (segments + 1) + ix
+            faces.append((a, a + 1, a + segments + 2, a + segments + 1))
+    mesh = bpy.data.meshes.new("water_surface")
+    mesh.from_pydata(verts, [], faces)
+    mesh.validate()
+    surface = bpy.data.objects.new("water_surface", mesh)
+    bpy.context.collection.objects.link(surface)
+    add_material(surface, water)
+    smooth(surface, full=True)
+
+    petal_pink = material("#E8A7B8", 0.85)
+    flowers = ((-0.20, 0.14, 2.04), (-0.08, 0.04, 1.44), (0.18, -0.18, 1.8))
+    for flower_index, (x, y, size) in enumerate(flowers):
+        petal_radius = 0.013 * size
+        spread = 0.014 * size
+        petal_z = 0.2755 + 0.0065 * size
+        for petal in range(5):
+            angle = petal * math.tau / 5
+            ico(
+                f"water_flower_{flower_index}_{petal}",
+                petal_radius,
+                (x + math.cos(angle) * spread, y + math.sin(angle) * spread, petal_z),
+                petal_pink,
+                subdivisions=1,
+                scale=(1.0, 1.0, 0.5),
+                seed=70 + flower_index * 5 + petal,
+            )
 
 
 def make_stone_stairs():
@@ -634,14 +629,15 @@ def make_stone_stairs():
 
 def make_stone_lantern():
     stone = material("#8A8075", 0.9)
+    stone_base = material("#8C8377", 0.92)
     stone_dark = material("#5F574D", 0.94)
     stone_light = material("#A99D8C", 0.88)
-    glow = material("#FFC46B", 0.45, emission="#FFB347", strength=4.0)
+    glow = material("#FFD7A0", 0.45, emission="#FFCE8A", strength=4.0)
     lathe(
         "lantern_foot",
         [(0.17, 0.0), (0.2, 0.018), (0.2, 0.05), (0.16, 0.075), (0.115, 0.095)],
         (0, 0, 0),
-        stone_dark,
+        stone_base,
         segments=28,
     )
     lathe(
@@ -683,18 +679,6 @@ def make_stone_lantern():
     add_bevel(roof, 0.012, 3)
     add_material(roof, stone_light)
     smooth(roof, 40)
-    for index in range(6):
-        angle_value = (index / 6.0) * math.tau + math.radians(30)
-        ico(
-            f"roof_tip_{index}",
-            0.032,
-            (math.cos(angle_value) * 0.262, math.sin(angle_value) * 0.262, 0.638),
-            stone_light,
-            subdivisions=1,
-            scale=(1.6, 0.7, 0.45),
-            rotation=(math.radians(18), 0, angle_value),
-            seed=80 + index,
-        )
     lathe(
         "lantern_finial",
         [(0.05, 0.765), (0.035, 0.79), (0.02, 0.815), (0.032, 0.84), (0.001, 0.87)],
@@ -707,8 +691,15 @@ def make_stone_lantern():
 def make_birdbath():
     stone = material("#C9C0AE", 0.9)
     stone_dark = material("#A69C8A", 0.92)
-    water = material("#7FA6A6", 0.06, transmission=0.6, ior=1.33, alpha=0.82)
-    ripple = material("#BFD9D7", 0.25, alpha=0.8)
+    basin_shade = material("#5D6A68", 0.94)
+    water = material(
+        "#3F6B77",
+        0.24,
+        metallic=0.02,
+        ior=1.45,
+        alpha=0.66,
+        name="fountain_water",
+    )
     lathe(
         "bath_base",
         [(0.18, 0.0), (0.2, 0.015), (0.18, 0.045), (0.14, 0.06)],
@@ -743,34 +734,55 @@ def make_birdbath():
         cap_bottom=True,
         cap_top=False,
     )
-    cylinder("bath_water", 0.265, 0.018, (0, 0, 0.5), water, vertices=40, bevel=0.003)
-    for index, radius in enumerate((0.075, 0.14, 0.205)):
-        torus(
-            f"bath_ripple_{index}",
-            radius,
-            0.0045,
-            (0.02 * index - 0.01, 0.01, 0.512),
-            ripple,
-            major_segments=40,
-            minor_segments=6,
-        )
+    cylinder("bath_floor", 0.25, 0.012, (0, 0, 0.478), basin_shade, vertices=40, bevel=0.003)
+    rings = 16
+    segments = 48
+    radius = 0.265
+    verts = [(0.0, 0.0, 0.5)]
+    for ring in range(1, rings + 1):
+        ring_radius = radius * ring / rings
+        for segment in range(segments):
+            angle = math.tau * segment / segments
+            verts.append(
+                (
+                    math.cos(angle) * ring_radius,
+                    math.sin(angle) * ring_radius,
+                    0.5 + 0.0003 * math.cos(ring_radius * 22.0),
+                )
+            )
+    faces = []
+    for segment in range(segments):
+        faces.append((0, 1 + segment, 1 + (segment + 1) % segments))
+    for ring in range(rings - 1):
+        inner = 1 + ring * segments
+        outer = inner + segments
+        for segment in range(segments):
+            nxt = (segment + 1) % segments
+            faces.append((inner + segment, inner + nxt, outer + nxt, outer + segment))
+    mesh = bpy.data.meshes.new("bath_water")
+    mesh.from_pydata(verts, [], faces)
+    mesh.validate()
+    surface = bpy.data.objects.new("bath_water", mesh)
+    bpy.context.collection.objects.link(surface)
+    add_material(surface, water)
+    smooth(surface, full=True)
 
 
 def make_balustrade():
     stone = material("#D0C6B4", 0.9)
     stone_light = material("#E0D8C8", 0.88)
     stone_dark = material("#AFA592", 0.92)
-    cube("rail_bottom", (0.9, 0.145, 0.06), (0, 0, 0.03), stone_dark, bevel=0.018, segments=3)
-    cube("rail_top", (0.92, 0.17, 0.07), (0, 0, 0.435), stone_light, bevel=0.022, segments=3)
+    cube("rail_bottom", (0.9, 0.115, 0.06), (0, 0, 0.03), stone_dark, bevel=0.018, segments=3)
+    cube("rail_top", (0.92, 0.135, 0.07), (0, 0, 0.435), stone_light, bevel=0.022, segments=3)
     profile = [
-        (0.075, 0.0),
-        (0.06, 0.02),
-        (0.035, 0.09),
-        (0.03, 0.16),
-        (0.048, 0.22),
-        (0.072, 0.27),
-        (0.078, 0.305),
-        (0.042, 0.335),
+        (0.0675, 0.0),
+        (0.054, 0.02),
+        (0.0315, 0.09),
+        (0.027, 0.16),
+        (0.0432, 0.22),
+        (0.0648, 0.27),
+        (0.0702, 0.305),
+        (0.0378, 0.335),
     ]
     for index, x in enumerate((-0.3, 0.0, 0.3)):
         lathe(
@@ -785,7 +797,7 @@ def make_balustrade():
         )
         cube(
             f"baluster_plinth_{index}",
-            (0.15, 0.15, 0.035),
+            (0.15, 0.118, 0.035),
             (x, 0, 0.072),
             stone_dark,
             bevel=0.008,
@@ -798,7 +810,7 @@ def make_balustrade():
             (x, 0, 0.47),
             stone_light,
             subdivisions=2,
-            scale=(0.9, 1.2, 0.8),
+            scale=(0.9, 0.95, 0.8),
             seed=90 + index,
         )
 
@@ -926,7 +938,7 @@ def make_blossom_tree(palette=None, sturdy_trunk=False, trunk_color=None, trunk_
         tube(
             "tree_trunk",
             [(0, 0, 0), (0.015, 0.005, 0.20), (-0.005, 0.01, 0.42), (0.01, 0.0, 0.62), (0.0, 0.0, 0.80)],
-            0.075,
+            0.06375,
             trunk_mat,
             radii=[1.55, 1.35, 1.15, 0.98, 0.78],
             resolution=18,
@@ -957,9 +969,9 @@ def make_blossom_tree(palette=None, sturdy_trunk=False, trunk_color=None, trunk_
             radii=[1.15, 0.9, 0.65],
             resolution=10,
         )
-        blossom_cluster((0.02, 0.0, 0.90), 0.27, shades, 151)
-        blossom_cluster((-0.20, 0.02, 0.70), 0.18, shades, 152)
-        blossom_cluster((0.23, 0.01, 0.76), 0.20, shades, 153)
+        blossom_cluster((0.02, 0.0, 0.90), 0.27, [shades[0]], 151)
+        blossom_cluster((-0.20, 0.02, 0.70), 0.18, [shades[1]], 152)
+        blossom_cluster((0.23, 0.01, 0.76), 0.20, [shades[2]], 153)
     else:
         tube(
             "tree_branch_left",
@@ -1204,12 +1216,12 @@ def make_cottage():
     eave = material("#8B4637", 0.85)
     pane = material("#FFF6DB", 0.4, emission="#FFF6DB", strength=4.0)
 
-    cube("cottage_body", (0.86, 0.74, 0.73), (0, 0, 0.365), wall, bevel=0.025, segments=4)
+    wall_height = 0.613
+    cube("cottage_body", (0.86, 0.74, wall_height), (0, 0, wall_height / 2), wall, bevel=0.025, segments=4)
 
     pitch = math.radians(38)
     run = 0.49
     rise = run * math.tan(pitch)
-    wall_height = 0.73
     peak_z = wall_height + rise
     panel_len = math.sqrt(run ** 2 + rise ** 2)
     panel_z = wall_height + rise / 2
@@ -1272,12 +1284,13 @@ def make_cottage():
     cube("cottage_ridge", (0.17, 1.02, 0.082), (0, 0, peak_z + 0.016), roof, bevel=0.018, segments=3)
 
     # Clean corner beams straight to the ground.
+    beam_height = wall_height + 0.02
     for x in (-0.40, 0.40):
         for y in (-0.34, 0.34):
             cube(
                 f"cottage_corner_{x}_{y}",
-                (0.065, 0.065, 0.75),
-                (x, y, 0.375),
+                (0.065, 0.065, beam_height),
+                (x, y, beam_height / 2),
                 wood,
                 bevel=0.01,
                 segments=2,
@@ -1312,22 +1325,24 @@ def make_cottage():
     tube("cottage_door_surround", surround_points, 0.032, casing_wood, radii=surround_radii, resolution=14)
 
     # Circular gable window with thick mullions that meet the frame.
-    cylinder("cottage_gable_window_pane", 0.0996, 0.014, (0, -0.375, 0.69), pane, vertices=28, bevel=0.003, rotation=(math.radians(90), 0, 0))
-    torus("cottage_gable_window_frame", 0.1188, 0.0289, (0, -0.375, 0.69), window_wood, rotation=(math.radians(90), 0, 0), major_segments=28, minor_segments=6)
-    cube("cottage_gable_window_mullion_h", (0.188, 0.0374, 0.0374), (0, -0.384, 0.69), window_wood, bevel=0.005, segments=2)
-    cube("cottage_gable_window_mullion_v", (0.0374, 0.0374, 0.188), (0, -0.384, 0.69), window_wood, bevel=0.005, segments=2)
+    gable_window_z = 0.65
+    cylinder("cottage_gable_window_pane", 0.0996, 0.014, (0, -0.375, gable_window_z), pane, vertices=28, bevel=0.003, rotation=(math.radians(90), 0, 0))
+    torus("cottage_gable_window_frame", 0.1188, 0.0289, (0, -0.375, gable_window_z), window_wood, rotation=(math.radians(90), 0, 0), major_segments=28, minor_segments=6)
+    cube("cottage_gable_window_mullion_h", (0.188, 0.0374, 0.0374), (0, -0.384, gable_window_z), window_wood, bevel=0.005, segments=2)
+    cube("cottage_gable_window_mullion_v", (0.0374, 0.0374, 0.188), (0, -0.384, gable_window_z), window_wood, bevel=0.005, segments=2)
 
     # Matching slightly-open rectangular windows on both side walls.
+    window_center = 0.35
     for side in (-1, 1):
         x = side * 0.432
         pane_x = side * 0.441
         sill_x = side * 0.446
-        cube(f"cottage_window_pane_{side}", (0.014, 0.22, 0.144), (pane_x, 0, 0.43), pane, bevel=0.003, segments=2)
-        cube(f"cottage_window_sill_{side}", (0.05, 0.30, 0.035), (sill_x, 0, 0.335), window_wood, bevel=0.006, segments=2)
-        for z in (0.513, 0.347):
+        cube(f"cottage_window_pane_{side}", (0.014, 0.22, 0.144), (pane_x, 0, window_center), pane, bevel=0.003, segments=2)
+        cube(f"cottage_window_sill_{side}", (0.05, 0.30, 0.035), (sill_x, 0, window_center - 0.095), window_wood, bevel=0.006, segments=2)
+        for z in (window_center + 0.083, window_center - 0.083):
             cube(f"cottage_window_frame_{side}_{z}", (0.024, 0.26, 0.03), (side * 0.438, 0, z), window_wood, bevel=0.006, segments=2)
         for y in (-0.125, 0.125):
-            cube(f"cottage_window_side_{side}_{y}", (0.024, 0.03, 0.171), (side * 0.438, y, 0.43), window_wood, bevel=0.006, segments=2)
+            cube(f"cottage_window_side_{side}_{y}", (0.024, 0.03, 0.171), (side * 0.438, y, window_center), window_wood, bevel=0.006, segments=2)
         angles = (120.0, 120.0) if side < 0 else (60.0, 50.0)
         shutter_width = 0.105
         for edge_y, direction, degrees in ((-0.11, 1, angles[0]), (0.11, -1, angles[1])):
@@ -1337,7 +1352,7 @@ def make_cottage():
             cube(
                 f"cottage_shutter_{side}_{edge_y}",
                 (0.022, shutter_width, 0.18),
-                (center_x, center_y, 0.43),
+                (center_x, center_y, window_center),
                 window_wood,
                 bevel=0.006,
                 segments=2,
@@ -1348,8 +1363,9 @@ def make_cottage():
 def make_leafy_tree():
     make_blossom_tree(
         [
-            ("#76913A", 0.85),
-            ("#5F7A2B", 0.85),
+            ("#7A8E4D", 0.85),
+            ("#5A6D36", 0.85),
+            ("#495A2F", 0.85),
         ],
         sturdy_trunk=True,
         trunk_color="#8E6943",
@@ -1447,6 +1463,11 @@ def finalize(name, is_base):
             factor = 0.92 / footprint
             for vertex in mesh.vertices:
                 vertex.co *= factor
+        slim = MODEL_SLIM.get(name, 1.0)
+        if slim != 1.0:
+            for vertex in mesh.vertices:
+                vertex.co.x *= slim
+                vertex.co.y *= slim
     mesh.update()
 
     min_x, max_x, min_y, max_y, min_z, max_z = bounds(mesh)

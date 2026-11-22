@@ -16,6 +16,7 @@ export interface ItemDef {
   light?: 'lantern' | 'fire';
   procedural?: boolean;
   modelScale?: number;
+  modelHeightScale?: number;
 }
 
 export interface Task {

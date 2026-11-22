@@ -78,7 +78,7 @@ export const ITEMS: ItemDef[] = [
     accent: '#F0C87A',
     glyph: 'lamp',
     light: 'lantern',
-    modelScale: 0.9,
+    modelScale: 0.35,
   },
   {
     id: 'paper_lantern',
@@ -112,7 +112,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A shallow basin with a drowsy little spout.',
     accent: '#A8CBD8',
     glyph: 'waves',
-    modelScale: 0.9,
+    modelScale: 0.63,
   },
   {
     id: 'balustrade',
@@ -123,6 +123,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A tidy stone rail to edge a floating terrace.',
     accent: '#D6CCBC',
     glyph: 'columns',
+    modelHeightScale: 0.64,
   },
   {
     id: 'firepot',
@@ -134,7 +135,7 @@ export const ITEMS: ItemDef[] = [
     accent: '#E58C5B',
     glyph: 'flame',
     light: 'fire',
-    modelScale: 0.65,
+    modelScale: 0.55,
   },
   {
     id: 'rose_planter',
@@ -145,7 +146,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A cedar box crowded with blush roses.',
     accent: '#D98A92',
     glyph: 'flower',
-    modelScale: 0.65,
+    modelScale: 0.52,
   },
   {
     id: 'blossom_tree',
@@ -156,6 +157,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'Petal clouds on a crooked, friendly trunk.',
     accent: '#E7B6C4',
     glyph: 'tree',
+    modelHeightScale: 0.9,
   },
   {
     id: 'leafy_tree',
@@ -166,6 +168,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A round green canopy for a shady little corner.',
     accent: '#8EBB5C',
     glyph: 'tree',
+    modelHeightScale: 0.9,
   },
   {
     id: 'pine_tree',
@@ -187,6 +190,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A striped canopy and crates of tiny produce.',
     accent: '#D6A05E',
     glyph: 'store',
+    modelScale: 0.8,
   },
   {
     id: 'blue_market_stall',
@@ -197,6 +201,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A sky-blue canopy over the same tiny produce.',
     accent: '#5B9BD5',
     glyph: 'store',
+    modelScale: 0.8,
   },
   {
     id: 'wooden_bench',
@@ -207,7 +212,7 @@ export const ITEMS: ItemDef[] = [
     blurb: 'A quiet seat for watching petals drift.',
     accent: '#B9855B',
     glyph: 'bench',
-    modelScale: 0.85,
+    modelScale: 0.61,
   },
 ];
 

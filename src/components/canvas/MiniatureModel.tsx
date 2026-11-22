@@ -104,7 +104,9 @@ function ModelContent({
     const horizontal = Math.max(size.x, size.z, 0.0001);
     const scale = (FOOTPRINT * (item.modelScale ?? 1)) / horizontal;
     const verticalScale =
-      item.category === 'base' ? BASE_HEIGHT / Math.max(size.y, 0.0001) : scale;
+      item.category === 'base'
+        ? BASE_HEIGHT / Math.max(size.y, 0.0001)
+        : scale * (item.modelHeightScale ?? 1);
     const offset: [number, number, number] = [
       -center.x * scale,
       -box.min.y * verticalScale,
@@ -130,12 +132,13 @@ function ModelContent({
       mesh.castShadow = !ghost;
       mesh.receiveShadow = !ghost;
       if (ghostMaterial) mesh.material = ghostMaterial;
-      else if (Array.isArray(mesh.material)) mesh.material.forEach(tuneMaterial);
-      else tuneMaterial(mesh.material);
+      else if (Array.isArray(mesh.material))
+        mesh.material = mesh.material.map(tuneMaterial);
+      else mesh.material = tuneMaterial(mesh.material);
     });
 
     return { clone, scale, verticalScale, offset, ghostMaterial };
-  }, [scene, ghost, valid, item.category, item.modelScale]);
+  }, [scene, ghost, valid, item.category, item.modelScale, item.modelHeightScale]);
 
   useEffect(() => {
     return () => {
@@ -225,14 +228,14 @@ function PaperLanternModel({
   ];
 
   return (
-    <group scale={[0.486, 0.6, 0.486]}>
+    <group scale={[0.372, 0.54, 0.372]}>
       <mesh
         position={[0, 0.033, 0]}
         material={woodMaterial}
         castShadow={!ghost}
         receiveShadow={!ghost}
       >
-        <boxGeometry args={[0.7, 0.066, 0.7]} />
+        <boxGeometry args={[0.7, 0.0726, 0.7]} />
       </mesh>
       {posts.map(([x, z]) => (
         <mesh
@@ -242,7 +245,7 @@ function PaperLanternModel({
           castShadow={!ghost}
           receiveShadow={!ghost}
         >
-          <boxGeometry args={[0.055, 0.46, 0.055]} />
+          <boxGeometry args={[0.06655, 0.46, 0.06655]} />
         </mesh>
       ))}
       <mesh position={[0, 0.285, 0]} material={paperMaterial}>
@@ -254,7 +257,7 @@ function PaperLanternModel({
         castShadow={!ghost}
         receiveShadow={!ghost}
       >
-        <boxGeometry args={[0.68, 0.055, 0.68]} />
+        <boxGeometry args={[0.68, 0.0605, 0.68]} />
       </mesh>
       <mesh
         position={[0, 0.603, 0]}
@@ -262,7 +265,7 @@ function PaperLanternModel({
         castShadow={!ghost}
         receiveShadow={!ghost}
       >
-        <boxGeometry args={[0.54, 0.044, 0.54]} />
+        <boxGeometry args={[0.54, 0.0484, 0.54]} />
       </mesh>
     </group>
   );
