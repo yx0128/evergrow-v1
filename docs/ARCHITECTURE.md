@@ -158,9 +158,9 @@ Placement bounce uses `Date.now()` for both the stored timestamp and the animati
 ## Lighting and post-processing
 
 **Day**
-- Page backdrop is CSS cream; the Canvas is alpha-transparent so High/Low clear color matches exactly after tone mapping. Fog uses `#F3EFE6`.
-- Ambient `#FFF8EA` at `0.62`; hemisphere sky `#FFF6E6` / ground `#C9B9A6` at `0.95`.
-- Warm sun `#FFF5E4` at `2.35`, shadow map `2048²`, orthographic bounds `±14`.
+- Page backdrop is CSS cream; the Canvas is alpha-transparent so High/Low clear color matches exactly after tone mapping. Fog uses `#F3EFE6` at near `80` / far `220` in day mode so zooming out does not haze the diorama.
+- Ambient `#FFF8EA` at `0.62`; hemisphere sky `#FFF6E6` / ground `#C9B9A6` at `0.65`.
+- Warm sun `#FFF5E4` at `1.8`, shadow map `2048²`, orthographic bounds `±14`. Props cap `envMapIntensity` at `0.35` and glazed-physical `specularIntensity` at `0.25`.
 - Day mode is intentionally free of floating confetti or particle effects.
 
 **Night**

@@ -14,6 +14,7 @@ import { BASE_HEIGHT, FOOTPRINT } from '../../data/items';
 import { rotationToRadians } from '../../lib/grid';
 import type { ItemDef, PlacedItem } from '../../types';
 import { MiniatureModel } from './MiniatureModel';
+import { tuneMaterial } from './tuneMaterial';
 
 const CHUNK_SIZE = 512;
 const PLACEMENT_MS = 460;
@@ -98,8 +99,8 @@ function useNormalizedPrimitives(
       primitives.push({
         geometry,
         material: Array.isArray(mesh.material)
-          ? mesh.material.map(warmMaterial)
-          : warmMaterial(mesh.material),
+          ? mesh.material.map((m) => tuneMaterial(warmMaterial(m)))
+          : tuneMaterial(warmMaterial(mesh.material)),
       });
     });
     return primitives;

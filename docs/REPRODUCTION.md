@@ -183,7 +183,7 @@ Traverse to enable shadows and swap materials in ghost mode. Wrap with an error 
 - `<Canvas shadows dpr={[1, 1.75]} camera={{ position: [7.4, 8.4, 9.6], fov: 32, near: 0.1, far: 160 }}>`
 - ACES Filmic tone mapping, exposure `1.05`.
 - Alpha-transparent Canvas over the app wrapper's CSS cream/night; fog uses the palette background so the backdrop matches in both quality modes.
-- Day: cream background, warm sun `#FFF5E4` `2.35`, hemisphere fill, clean negative space (no particles).
+- Day: cream background, warm sun `#FFF5E4` `1.8`, hemisphere fill at `0.65`, day fog at near `80` / far `220`, clean negative space (no particles).
 - Night: warm charcoal `#221F1D`, sparse warm star specks, neutral-warm moonlight `#9E9B94`, taupe hemisphere fill, and ten butter-gold pooled lights, with stronger bloom.
 - `<Grid infiniteGrid fadeDistance={30} fadeStrength={2} />`.
 - `OrbitControls` with `LEFT: -1`, right rotate, middle pan, polar clamp `0.2..0.475π`.

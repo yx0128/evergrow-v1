@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { BASE_HEIGHT, FOOTPRINT } from '../../data/items';
 import { rotationToRadians } from '../../lib/grid';
 import type { ItemDef } from '../../types';
+import { tuneMaterial } from './tuneMaterial';
 
 interface MiniatureModelProps {
   item: ItemDef;
@@ -63,6 +64,7 @@ function Placeholder({
           color={color}
           roughness={0.84}
           metalness={0.01}
+          envMapIntensity={0.35}
           transparent={ghost}
           opacity={ghost ? 0.44 : 1}
           depthWrite={!ghost}
@@ -116,6 +118,7 @@ function ModelContent({
           opacity: 0.44,
           roughness: 0.68,
           metalness: 0,
+          envMapIntensity: 0.35,
           depthWrite: false,
         })
       : null;
@@ -126,6 +129,8 @@ function ModelContent({
       mesh.castShadow = !ghost;
       mesh.receiveShadow = !ghost;
       if (ghostMaterial) mesh.material = ghostMaterial;
+      else if (Array.isArray(mesh.material)) mesh.material.forEach(tuneMaterial);
+      else tuneMaterial(mesh.material);
     });
 
     return { clone, scale, verticalScale, offset, ghostMaterial };
