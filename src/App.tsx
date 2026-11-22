@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Eye } from 'lucide-react';
-import { ITEM_MAP, ITEMS } from './data/items';
+import { ITEM_MAP } from './data/items';
 import { createId } from './lib/id';
+import {
+  HOTBAR_PAGE_COUNT,
+  clampHotbarPage,
+  getHotbarSlots,
+  hotbarPageForItem,
+} from './lib/hotbar';
 import { playSound } from './lib/sound';
 import { useWorldStore } from './store/useWorldStore';
 import { WorldCanvas } from './components/canvas/Scene';
@@ -37,15 +43,12 @@ export default function App() {
 
   const [tasksOpen, setTasksOpen] = useState(true);
   const [shopOpen, setShopOpen] = useState(false);
+  const [shopFocusItemId, setShopFocusItemId] = useState<string | null>(null);
+  const [hotbarPage, setHotbarPage] = useState(0);
   const [uiHidden, setUiHidden] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<string, number>());
-
-  const hotbarItems = useMemo(
-    () => ITEMS.filter((item) => (inventory[item.id] ?? 0) > 0).slice(0, 9),
-    [inventory],
-  );
 
   const movingItem = useMemo(() => {
     const piece = movingItemId
@@ -118,6 +121,12 @@ export default function App() {
     playSound('ui');
   }, [toggleTheme]);
 
+  const openShopForItem = useCallback((itemId: string) => {
+    setShopFocusItemId(itemId);
+    setShopOpen(true);
+    playSound('ui');
+  }, []);
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -132,6 +141,27 @@ export default function App() {
         return;
       }
 
+      if (shopOpen) {
+        if (event.key === 'b' || event.key === 'B') {
+          event.preventDefault();
+          setShopOpen(false);
+          setShopFocusItemId(null);
+          playSound('ui');
+        } else if (event.key === 'Escape') {
+          setShopOpen(false);
+          setShopFocusItemId(null);
+        }
+        return;
+      }
+
+      if (event.key === '[' || event.key === ']') {
+        event.preventDefault();
+        setHotbarPage((current) =>
+          clampHotbarPage(current + (event.key === ']' ? 1 : -1)),
+        );
+        playSound('ui');
+        return;
+      }
       if (event.key === 'r' || event.key === 'R') {
         event.preventDefault();
         rotate();
@@ -140,6 +170,7 @@ export default function App() {
       }
       if (event.key === 'b' || event.key === 'B') {
         event.preventDefault();
+        setShopFocusItemId(null);
         setShopOpen((open) => !open);
         playSound('ui');
         return;
@@ -152,6 +183,7 @@ export default function App() {
       }
       if (event.key === 'Escape') {
         setShopOpen(false);
+        setShopFocusItemId(null);
         cancelMove();
         selectPiece(null);
         selectItem(null);
@@ -166,16 +198,31 @@ export default function App() {
       }
       if (/^[1-9]$/.test(event.key)) {
         const index = Number(event.key) - 1;
-        const item = hotbarItems[index];
-        if (item) {
+        const item = getHotbarSlots(hotbarPage)[index]?.item;
+        if (!item) return;
+        if ((inventory[item.id] ?? 0) > 0) {
           selectItem(item.id);
           playSound('ui');
+        } else {
+          openShopForItem(item.id);
         }
       }
     }
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [hotbarItems, rotate, selectItem, selectPiece, cancelMove, selectedPieceId, beginMove, pushToast]);
+  }, [
+    shopOpen,
+    hotbarPage,
+    inventory,
+    openShopForItem,
+    rotate,
+    selectItem,
+    selectPiece,
+    cancelMove,
+    selectedPieceId,
+    beginMove,
+    pushToast,
+  ]);
 
   return (
     <div
@@ -220,20 +267,27 @@ export default function App() {
               setTasksOpen((open) => !open);
               playSound('ui');
             }}
+            onReset={() => setHotbarPage(0)}
             onToast={pushToast}
           />
 
           <ControlsLegend />
 
           <InventoryHotbar
-            items={hotbarItems}
+            page={hotbarPage}
+            pageCount={HOTBAR_PAGE_COUNT}
             inventory={inventory}
             selectedId={selectedItemId}
-            selectedItem={selectedPieceItem}
+            selectedPiece={selectedPieceItem}
             movingItem={movingItem}
             rotation={effectiveRotation}
             storeMode={storeMode}
             onSelect={selectItem}
+            onOpenShopForItem={openShopForItem}
+            onPageChange={(page) => {
+              setHotbarPage(clampHotbarPage(page));
+              playSound('ui');
+            }}
             onRotate={rotate}
             onToggleStoreMode={() => {
               if (selectedPieceId) {
@@ -259,6 +313,7 @@ export default function App() {
               playSound('ui');
             }}
             onOpenShop={() => {
+              setShopFocusItemId(null);
               setShopOpen(true);
               playSound('ui');
             }}
@@ -268,8 +323,11 @@ export default function App() {
 
           <BuildShop
             open={shopOpen}
+            focusItemId={shopFocusItemId}
+            onPurchased={(itemId) => setHotbarPage(hotbarPageForItem(itemId))}
             onClose={() => {
               setShopOpen(false);
+              setShopFocusItemId(null);
               playSound('ui');
             }}
             onToast={pushToast}

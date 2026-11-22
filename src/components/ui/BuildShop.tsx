@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Coins, ShoppingBag, X } from 'lucide-react';
 import {
   BASE_ITEMS,
+  ITEM_MAP,
   ITEMS,
   PROP_ITEMS,
 } from '../../data/items';
@@ -13,20 +14,85 @@ import { ItemGlyph } from './ItemGlyph';
 
 interface BuildShopProps {
   open: boolean;
+  focusItemId?: string | null;
   onClose: () => void;
+  onPurchased?: (itemId: string) => void;
   onToast: (message: string, tone: ToastTone) => void;
 }
 
-export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
+export function BuildShop({
+  open,
+  focusItemId,
+  onClose,
+  onPurchased,
+  onToast,
+}: BuildShopProps) {
   const coins = useWorldStore((state) => state.coins);
   const inventory = useWorldStore((state) => state.inventory);
   const buyItem = useWorldStore((state) => state.buyItem);
   const [tab, setTab] = useState<ItemCategory>('base');
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
 
   const items = useMemo(
     () => (tab === 'base' ? BASE_ITEMS : PROP_ITEMS),
     [tab],
   );
+
+  useEffect(() => {
+    if (!open) {
+      setHighlightId(null);
+      return;
+    }
+    if (!focusItemId) return;
+    const item = ITEM_MAP[focusItemId];
+    if (!item) return;
+    if (item.category !== tab) {
+      setTab(item.category);
+      return;
+    }
+    const element = document.getElementById(`shop-item-${focusItemId}`);
+    element?.scrollIntoView({ block: 'nearest' });
+    setHighlightId(focusItemId);
+    const timer = window.setTimeout(() => setHighlightId(null), 1800);
+    return () => window.clearTimeout(timer);
+  }, [open, focusItemId, tab]);
+
+  useEffect(() => {
+    if (!open) return;
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
+    const panel = panelRef.current;
+    const focusable = panel?.querySelector<HTMLElement>(
+      'button:not([disabled]), input, [href], [tabindex]:not([tabindex="-1"])',
+    );
+    focusable?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Tab' || !panel) return;
+      const nodes = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input, [href], [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((node) => node.offsetParent !== null);
+      if (nodes.length === 0) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      restoreFocusRef.current?.focus();
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -35,6 +101,7 @@ export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
     if (result.ok) {
       playSound('buy');
       onToast(result.message, 'success');
+      onPurchased?.(itemId);
     } else {
       playSound('error');
       onToast(result.message, 'error');
@@ -56,7 +123,10 @@ export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
         onClick={onClose}
         aria-label="Close build shop"
       />
-      <div className="glass-panel relative flex max-h-[86vh] w-full max-w-3xl animate-panel-in flex-col overflow-hidden rounded-[30px] shadow-panel">
+      <div
+        ref={panelRef}
+        className="glass-panel relative flex max-h-[86vh] w-full max-w-3xl animate-panel-in flex-col overflow-hidden rounded-[30px] shadow-panel"
+      >
         <header className="flex items-start justify-between gap-4 border-b border-ink/10 px-5 pb-3 pt-5 sm:px-6">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-sage-deep">
@@ -132,7 +202,12 @@ export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
               return (
                 <li
                   key={item.id}
-                  className="group flex flex-col rounded-2xl border border-ink/10 bg-white/45 p-3 transition hover:border-sage/40 hover:bg-white/65"
+                  id={`shop-item-${item.id}`}
+                  className={`group flex flex-col rounded-2xl border border-ink/10 bg-white/45 p-3 transition hover:border-sage/40 hover:bg-white/65 ${
+                    highlightId === item.id
+                      ? 'ring-2 ring-sage-deep/45 bg-white/70'
+                      : ''
+                  }`}
                 >
                   <div className="flex items-start gap-3">
                     <div
@@ -166,6 +241,11 @@ export function BuildShop({ open, onClose, onToast }: BuildShopProps) {
                       type="button"
                       onClick={() => handleBuy(item.id)}
                       disabled={!affordable}
+                      aria-label={
+                        affordable
+                          ? `Buy ${item.name} for ${item.cost} coins`
+                          : `${item.name} costs ${item.cost} coins; need ${item.cost - coins} more`
+                      }
                       className={`focus-ring rounded-full px-3 py-1.5 text-[10.5px] font-bold transition ${
                         affordable
                           ? 'bg-terracotta/15 text-terracotta-deep hover:bg-terracotta hover:text-ivory active:scale-95'

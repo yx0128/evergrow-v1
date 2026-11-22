@@ -7,6 +7,7 @@ export type Rotation = 0 | 1 | 2 | 3;
 export interface ItemDef {
   id: string;
   name: string;
+  shortName: string;
   category: ItemCategory;
   cost: number;
   modelUrl: string;

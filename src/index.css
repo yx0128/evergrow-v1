@@ -4,6 +4,7 @@
 
 :root {
   color-scheme: light;
+  --hud-dock-space: 140px;
 }
 
 html,

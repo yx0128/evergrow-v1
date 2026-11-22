@@ -52,8 +52,9 @@ Rules:
 
 - HUD margins: `16px`.
 - Top-left pill: day/night + High/Low graphics quality + reset camera + photo mode.
-- Top-right: task drawer `370px` wide, collapsible to a pill; the coin balance lives here.
-- Bottom center: hotbar with nine `54px` slots; side controls for rotate/store/shop.
+- Top-right: task drawer `370px` wide, collapsible to a pill; the coin balance lives here. Its height reserves the bottom dock band (`--hud-dock-space`, `140px`) so it can never cover the hotbar.
+- Bottom center: two fixed pages of nine slots (`54px` at `≥1366px`, `48px` below) with an action rail for Rotate, Move, Store, and Shop above them.
+- Pages are addressed with `1–9` for the current page and `[` / `]` (or the pager arrows) to change pages.
 - Bottom-left: controls legend, only above `xl` width.
 - The diorama is framed left/center because the task drawer owns the right edge.
 - In photo mode the HUD disappears except a small “Show interface” affordance.
@@ -72,6 +73,8 @@ Rules:
 - Pills: same material, smaller shadow.
 - Inputs: ivory at 85–100% with a 10% ink border.
 - Selected hotbar slot lifts `4px` and gains a sage ring. A selected placed piece gets a soft sage cell tint.
+- Slot identity is fixed by `HOTBAR_ORDER`; buying, placing, or storing never renumbers a slot or hides an owned item.
+- Zero-stock slots are dashed with a gold `+`; clicking one opens the shop focused on that item.
 - Ghost placement: translucent green (valid) or coral (invalid), `depthWrite: false`, with a faint cell tint beneath.
 - Shadows: warm sun in day, cool moon at night. High quality keeps 2048² shadows plus subtle emissive bloom; no AO/grading/vignette, so tile and prop colors stay clean like Low. Lantern glow panels and firepot flames use a deliberately warm golden yellow in both themes and quality modes.
 
@@ -88,7 +91,8 @@ Rules:
 
 - Quick / Standard / Deep Work are always visible with their coin value, so the reward is never a surprise.
 - Completing a task is one-way; the checkbox becomes a sage check and the row is struck through. This protects the economy and gives a clear “done” moment.
-- Purchases go to the hotbar, not directly into the world. The next action is always “select, then click”.
+- Purchases go to the hotbar, not directly into the world. Buying reveals the item’s fixed page; the next action is always “select, then click”.
+- Each slot carries a category cue: a sage underline for bases, terracotta for surface props.
 - Store mode is explicit, but right-click storage is always available as a shortcut.
 - Click a placed piece to select it in place; it does not follow the mouse. A sage cell tint and a selection pill appear.
 - `R` or HUD **Rotate** reorients the selected piece in 90° steps; a selected base rotates its prop too. The HUD buttons are the single source for rotate/store actions.
@@ -102,7 +106,8 @@ Rules:
 - The task input has a visible label via `aria-label` and submits on Enter.
 - Focus rings are cream + sage, visible on glass.
 - Text contrast stays at or above WCAG AA for body sizes on the cream panel.
-- Keyboard coverage: `1–9`, `R`, `B`, `H`, `Esc`, Enter in the task form.
+- Keyboard coverage: `1–9`, `[` / `]`, `R`, `M`, `B`, `H`, `Esc`, Enter in the task form.
+- The hotbar is a labelled toolbar; pager buttons expose `aria-live` page status and the shop is a focus-trapped dialog.
 - Selection and moving are click/keyboard-only (no drag requirement), so they work with a trackpad and do not conflict with camera orbit.
 - The app is usable without audio; sound is a garnish.
 

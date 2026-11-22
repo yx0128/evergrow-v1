@@ -28,7 +28,7 @@ Finish a small task, earn coins, and place a hand-sculpted miniature into a floa
 - **Real `.glb` engine.** Thirteen Blender-sculpted GLB miniatures are loaded at runtime, auto-normalized to a `0.96` footprint, auto-grounded, and shadow-enabled.
 - **Performance-minded.** Placed tiles and props render through instanced batches, ten pooled point lights keep the shader light count fixed, and a saved High/Low graphics toggle lazy-loads post-processing only when needed.
 - **Day and night.** Warm cream daylight with clean negative space; a charcoal starfield with moonlight, lantern point lights, firepot glow, subtle bloom, and ACES tone mapping.
-- **Desktop-first HUD.** Glass task drawer, inventory hotbar (`1–9`), build shop (`B`), photo mode (`H`), and a camera reset that always brings you home.
+- **Desktop-first HUD.** Glass task drawer, a two-page inventory hotbar (`1–9`, `[` / `]`), a compact Rotate/Move/Store/Shop rail, build shop (`B`), photo mode (`H`), and a camera reset that always brings you home.
 - **No backend.** No accounts, analytics, network calls, or API keys. Only `localStorage` — validated on read.
 
 ## Screenshots
@@ -68,7 +68,8 @@ npm run preview
 | --- | --- |
 | Left click | Place the selected item on a valid cell |
 | Left click a placed piece | Select it in place (sage ring + selection pill) |
-| `1`–`9` | Select a hotbar slot |
+| `1`–`9` | Select a slot on the current hotbar page |
+| `[` / `]` | Previous / next hotbar page |
 | `R` or HUD **Rotate** | Rotate placement, the selected piece, or a lifted piece in 90° steps |
 | `M` or **Move** | Lift the selected piece; click a valid cell to drop it |
 | Right click a piece | Return it to inventory |

@@ -74,7 +74,10 @@ Run it at `1440×900`; the default viewport is set in the script.
 | Right-click a base with a prop on it | Rejected with “Store the surface prop first.” |
 | Press `R` | Placement ghost rotates 90°, persists while selecting |
 | Press `R` or HUD **Rotate** while moving | Lifted piece (and its prop) rotates 90°; dropping persists it |
-| Press `1–9` | Selects the corresponding owned item |
+| Press `1–9` | Selects the matching owned item on the current page |
+| Press `[` / `]` | Pages the hotbar without changing slot identities |
+| Click a zero-stock slot | Opens the shop focused on that item |
+| Buy an overflow item | Its fixed page is revealed; no owned item is hidden |
 | Press `Esc` | Cancels selection/store mode or closes the shop |
 | Press `H` | HUD hides; press again or click “Show interface” |
 | Toggle night | Warm lantern/firepoint lights, bloom, stars, dark sky |
@@ -91,7 +94,8 @@ Look for:
 - Lantern and firepot emission is visible at night but does not wash out the whole screen.
 - Day shadows read warm; night shadows read cool but not black.
 - The diorama is not hidden by the task drawer or hotbar.
-- The hotbar shows owned stock counts; empty slots are dashed, not broken.
+- The hotbar shows fixed slots with owned stock counts; zero-stock slots are dashed and open the shop.
+- The task drawer stops above the hotbar at 1440 and 1280 with a long task list.
 - The grid fades toward the horizon and does not look like clipped text at the top edge.
 - Text is legible on the glass panels at 100% zoom.
 

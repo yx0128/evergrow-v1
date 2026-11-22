@@ -20,7 +20,7 @@ App.tsx
 └── HUD
     ├── TopBar (theme, reset camera, photo mode)
     ├── TaskDrawer (add / complete / delete / reset)
-    ├── InventoryHotbar (1–9, rotate, store, shop)
+    ├── InventoryHotbar (two fixed pages, 1–9, page pager, rotate/move/store/shop rail)
     ├── BuildShop modal (base / prop tabs)
     ├── ControlsLegend
     └── Toasts
@@ -127,6 +127,8 @@ This reduces repeated full scene-graph clones to one draw call per material prim
 With no build item selected, left-clicking a placed piece selects it and leaves it exactly where it is. A sage cell tint and a selection pill communicate the state. `R` or HUD **Rotate** rotates the selected piece in place in 90° steps; rotating a selected base rotates its attached prop by the same delta. Selection is persisted only as the piece's new rotation, never as UI state.
 
 HUD **Store** returns the selected piece to inventory without entering store mode; with no selection it toggles click-to-store mode. **Move** / `M` lifts the selected piece into a move ghost, where the pointer previews the destination. Clicking a valid cell drops it; `Esc`, the hotbar cancel button, or a right-click cancels the move and returns the piece to selection. Moving does not touch inventory and is persisted as the same `PlacedItem` with new `x`/`z` and `placedAt`. A base tile also carries its surface prop. While lifted, `R` or HUD Rotate reorients the group; the ghost stays anchored at its last cell when the pointer moves onto the HUD. Moving a prop requires an empty base at the destination; moving a base requires a completely empty destination cell. Invalid drops keep the move active so the player can retry.
+
+The hotbar is derived from `HOTBAR_ORDER`, not from inventory keys. Slots are fixed in two pages of nine (`src/lib/hotbar.ts`), so purchases, placements, and stores never renumber a slot or hide an owned item. `1–9` addresses the current page; `[` / `]` page without changing selection. Zero-stock slots are catalog affordances that open the shop focused on that item, and buying reveals the item’s page. The task drawer reserves `--hud-dock-space` at the bottom so the two panels cannot collide.
 
 ## GLB loader
 

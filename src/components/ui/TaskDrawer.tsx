@@ -20,9 +20,10 @@ interface TaskDrawerProps {
   open: boolean;
   onToggle: () => void;
   onToast: (message: string, tone: ToastTone) => void;
+  onReset?: () => void;
 }
 
-export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
+export function TaskDrawer({ open, onToggle, onToast, onReset }: TaskDrawerProps) {
   const tasks = useWorldStore((state) => state.tasks);
   const coins = useWorldStore((state) => state.coins);
   const addTask = useWorldStore((state) => state.addTask);
@@ -64,6 +65,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
   function handleReset() {
     if (window.confirm('Reset the world, coins, tasks, and inventory to the starter courtyard?')) {
       resetWorld();
+      onReset?.();
       setTitle('');
       setError('');
       playSound('store');
@@ -95,7 +97,10 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
   }
 
   return (
-    <div className="absolute right-4 top-4 z-30 flex max-h-[calc(100vh-2rem)] w-[min(370px,calc(100vw-2rem))] flex-col">
+    <div
+      data-testid="task-drawer"
+      className="absolute right-4 top-4 z-30 flex max-h-[calc(100vh-2rem-var(--hud-dock-space,140px))] w-[min(370px,calc(100vw-2rem))] flex-col"
+    >
       <div className="glass-panel flex max-h-full animate-panel-in flex-col overflow-hidden rounded-[26px]">
         <header className="flex items-start justify-between gap-3 px-4 pb-2 pt-4">
           <div>
@@ -241,7 +246,7 @@ export function TaskDrawer({ open, onToggle, onToast }: TaskDrawerProps) {
                       deleteTask(task.id);
                       playSound('ui');
                     }}
-                    className="focus-ring rounded-full p-1 text-ink-soft/30 opacity-0 transition hover:bg-terracotta/10 hover:text-terracotta-deep group-hover:opacity-100"
+                    className="focus-ring rounded-full p-1 text-ink-soft/30 opacity-0 transition hover:bg-terracotta/10 hover:text-terracotta-deep focus-visible:opacity-100 group-focus-within:opacity-100 group-hover:opacity-100"
                     aria-label={`Delete ${task.title}`}
                   >
                     <Trash2 size={12} />

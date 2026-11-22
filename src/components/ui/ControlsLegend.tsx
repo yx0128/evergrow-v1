@@ -9,7 +9,8 @@ const ROWS: Array<[string, string]> = [
   ['R', 'Rotate placement / selection'],
   ['M', 'Move selected piece'],
   ['Esc', 'Cancel / deselect'],
-  ['1–9', 'Select hotbar slot'],
+  ['1–9', 'Select current page slot'],
+  ['[ / ]', 'Previous / next hotbar page'],
   ['B', 'Open build shop'],
   ['H', 'Photo mode'],
 ];

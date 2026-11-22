@@ -21,6 +21,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'sandstone_tile',
     name: 'Sandstone Tile',
+    shortName: 'Sandstone',
     category: 'base',
     cost: 12,
     modelUrl: asset('sandstone_tile.glb'),
@@ -31,6 +32,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'slate_tile',
     name: 'Slate Tile',
+    shortName: 'Slate',
     category: 'base',
     cost: 16,
     modelUrl: asset('slate_tile.glb'),
@@ -41,6 +43,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'grass_tile',
     name: 'Grass Tile',
+    shortName: 'Grass',
     category: 'base',
     cost: 14,
     modelUrl: asset('grass_tile.glb'),
@@ -51,6 +54,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'water_basin',
     name: 'Water Basin',
+    shortName: 'Basin',
     category: 'base',
     cost: 30,
     modelUrl: asset('water_basin.glb'),
@@ -61,6 +65,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'stone_stairs',
     name: 'Stone Stairs',
+    shortName: 'Stairs',
     category: 'base',
     cost: 34,
     modelUrl: asset('stone_stairs.glb'),
@@ -71,6 +76,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'stone_lantern',
     name: 'Stone Lantern',
+    shortName: 'Lantern',
     category: 'prop',
     cost: 40,
     modelUrl: asset('stone_lantern.glb'),
@@ -83,6 +89,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'paper_lantern',
     name: 'Paper Lantern',
+    shortName: 'Paper',
     category: 'prop',
     cost: 36,
     modelUrl: '',
@@ -95,6 +102,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'cottage',
     name: 'Cottage',
+    shortName: 'Cottage',
     category: 'prop',
     cost: 175,
     modelUrl: asset('cottage.glb'),
@@ -106,6 +114,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'birdbath_fountain',
     name: 'Birdbath Fountain',
+    shortName: 'Fountain',
     category: 'prop',
     cost: 55,
     modelUrl: asset('birdbath_fountain.glb'),
@@ -117,6 +126,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'balustrade',
     name: 'Balustrade',
+    shortName: 'Railing',
     category: 'prop',
     cost: 22,
     modelUrl: asset('balustrade.glb'),
@@ -128,6 +138,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'firepot',
     name: 'Firepot',
+    shortName: 'Firepot',
     category: 'prop',
     cost: 48,
     modelUrl: asset('firepot.glb'),
@@ -140,6 +151,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'rose_planter',
     name: 'Rose Planter',
+    shortName: 'Roses',
     category: 'prop',
     cost: 30,
     modelUrl: asset('rose_planter.glb'),
@@ -151,6 +163,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'blossom_tree',
     name: 'Blossom Tree',
+    shortName: 'Blossom',
     category: 'prop',
     cost: 85,
     modelUrl: asset('blossom_tree.glb'),
@@ -162,6 +175,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'leafy_tree',
     name: 'Leafy Tree',
+    shortName: 'Leafy',
     category: 'prop',
     cost: 80,
     modelUrl: asset('leafy_tree.glb'),
@@ -173,6 +187,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'pine_tree',
     name: 'Pine Tree',
+    shortName: 'Pine',
     category: 'prop',
     cost: 90,
     modelUrl: '',
@@ -184,6 +199,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'market_stall',
     name: 'Market Stall',
+    shortName: 'Market',
     category: 'prop',
     cost: 110,
     modelUrl: asset('market_stall.glb'),
@@ -195,6 +211,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'blue_market_stall',
     name: 'Blue Market Stall',
+    shortName: 'Blue Stall',
     category: 'prop',
     cost: 115,
     modelUrl: asset('blue_market_stall.glb'),
@@ -206,6 +223,7 @@ export const ITEMS: ItemDef[] = [
   {
     id: 'wooden_bench',
     name: 'Wooden Bench',
+    shortName: 'Bench',
     category: 'prop',
     cost: 32,
     modelUrl: asset('wooden_bench.glb'),
@@ -222,6 +240,30 @@ export const ITEM_MAP: Record<string, ItemDef> = Object.fromEntries(
 
 export const BASE_ITEMS = ITEMS.filter((item) => item.category === 'base');
 export const PROP_ITEMS = ITEMS.filter((item) => item.category === 'prop');
+
+export const HOTBAR_PAGE_SIZE = 9;
+
+export const HOTBAR_ORDER: readonly string[] = [
+  'stone_lantern',
+  'rose_planter',
+  'cottage',
+  'pine_tree',
+  'sandstone_tile',
+  'slate_tile',
+  'grass_tile',
+  'water_basin',
+  'stone_stairs',
+  'paper_lantern',
+  'birdbath_fountain',
+  'balustrade',
+  'firepot',
+  'blossom_tree',
+  'leafy_tree',
+  'market_stall',
+  'blue_market_stall',
+  'wooden_bench',
+];
+
 
 export const STARTER_PLACEMENTS = [
   { x: -1, z: -1 },

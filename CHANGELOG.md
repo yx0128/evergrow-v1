@@ -2,6 +2,13 @@
 
 All notable changes to Moss & Ember are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- Reworked the hotbar into two fixed nine-slot pages with `[`/`]` paging, a compact Rotate/Move/Store/Shop rail, category cues, and zero-stock shop links. Slot identity no longer changes when stock changes, and buying reveals the item’s page.
+- The task drawer reserves the dock band so it cannot overlap the hotbar; the shop is focus-trapped and world shortcuts pause while it is open.
+
 ## [1.0.0] — 2026-11-21
 
 ### Added

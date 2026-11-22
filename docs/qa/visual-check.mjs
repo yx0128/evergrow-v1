@@ -54,10 +54,18 @@ const seed = {
       { id: 'sd2', title: 'Sketch the spring courtyard', tier: 'standard', done: false, createdAt: now - 80000 },
       { id: 'sd3', title: 'Deep work: finish the chapter', tier: 'deep', done: true, createdAt: now - 200000, completedAt: now - 100000 },
       { id: 'sd4', title: 'Tidy the desk', tier: 'quick', done: true, createdAt: now - 300000, completedAt: now - 250000 },
+      { id: 'sd5', title: 'Water the fern', tier: 'quick', done: false, createdAt: now - 70000 },
+      { id: 'sd6', title: 'Read ten quiet pages', tier: 'standard', done: false, createdAt: now - 60000 },
+      { id: 'sd7', title: 'Outline the next chapter', tier: 'deep', done: false, createdAt: now - 50000 },
+      { id: 'sd8', title: 'Sharpen the pencil', tier: 'quick', done: false, createdAt: now - 40000 },
+      { id: 'sd9', title: 'Stretch by the window', tier: 'quick', done: false, createdAt: now - 30000 },
     ],
     inventory: {
-      grass_tile: 3, slate_tile: 2, stone_lantern: 2, rose_planter: 2,
-      blossom_tree: 1, balustrade: 1, firepot: 1, wooden_bench: 1,
+      stone_lantern: 2, rose_planter: 2, cottage: 1, pine_tree: 1,
+      sandstone_tile: 4, slate_tile: 2, grass_tile: 3, water_basin: 1,
+      stone_stairs: 1, paper_lantern: 1, birdbath_fountain: 1,
+      balustrade: 1, firepot: 1, blossom_tree: 1, leafy_tree: 1,
+      market_stall: 1, blue_market_stall: 1, wooden_bench: 0,
     },
     placedItems: [...bases, ...props],
     themeMode: 'day',
@@ -105,6 +113,57 @@ try {
   await wait(4200);
 
   await page.screenshot({ path: path.join(OUT_DIR, 'ui-day.png') });
+
+  const dockGap = await page.evaluate(() => {
+    const rect = (selector) => {
+      const element = document.querySelector(selector);
+      if (!element) return null;
+      const box = element.getBoundingClientRect();
+      return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    };
+    return { drawer: rect('[data-testid="task-drawer"]'), dock: rect('[data-testid="hotbar-dock"]') };
+  });
+  assert(dockGap.drawer && dockGap.dock, 'task drawer or hotbar dock is missing');
+  const overlaps =
+    dockGap.drawer.left < dockGap.dock.right &&
+    dockGap.drawer.right > dockGap.dock.left &&
+    dockGap.drawer.top < dockGap.dock.bottom &&
+    dockGap.drawer.bottom > dockGap.dock.top;
+  assert(!overlaps, 'task drawer overlaps the hotbar dock');
+  assert(
+    dockGap.drawer.left - dockGap.dock.right >= 8,
+    `hotbar clearance is only ${Math.round(dockGap.drawer.left - dockGap.dock.right)}px`,
+  );
+
+  await page.keyboard.press('BracketRight');
+  await wait(350);
+  const secondPage = await page.evaluate(
+    () =>
+      Boolean(document.querySelector('[data-testid="hotbar-slot-paper_lantern"]')) &&
+      !document.querySelector('[data-testid="hotbar-slot-stone_lantern"]'),
+  );
+  assert(secondPage, 'hotbar page 2 did not reveal the second set of items');
+  await page.screenshot({ path: path.join(OUT_DIR, 'ui-page2.png') });
+  await page.click('[data-testid="hotbar-slot-wooden_bench"]');
+  await wait(700);
+  const shopFocus = await page.evaluate(() => ({
+    open: Boolean(document.querySelector('[role="dialog"]')),
+    card: Boolean(document.getElementById('shop-item-wooden_bench')),
+  }));
+  assert(shopFocus.open, 'an empty hotbar slot did not open the shop');
+  assert(shopFocus.card, 'the shop did not focus the requested item');
+  await page.keyboard.press('h');
+  await wait(350);
+  const shopSurvives = await page.evaluate(
+    () =>
+      Boolean(document.querySelector('[role="dialog"]')) &&
+      !document.body.innerText.includes('Show interface'),
+  );
+  assert(shopSurvives, 'world shortcuts fired while the shop was open');
+  await page.keyboard.press('Escape');
+  await wait(450);
+  await page.keyboard.press('BracketLeft');
+  await wait(350);
 
   await page.keyboard.press('h');
   await wait(800);
@@ -179,10 +238,7 @@ try {
   await wait(500);
 
   await page.evaluate(() => {
-    const target = [...document.querySelectorAll('button')].find((button) =>
-      (button.getAttribute('aria-label') || '').startsWith('Select Grass Tile'),
-    );
-    target?.click();
+    document.querySelector('[data-testid="hotbar-slot-grass_tile"]')?.click();
   });
   await wait(400);
   await page.mouse.click(300, 300);
@@ -264,10 +320,59 @@ try {
     'the moved and rotated piece did not persist across reload',
   );
 
+  await page.keyboard.press('b');
+  await wait(800);
+  await page.evaluate(() => {
+    const tab = [...document.querySelectorAll('button')].find((button) =>
+      (button.textContent || '').includes('Surface Props'),
+    );
+    tab?.click();
+  });
+  await wait(300);
+  await page.evaluate(() => {
+    const target = [...document.querySelectorAll('button')].find((button) =>
+      (button.getAttribute('aria-label') || '').startsWith('Buy Paper Lantern'),
+    );
+    target?.click();
+  });
+  await wait(700);
+  const revealedPage = await page.evaluate(
+    () =>
+      Boolean(document.querySelector('[data-testid="hotbar-slot-paper_lantern"]')) &&
+      !document.querySelector('[data-testid="hotbar-slot-stone_lantern"]'),
+  );
+  assert(revealedPage, 'buying an off-page item did not reveal its fixed page');
+  await page.keyboard.press('Escape');
+  await wait(450);
+
   await page.click('button[aria-label^="Graphics quality: high"]');
   await wait(800);
   const lowQuality = await readState();
   assert(lowQuality.graphicsQuality === 'low', 'the quality preset did not toggle');
+
+  await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 1 });
+  await wait(700);
+  const compactGap = await page.evaluate(() => {
+    const rect = (selector) => {
+      const element = document.querySelector(selector);
+      if (!element) return null;
+      const box = element.getBoundingClientRect();
+      return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    };
+    return { drawer: rect('[data-testid="task-drawer"]'), dock: rect('[data-testid="hotbar-dock"]') };
+  });
+  assert(compactGap.drawer && compactGap.dock, 'compact HUD is missing a dock or drawer');
+  const compactOverlaps =
+    compactGap.drawer.left < compactGap.dock.right &&
+    compactGap.drawer.right > compactGap.dock.left &&
+    compactGap.drawer.top < compactGap.dock.bottom &&
+    compactGap.drawer.bottom > compactGap.dock.top;
+  assert(!compactOverlaps, 'task drawer overlaps the hotbar dock at 1280px');
+  assert(
+    compactGap.drawer.left - compactGap.dock.right >= 8,
+    `compact hotbar clearance is only ${Math.round(compactGap.drawer.left - compactGap.dock.right)}px`,
+  );
+  await page.screenshot({ path: path.join(OUT_DIR, 'ui-1280.png') });
 
   assert(errors.length === 0, errors.join('\n'));
 
