@@ -3,6 +3,6 @@ import type { ItemDef } from '../../types';
 
 export function preloadMiniatures(items: ItemDef[]): void {
   for (const item of items) {
-    useGLTF.preload(item.modelUrl);
+    if (item.modelUrl) useGLTF.preload(item.modelUrl);
   }
 }

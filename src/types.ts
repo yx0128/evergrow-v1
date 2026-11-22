@@ -14,6 +14,7 @@ export interface ItemDef {
   accent: string;
   glyph: string;
   light?: 'lantern' | 'fire';
+  procedural?: boolean;
   modelScale?: number;
 }
 

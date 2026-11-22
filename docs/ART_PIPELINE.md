@@ -93,6 +93,7 @@ No textures are used. All variation comes from geometry and material color, whic
 | `water_basin.glb` | Terracotta floor, twelve beveled rim bricks + corner blocks, translucent teal water, three ripple rings, two lily pads. |
 | `stone_stairs.glb` | Three softly beveled sandstone steps with lighter tread caps. |
 | `stone_lantern.glb` | Lathe foot/post/finial, six-bar hexagonal lattice, emissive amber core, flared pagoda roof with upturned tips. |
+| `cottage.glb` | Warm stone-cream plaster walls, chunky staggered clay-terracotta shingles (#C9734E/#C26A45/#D17C57) on a broad 35-degree roof with a beveled ridge beam, chunky voussoir door surround, thick-mullion gable porthole, and open shuttered side windows. |
 | `birdbath_fountain.glb` | Fluted lathe pedestal, shell bowl, water disc, ripple rings, sculpted bird (body, head, beak, tail, eyes). |
 | `balustrade.glb` | Beveled rails, three turned hourglass balusters, plinths, rounded end caps. |
 | `firepot.glb` | White stone puffs, bulbous terracotta pot, coals, four layered flame tongues. |
@@ -117,7 +118,7 @@ npm run dev
 
 Confirm:
 
-- all 15 files exist and are non-zero;
+- all 16 files exist and are non-zero;
 - base tiles print `1.000 × 1.000 × 0.233` during generation;
 - props print a footprint `≤ 0.925`;
 - the app loads without a placeholder block (a missing GLB shows a beveled fallback with a label);

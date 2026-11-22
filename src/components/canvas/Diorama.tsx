@@ -8,6 +8,7 @@ import { useWorldStore } from '../../store/useWorldStore';
 import type { ActionResult, ItemCategory, ItemDef, Rotation } from '../../types';
 import {
   InstancedItemBatch,
+  LegacyPieces,
   FIRE_DAY_EMISSIVE,
   FIRE_NIGHT_EMISSIVE,
   WARM_DAY_EMISSIVE,
@@ -230,7 +231,16 @@ export function Diorama({ onFeedback }: DioramaProps) {
 
   return (
     <group>
-      {groups.map(({ item, pieces }) => (
+      {groups.map(({ item, pieces }) =>
+        item.procedural ? (
+          <LegacyPieces
+            key={item.id}
+            item={item}
+            pieces={pieces.filter((piece) => !hiddenIds.has(piece.id))}
+            onPieceClick={handlePieceClick}
+            onPieceContext={handlePieceContext}
+          />
+        ) : (
         <InstancedItemBatch
           key={item.id}
           item={item}
@@ -238,21 +248,34 @@ export function Diorama({ onFeedback }: DioramaProps) {
           hiddenIds={hiddenIds}
           warmEmissive={Boolean(item.light)}
           warmEmissiveIntensity={
-            themeMode === 'night' ? 2.4 : graphicsQuality === 'high' ? 1.4 : 1.8
+            item.id === 'cottage'
+              ? themeMode === 'night'
+                ? 2.0
+                : 0
+              : themeMode === 'night'
+                ? 2.4
+                : graphicsQuality === 'high'
+                  ? 1.4
+                  : 1.8
           }
           warmEmissiveColor={
-            item.light === 'fire'
+            item.id === 'cottage'
               ? themeMode === 'night'
-                ? FIRE_NIGHT_EMISSIVE
-                : FIRE_DAY_EMISSIVE
-              : themeMode === 'night'
-                ? WARM_NIGHT_EMISSIVE
-                : WARM_DAY_EMISSIVE
+                ? '#FFE46B'
+                : '#FFF6DB'
+              : item.light === 'fire'
+                ? themeMode === 'night'
+                  ? FIRE_NIGHT_EMISSIVE
+                  : FIRE_DAY_EMISSIVE
+                : themeMode === 'night'
+                  ? WARM_NIGHT_EMISSIVE
+                  : WARM_DAY_EMISSIVE
           }
           onPieceClick={handlePieceClick}
           onPieceContext={handlePieceContext}
         />
-      ))}
+        ),
+      )}
 
       {selectedPiece && selectedPieceItem ? (
         <mesh

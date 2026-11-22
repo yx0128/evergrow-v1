@@ -911,9 +911,9 @@ def make_rose_planter():
         rose_bloom((x, y, z), size, bloom_mat, crimson_dark if bloom_mat != crimson_dark else crimson, 140 + index)
 
 
-def make_blossom_tree(palette=None):
-    trunk_mat = material("#916846", 0.9)
-    trunk_light = material("#AA7E56", 0.9)
+def make_blossom_tree(palette=None, sturdy_trunk=False, trunk_color=None, trunk_light_color=None):
+    trunk_mat = material(trunk_color or "#916846", 0.9)
+    trunk_light = material(trunk_light_color or "#AA7E56", 0.9)
     if palette is None:
         palette = [
             ("#FFABC5", 0.86),
@@ -922,43 +922,74 @@ def make_blossom_tree(palette=None):
             ("#F695BA", 0.88),
         ]
     shades = [material(color, roughness) for color, roughness in palette]
-    tube(
-        "tree_trunk",
-        [(0, 0, 0), (0.02, 0.01, 0.18), (-0.03, 0.02, 0.36), (0.02, 0.0, 0.52), (0.0, 0.0, 0.72)],
-        0.055,
-        trunk_mat,
-        radii=[1.6, 1.35, 1.1, 0.9, 0.7],
-        resolution=16,
-    )
-    tube(
-        "tree_branch_left",
-        [(0.01, 0.0, 0.46), (-0.13, 0.03, 0.56), (-0.24, 0.0, 0.7)],
-        0.03,
-        trunk_light,
-        radii=[1.1, 0.85, 0.55],
-        resolution=12,
-    )
-    tube(
-        "tree_branch_right",
-        [(0.0, 0.0, 0.5), (0.14, -0.03, 0.6), (0.25, 0.02, 0.74)],
-        0.03,
-        trunk_light,
-        radii=[1.1, 0.85, 0.55],
-        resolution=12,
-    )
-    tube(
-        "tree_branch_back",
-        [(0.0, 0.0, 0.44), (0.02, 0.12, 0.58), (0.0, 0.19, 0.72)],
-        0.025,
-        trunk_mat,
-        radii=[1.0, 0.8, 0.5],
-        resolution=12,
-    )
-    blossom_cluster((0.0, 0.0, 0.80), 0.18, shades, 150)
-    blossom_cluster((0.0, 0.0, 0.88), 0.29, shades, 151)
-    blossom_cluster((-0.22, 0.02, 0.78), 0.2, shades, 152)
-    blossom_cluster((0.23, 0.03, 0.8), 0.21, shades, 153)
-    blossom_cluster((0.0, 0.17, 0.78), 0.19, shades, 154)
+    if sturdy_trunk:
+        tube(
+            "tree_trunk",
+            [(0, 0, 0), (0.015, 0.005, 0.20), (-0.005, 0.01, 0.42), (0.01, 0.0, 0.62), (0.0, 0.0, 0.80)],
+            0.075,
+            trunk_mat,
+            radii=[1.55, 1.35, 1.15, 0.98, 0.78],
+            resolution=18,
+        )
+    else:
+        tube(
+            "tree_trunk",
+            [(0, 0, 0), (0.02, 0.01, 0.18), (-0.03, 0.02, 0.36), (0.02, 0.0, 0.52), (0.0, 0.0, 0.72)],
+            0.055,
+            trunk_mat,
+            radii=[1.6, 1.35, 1.1, 0.9, 0.7],
+            resolution=16,
+        )
+    if sturdy_trunk:
+        tube(
+            "tree_branch_left",
+            [(0.0, 0.0, 0.46), (-0.10, 0.015, 0.55), (-0.20, 0.02, 0.62)],
+            0.04,
+            trunk_light,
+            radii=[1.15, 0.9, 0.65],
+            resolution=10,
+        )
+        tube(
+            "tree_branch_right",
+            [(0.0, 0.0, 0.52), (0.12, -0.01, 0.61), (0.23, 0.01, 0.68)],
+            0.038,
+            trunk_light,
+            radii=[1.15, 0.9, 0.65],
+            resolution=10,
+        )
+        blossom_cluster((0.02, 0.0, 0.90), 0.27, shades, 151)
+        blossom_cluster((-0.20, 0.02, 0.70), 0.18, shades, 152)
+        blossom_cluster((0.23, 0.01, 0.76), 0.20, shades, 153)
+    else:
+        tube(
+            "tree_branch_left",
+            [(0.01, 0.0, 0.46), (-0.13, 0.03, 0.56), (-0.24, 0.0, 0.7)],
+            0.03,
+            trunk_light,
+            radii=[1.1, 0.85, 0.55],
+            resolution=12,
+        )
+        tube(
+            "tree_branch_right",
+            [(0.0, 0.0, 0.5), (0.14, -0.03, 0.6), (0.25, 0.02, 0.74)],
+            0.03,
+            trunk_light,
+            radii=[1.1, 0.85, 0.55],
+            resolution=12,
+        )
+        tube(
+            "tree_branch_back",
+            [(0.0, 0.0, 0.44), (0.02, 0.12, 0.58), (0.0, 0.19, 0.72)],
+            0.025,
+            trunk_mat,
+            radii=[1.0, 0.8, 0.5],
+            resolution=12,
+        )
+        blossom_cluster((0.0, 0.0, 0.80), 0.18, shades, 150)
+        blossom_cluster((0.0, 0.0, 0.88), 0.29, shades, 151)
+        blossom_cluster((-0.22, 0.02, 0.78), 0.2, shades, 152)
+        blossom_cluster((0.23, 0.03, 0.8), 0.21, shades, 153)
+        blossom_cluster((0.0, 0.17, 0.78), 0.19, shades, 154)
     rng = random.Random(155)
     for index in range(8):
         angle_value = rng.uniform(0, math.tau)
@@ -973,16 +1004,17 @@ def make_blossom_tree(palette=None):
             rotation=(0, 0, angle_value),
             seed=160 + index,
         )
-    for index in range(4):
-        angle_value = (index / 4.0) * math.tau + 0.4
-        tube(
-            f"tree_root_{index}",
-            [(0.0, 0.0, 0.06), (math.cos(angle_value) * 0.07, math.sin(angle_value) * 0.07, 0.02), (math.cos(angle_value) * 0.11, math.sin(angle_value) * 0.11, 0.0)],
-            0.018,
-            trunk_mat,
-            radii=[1.2, 0.8, 0.35],
-            resolution=8,
-        )
+    if not sturdy_trunk:
+        for index in range(4):
+            angle_value = (index / 4.0) * math.tau + 0.4
+            tube(
+                f"tree_root_{index}",
+                [(0.0, 0.0, 0.06), (math.cos(angle_value) * 0.07, math.sin(angle_value) * 0.07, 0.02), (math.cos(angle_value) * 0.11, math.sin(angle_value) * 0.11, 0.0)],
+                0.018,
+                trunk_mat,
+                radii=[1.2, 0.8, 0.35],
+                resolution=8,
+            )
 
 
 def make_market_stall(awning_color="#EB8551"):
@@ -1158,12 +1190,170 @@ def make_wooden_bench():
         )
 
 
+def make_cottage():
+    wall = material("#DFD6C5", 0.80)
+    wood = material("#A58C6E", 0.80)
+    window_wood = material("#9C6F4C", 0.80)
+    casing_wood = material("#9A6C4C", 0.80)
+    door_panel = material("#7E5C3B", 0.82)
+    groove = material("#654A30", 0.85)
+    brass = material("#E6B84C", 0.35, metallic=0.7)
+    roof = material("#A55C45", 0.85)
+    roof_dark = material("#9D5640", 0.85)
+    roof_light = material("#AD6349", 0.85)
+    eave = material("#8B4637", 0.85)
+    pane = material("#FFF6DB", 0.4, emission="#FFF6DB", strength=4.0)
+
+    cube("cottage_body", (0.86, 0.74, 0.73), (0, 0, 0.365), wall, bevel=0.025, segments=4)
+
+    pitch = math.radians(38)
+    run = 0.49
+    rise = run * math.tan(pitch)
+    wall_height = 0.73
+    peak_z = wall_height + rise
+    panel_len = math.sqrt(run ** 2 + rise ** 2)
+    panel_z = wall_height + rise / 2
+
+    # Gable walls and broad 35-degree roof.
+    def gable(y0, y1):
+        verts = [
+            (-0.43, y0, wall_height), (0.43, y0, wall_height), (0.0, y0, peak_z),
+            (-0.43, y1, wall_height), (0.43, y1, wall_height), (0.0, y1, peak_z),
+        ]
+        faces = [(0, 1, 2), (5, 4, 3), (0, 3, 4, 1), (1, 4, 5, 2), (2, 5, 3, 0)]
+        mesh = bpy.data.meshes.new("cottage_gable")
+        mesh.from_pydata(verts, [], faces)
+        mesh.validate()
+        obj = bpy.data.objects.new("cottage_gable", mesh)
+        bpy.context.collection.objects.link(obj)
+        add_material(obj, wall)
+        add_bevel(obj, 0.012, 2)
+        smooth(obj, 40)
+        return obj
+
+    gable(-0.37, -0.355)
+    gable(0.355, 0.37)
+
+    shingle_colors = [roof, roof_dark, roof_light]
+    for side in (-1, 1):
+        center_x = side * run / 2
+        rotation_y = side * pitch
+        cube(
+            f"cottage_roof_{side}",
+            (panel_len + 0.05, 0.94, 0.066),
+            (center_x, 0.0, panel_z),
+            roof,
+            bevel=0.016,
+            segments=3,
+            rotation=(0, rotation_y, 0),
+            angle=40,
+        )
+        for row in range(5):
+            local_x = -0.22 + row * 0.11
+            local_z = 0.052 + row * 0.002
+            world_x = center_x + local_x * math.cos(rotation_y) + local_z * math.sin(rotation_y)
+            world_z = panel_z - local_x * math.sin(rotation_y) + local_z * math.cos(rotation_y)
+            for column in range(4):
+                local_y = -0.315 + column * 0.21 + (0.05 if row % 2 else 0.0)
+                rng = random.Random(1000 + (1 if side > 0 else 0) * 100 + row * 10 + column)
+                jitter = math.radians(rng.uniform(-1.5, 1.5))
+                thickness = 0.049 + rng.uniform(-0.003, 0.003)
+                cube(
+                    f"cottage_shingle_{side}_{row}_{column}",
+                    (0.115, 0.195, thickness),
+                    (world_x, local_y, world_z),
+                    shingle_colors[(row + column) % 3],
+                    bevel=0.012,
+                    segments=2,
+                    rotation=(0, side * (pitch + 0.04) + jitter, 0),
+                    angle=45,
+                )
+
+    cube("cottage_ridge", (0.17, 1.02, 0.082), (0, 0, peak_z + 0.016), roof, bevel=0.018, segments=3)
+
+    # Clean corner beams straight to the ground.
+    for x in (-0.40, 0.40):
+        for y in (-0.34, 0.34):
+            cube(
+                f"cottage_corner_{x}_{y}",
+                (0.065, 0.065, 0.75),
+                (x, y, 0.375),
+                wood,
+                bevel=0.01,
+                segments=2,
+            )
+
+    # Recessed plank door with subtle grooves and a cross-brace.
+    cube("cottage_door", (0.194, 0.036, 0.264), (0, -0.360, 0.132), door_panel, bevel=0.012, segments=3)
+    cylinder("cottage_door_arch", 0.096, 0.036, (0, -0.360, 0.264), door_panel, vertices=24, bevel=0.004, rotation=(math.radians(90), 0, 0))
+    ico("cottage_door_knob", 0.016, (0.06, -0.386, 0.175), brass, subdivisions=2, seed=205)
+
+    # Smooth continuous wooden doorway surround.
+    frame_radius = 0.129
+    surround_points = [(-frame_radius, -0.40, 0.0)]
+    surround_radii = [1.0]
+    rng = random.Random(2300)
+    for index in range(9):
+        angle = math.pi - math.pi * index / 8
+        if 0 < index < 8:
+            angle += math.radians(rng.uniform(-1.5, 1.5))
+        point_radius = frame_radius + rng.uniform(-0.0018, 0.0018)
+        surround_points.append(
+            (
+                math.cos(angle) * point_radius,
+                -0.40 + rng.uniform(-0.0008, 0.0008),
+                0.264 + math.sin(angle) * point_radius,
+            )
+        )
+        surround_radii.append(1.0 + rng.uniform(-0.03, 0.03))
+    surround_points.append((frame_radius, -0.40, 0.0))
+    surround_radii.append(1.0)
+    cube("cottage_door_threshold", (0.26, 0.06, 0.035), (0, -0.39, 0.0175), casing_wood, bevel=0.006, segments=2)
+    tube("cottage_door_surround", surround_points, 0.032, casing_wood, radii=surround_radii, resolution=14)
+
+    # Circular gable window with thick mullions that meet the frame.
+    cylinder("cottage_gable_window_pane", 0.0996, 0.014, (0, -0.375, 0.69), pane, vertices=28, bevel=0.003, rotation=(math.radians(90), 0, 0))
+    torus("cottage_gable_window_frame", 0.1188, 0.0289, (0, -0.375, 0.69), window_wood, rotation=(math.radians(90), 0, 0), major_segments=28, minor_segments=6)
+    cube("cottage_gable_window_mullion_h", (0.188, 0.0374, 0.0374), (0, -0.384, 0.69), window_wood, bevel=0.005, segments=2)
+    cube("cottage_gable_window_mullion_v", (0.0374, 0.0374, 0.188), (0, -0.384, 0.69), window_wood, bevel=0.005, segments=2)
+
+    # Matching slightly-open rectangular windows on both side walls.
+    for side in (-1, 1):
+        x = side * 0.432
+        pane_x = side * 0.441
+        sill_x = side * 0.446
+        cube(f"cottage_window_pane_{side}", (0.014, 0.22, 0.144), (pane_x, 0, 0.43), pane, bevel=0.003, segments=2)
+        cube(f"cottage_window_sill_{side}", (0.05, 0.30, 0.035), (sill_x, 0, 0.335), window_wood, bevel=0.006, segments=2)
+        for z in (0.513, 0.347):
+            cube(f"cottage_window_frame_{side}_{z}", (0.024, 0.26, 0.03), (side * 0.438, 0, z), window_wood, bevel=0.006, segments=2)
+        for y in (-0.125, 0.125):
+            cube(f"cottage_window_side_{side}_{y}", (0.024, 0.03, 0.171), (side * 0.438, y, 0.43), window_wood, bevel=0.006, segments=2)
+        angles = (120.0, 120.0) if side < 0 else (60.0, 50.0)
+        shutter_width = 0.105
+        for edge_y, direction, degrees in ((-0.11, 1, angles[0]), (0.11, -1, angles[1])):
+            phi = math.radians(degrees)
+            center_y = edge_y + direction * (shutter_width / 2) * math.cos(phi)
+            center_x = side * (0.448 + (shutter_width / 2) * math.sin(phi))
+            cube(
+                f"cottage_shutter_{side}_{edge_y}",
+                (0.022, shutter_width, 0.18),
+                (center_x, center_y, 0.43),
+                window_wood,
+                bevel=0.006,
+                segments=2,
+                rotation=(0, 0, -side * direction * phi),
+                angle=40,
+            )
+
 def make_leafy_tree():
     make_blossom_tree(
         [
-            ("#7EA84E", 0.85),
-            ("#6B9440", 0.85),
-        ]
+            ("#76913A", 0.85),
+            ("#5F7A2B", 0.85),
+        ],
+        sturdy_trunk=True,
+        trunk_color="#8E6943",
+        trunk_light_color="#8E6943",
     )
 
 
@@ -1184,6 +1374,7 @@ BUILDERS = {
     "rose_planter": (make_rose_planter, False),
     "blossom_tree": (make_blossom_tree, False),
     "leafy_tree": (make_leafy_tree, False),
+    "cottage": (make_cottage, False),
     "market_stall": (make_market_stall, False),
     "blue_market_stall": (make_blue_market_stall, False),
     "wooden_bench": (make_wooden_bench, False),

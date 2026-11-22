@@ -4,6 +4,7 @@ import {
   Flame,
   Flower2,
   Grid2X2,
+  Home,
   Lamp,
   Layers,
   Sparkles,
@@ -29,6 +30,7 @@ const GLYPHS: Record<string, LucideIcon> = {
   flower: Flower2,
   tree: TreePine,
   store: Store,
+  home: Home,
   bench: Armchair,
 };
 

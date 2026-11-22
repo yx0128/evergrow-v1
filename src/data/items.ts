@@ -81,6 +81,29 @@ export const ITEMS: ItemDef[] = [
     modelScale: 0.9,
   },
   {
+    id: 'paper_lantern',
+    name: 'Paper Lantern',
+    category: 'prop',
+    cost: 36,
+    modelUrl: '',
+    blurb: 'A low oak frame glowing softly through cream paper.',
+    accent: '#FFE066',
+    glyph: 'lamp',
+    light: 'lantern',
+    procedural: true,
+  },
+  {
+    id: 'cottage',
+    name: 'Cottage',
+    category: 'prop',
+    cost: 175,
+    modelUrl: asset('cottage.glb'),
+    blurb: 'A butter-cream cottage with a warm gabled window.',
+    accent: '#F3E8B8',
+    glyph: 'home',
+    light: 'lantern',
+  },
+  {
     id: 'birdbath_fountain',
     name: 'Birdbath Fountain',
     category: 'prop',
@@ -145,6 +168,17 @@ export const ITEMS: ItemDef[] = [
     glyph: 'tree',
   },
   {
+    id: 'pine_tree',
+    name: 'Pine Tree',
+    category: 'prop',
+    cost: 90,
+    modelUrl: '',
+    blurb: 'A slender pine with softly fluted, shadowed boughs.',
+    accent: '#5C6E3B',
+    glyph: 'tree',
+    procedural: true,
+  },
+  {
     id: 'market_stall',
     name: 'Market Stall',
     category: 'prop',
@@ -205,6 +239,8 @@ export const STARTER_TASKS = [
 export const STARTER_INVENTORY: Record<string, number> = {
   stone_lantern: 1,
   rose_planter: 1,
+  cottage: 1,
+  pine_tree: 1,
 };
 
 export const STARTER_COINS = 80;

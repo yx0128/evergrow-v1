@@ -121,7 +121,7 @@ Create `src/data/items.ts`:
 - 13 items (5 base, 8 props) with `id`, `name`, `category`, `cost`, `modelUrl`, `blurb`, `accent`, `glyph`, optional `light`.
 - costs: 12/16/14/30/34 for bases; 40/55/22/48/30/85/110/32 for props.
 - rewards: quick 10, standard 25, deep 50.
-- starter: 80 coins, 9 sandstone tiles at `(-1..1, -1..1)`, inventory `{ stone_lantern: 1, rose_planter: 1 }`, three gentle starter tasks.
+- starter: 80 coins, 9 sandstone tiles at `(-1..1, -1..1)`, inventory `{ stone_lantern: 1, rose_planter: 1, cottage: 1, pine_tree: 1 }`, three gentle starter tasks.
 - `BASE_HEIGHT = 0.2333`, `FOOTPRINT = 0.96`.
 
 Create `src/lib/grid.ts` (`cellKey`, `findBase`, `findProp`, `worldToCell`, `rotationToRadians`), `src/lib/id.ts` (`crypto.randomUUID` with fallback), `src/lib/sound.ts` (Web Audio chime/place/buy/store/error/UI).
@@ -279,7 +279,7 @@ Expected URL: `https://USER.github.io/REPO/`. Verify the HTML, the JS chunks, an
 
 ## 12. Agent prompt (optional starting point)
 
-> Build a desktop-first React 18 + TypeScript + Vite app called Moss & Ember: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and two props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 13 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.2333 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
+> Build a desktop-first React 18 + TypeScript + Vite app called Moss & Ember: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and four props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 16 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.2333 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
 
 ## 13. Pitfalls that cost time
 

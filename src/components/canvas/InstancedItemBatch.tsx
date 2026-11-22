@@ -214,7 +214,7 @@ class BatchErrorBoundary extends Component<
   }
 }
 
-function LegacyPieces({
+export function LegacyPieces({
   item,
   pieces,
   onPieceClick,

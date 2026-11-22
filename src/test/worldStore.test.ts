@@ -24,13 +24,15 @@ function resetWorld() {
 describe('world store', () => {
   beforeEach(resetWorld);
 
-  it('starts with a 3x3 courtyard, 80 coins, and two props', () => {
+  it('starts with a 3x3 courtyard, 80 coins, and four props', () => {
     const state = useWorldStore.getState();
     expect(state.coins).toBe(STARTER_COINS);
     expect(state.placedItems).toHaveLength(9);
     expect(state.placedItems.every((piece) => piece.itemId === 'sandstone_tile')).toBe(true);
     expect(state.inventory.stone_lantern).toBe(1);
     expect(state.inventory.rose_planter).toBe(1);
+    expect(state.inventory.cottage).toBe(1);
+    expect(state.inventory.pine_tree).toBe(1);
     expect(state.themeMode).toBe('day');
     expect(state.graphicsQuality).toBe('high');
   });

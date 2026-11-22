@@ -52,7 +52,7 @@ npm install
 npm run dev
 ```
 
-Open the URL printed by Vite (default `http://localhost:5173`). A fresh save starts with a `3×3` sandstone courtyard, `80` coins, and two props in the hotbar. For the hosted copy, see the [live demo](https://yx0128.github.io/moss-and-ember/).
+Open the URL printed by Vite (default `http://localhost:5173`). A fresh save starts with a `3×3` sandstone courtyard, `80` coins, and four props in the hotbar. For the hosted copy, see the [live demo](https://yx0128.github.io/moss-and-ember/).
 
 ```bash
 npm run typecheck
@@ -94,19 +94,22 @@ npm run preview
 | Base tile | Cost | Surface prop | Cost |
 | --- | ---: | --- | ---: |
 | Sandstone Tile | 12 | Stone Lantern | 40 |
+| | | Paper Lantern | 36 |
+| | | Cottage | 175 |
 | Slate Tile | 16 | Birdbath Fountain | 55 |
 | Grass Tile | 14 | Balustrade | 22 |
 | Water Basin | 30 | Firepot | 48 |
 | Stone Stairs | 34 | Rose Planter | 30 |
 | | | Blossom Tree | 85 |
 | | | Leafy Tree | 80 |
+| | | Pine Tree | 90 |
 | | | Market Stall | 110 |
 | | | Blue Market Stall | 115 |
 | | | Wooden Bench | 32 |
 
 ## Real sculpted GLB art
 
-All fifteen miniatures are authored by `scripts/generate_models.py` through Blender's Python API. The script uses bevels, subdivision, lathe profiles, bmesh jitter, layered rose petals, flame profiles, and Principled BSDF materials. Lantern cores and flames use emission strength `4.0` so the WebGL bloom pass catches them at night.
+All sixteen miniatures are authored by `scripts/generate_models.py` through Blender's Python API. The script uses bevels, subdivision, lathe profiles, bmesh jitter, layered rose petals, flame profiles, and Principled BSDF materials. Lantern cores and flames use emission strength `4.0` so the WebGL bloom pass catches them at night.
 
 ```bash
 # Blender on PATH
@@ -136,7 +139,7 @@ src/
 scripts/
   generate_models.py   Blender-authored GLB pipeline
   generate_models.sh   Blender launcher
-public/models/         15 committed GLB assets
+public/models/         16 committed GLB assets
 docs/                  Architecture, art, QA, reproduction, design
 skill/                 Portable AI-agent skill backup
 ```
