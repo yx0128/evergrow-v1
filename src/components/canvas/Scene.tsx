@@ -156,13 +156,13 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
         color={day ? '#FFF8EA' : '#6B655D'}
       />
       <hemisphereLight
-        args={[day ? '#FFF6E6' : '#6E6A63', day ? '#C9B9A6' : '#2E2A25', day ? 0.65 : 0.85]}
+        args={[day ? '#FFF6E6' : '#6E6A63', day ? '#C9B9A6' : '#2E2A25', day ? 0.95 : 0.85]}
       />
       <directionalLight
         ref={sunRef}
         castShadow
         position={day ? [9, 14, 7] : [-8, 11, -6]}
-        intensity={day ? 1.8 : 0.45}
+        intensity={day ? 2.35 : 0.45}
         color={day ? '#FFF5E4' : '#9E9B94'}
         shadow-mapSize-width={shadowSize}
         shadow-mapSize-height={shadowSize}
