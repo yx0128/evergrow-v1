@@ -111,7 +111,7 @@ export function TaskRow({
             setDetailsOpen((current) => !current);
             playSound('ui');
           }}
-          className={`focus-ring min-w-0 flex-1 truncate rounded px-0.5 text-left text-[12.5px] transition hover:text-sage-deep ${
+          className={`focus-ring min-w-0 flex-1 break-words rounded px-0.5 text-left text-[12.5px] leading-snug transition hover:text-sage-deep ${
             task.done
               ? 'text-ink-soft/55 line-through decoration-sage-deep/40'
               : 'font-medium text-ink'
