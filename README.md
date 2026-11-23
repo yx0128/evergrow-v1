@@ -109,10 +109,10 @@ npm run preview
 
 | Base tile | Cost | Surface prop | Cost |
 | --- | ---: | --- | ---: |
-| Sandstone Tile | 12 | Stone Lantern | 40 |
+| Sandstone Tile | 1 | Stone Lantern | 40 |
 | | | Paper Lantern | 36 |
 | | | Cottage | 175 |
-| Slate Tile | 16 | Birdbath Fountain | 55 |
+| Slate Tile | 1 | Birdbath Fountain | 55 |
 | Grass Tile | 14 | Balustrade | 22 |
 | Pond | 30 | Firepit | 48 |
 | Stairs | 34 | Flower Pot | 30 |

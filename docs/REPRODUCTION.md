@@ -119,7 +119,7 @@ Create `src/types.ts` with `ItemDef`, `Task`, `Subtask`, `PlacedItem`, `Persiste
 Create `src/data/items.ts`:
 
 - 18 items (5 base, 13 props) with `id`, `name`, `category`, `hotbarGroup`, `cost`, `modelUrl`, `blurb`, `accent`, `glyph`, optional `light`.
-- costs: 12/16/14/30/34 for bases; 40/36/175/55/22/48/30/85/80/90/110/115/32 for props.
+- costs: 1/1/14/30/34 for bases; 40/36/175/55/22/48/30/85/80/90/110/115/32 for props.
 - rewards: quick 10, standard 25, deep 50; priority labels low/medium/high.
 - starter: an empty world with 0 coins, no tasks, no inventory, and no placed pieces.
 - `BASE_HEIGHT = 0.2333`, `FOOTPRINT = 0.96`.

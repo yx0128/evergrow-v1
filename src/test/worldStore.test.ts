@@ -506,7 +506,7 @@ describe('world store', () => {
 
     const soldBase = useWorldStore.getState().sellPlacedItem(base.id);
     expect(soldBase.ok).toBe(true);
-    expect(useWorldStore.getState().coins).toBe(42);
+    expect(useWorldStore.getState().coins).toBe(31);
     expect(useWorldStore.getState().placedItems).toHaveLength(0);
   });
 
