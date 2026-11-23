@@ -1,7 +1,11 @@
 export type ItemCategory = 'base' | 'prop';
+export type HotbarGroup = 'terrain' | 'nature' | 'decor' | 'buildings';
+export type HotbarView = 'all' | HotbarGroup;
 export type TaskTier = 'quick' | 'standard' | 'deep';
+export type TaskPriority = 'low' | 'medium' | 'high';
 export type ThemeMode = 'day' | 'night';
 export type GraphicsQuality = 'high' | 'low';
+export type TaskLayout = 'bar' | 'tab';
 export type Rotation = 0 | 1 | 2 | 3;
 
 export interface ItemDef {
@@ -9,6 +13,7 @@ export interface ItemDef {
   name: string;
   shortName: string;
   category: ItemCategory;
+  hotbarGroup: HotbarGroup;
   cost: number;
   modelUrl: string;
   blurb: string;
@@ -20,13 +25,23 @@ export interface ItemDef {
   modelHeightScale?: number;
 }
 
+export interface Subtask {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
 export interface Task {
   id: string;
   title: string;
   tier: TaskTier;
+  priority: TaskPriority;
   done: boolean;
   createdAt: number;
   completedAt?: number;
+  dueDate?: string;
+  pinned?: boolean;
+  subtasks: Subtask[];
 }
 
 export interface PlacedItem {
@@ -51,4 +66,5 @@ export interface PersistedWorld {
   placedItems: PlacedItem[];
   themeMode: ThemeMode;
   graphicsQuality: GraphicsQuality;
+  taskLayout: TaskLayout;
 }

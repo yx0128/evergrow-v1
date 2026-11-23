@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="docs/screenshots/hero-day.png" alt="Moss & Ember floating miniature courtyard at golden hour" width="100%" />
-  <h1>Moss &amp; Ember</h1>
+  <img src="docs/screenshots/hero-day.png" alt="Evergrow floating miniature courtyard at golden hour" width="100%" />
+  <h1>Evergrow</h1>
   <p><strong>A cozy 3D isometric miniature diorama that grows from the real-life tasks you finish.</strong></p>
   <p>
     <a href="https://github.com/yx0128/moss-and-ember/actions"><img alt="CI" src="https://github.com/yx0128/moss-and-ember/actions/workflows/ci.yml/badge.svg" /></a>
@@ -23,12 +23,12 @@ No install required. The demo is a static build deployed from `main` by GitHub A
 
 Finish a small task, earn coins, and place a hand-sculpted miniature into a floating courtyard in space. Every tile is `1×1`; every prop is art, not an emoji. The world is quiet, tactile, and deliberately low-pressure.
 
-- **Task → coin loop.** Quick tasks pay `10`, standard tasks `25`, deep work `50`. Completion is one-way, so the economy cannot be farmed by unchecking. Drag a task's grip to reorder the list; the order is saved.
+- **Task → coin loop.** Quick tasks pay `10`, standard tasks `25`, deep work `50`. Completion is one-way, so the economy cannot be farmed by unchecking. Tasks can carry subtasks with progress bars, priority levels, and deadlines; the list sorts by completion, due date, then priority. Filter it by status, priority, an exact date, or a date range, and use the calendar to see what is due on a day.
 - **Two-layer building.** Place base tiles on empty cells, then place surface props on top of a base tile. Props never float and never share a cell. Click a placed piece to select it in place: `R`/HUD **Rotate** reorients it, **Move**/`M` lifts it for repositioning, and HUD **Store** returns it to inventory. A base tile carries its prop along.
 - **Real `.glb` engine.** Thirteen Blender-sculpted GLB miniatures are loaded at runtime, auto-normalized to a `0.96` footprint, auto-grounded, and shadow-enabled.
 - **Performance-minded.** Placed tiles and props render through instanced batches, ten pooled point lights keep the shader light count fixed, and a saved High/Low graphics toggle lazy-loads post-processing only when needed.
 - **Day and night.** Warm cream daylight with clean negative space; a charcoal starfield with moonlight, lantern point lights, firepot glow, subtle bloom, and ACES tone mapping.
-- **Desktop-first HUD.** Glass task drawer, a two-page inventory hotbar (`1–9`, `[` / `]`), a compact Rotate/Move/Store/Shop rail, build shop (`B`), photo mode (`H`), and a camera reset that always brings you home.
+- **Desktop-first HUD.** Glass task drawer, a category-filtered hotbar (Terrain, Nature, Decor, Buildings) with a compact Rotate/Move/Store/Shop rail, build shop (`B`), photo mode (`H`), and a camera reset that always brings you home.
 - **No backend.** No accounts, analytics, network calls, or API keys. Only `localStorage` — validated on read.
 
 ## Screenshots
@@ -52,7 +52,7 @@ npm install
 npm run dev
 ```
 
-Open the URL printed by Vite (default `http://localhost:5173`). A fresh save starts with a `3×3` sandstone courtyard, `80` coins, and four props in the hotbar. For the hosted copy, see the [live demo](https://yx0128.github.io/moss-and-ember/).
+Open the URL printed by Vite (default `http://localhost:5173`). A fresh save starts empty: no coins, no tasks, and no placed pieces. Add a task, finish it, and spend the reward on your first tiles. For the hosted copy, see the [live demo](https://yx0128.github.io/moss-and-ember/).
 
 ```bash
 npm run typecheck
@@ -68,9 +68,11 @@ npm run preview
 | --- | --- |
 | Left click | Place the selected item on a valid cell |
 | Left click a placed piece | Select it in place (sage ring + selection pill) |
-| Drag a task grip | Reorder tasks (focus it and use `↑` / `↓`) |
-| `1`–`9` | Select a slot on the current hotbar page |
-| `[` / `]` | Previous / next hotbar page |
+| Task **New task** | Open the task dialog to set size, priority, and deadline |
+| Pin beside **Add** | Pin or unpin every unfinished task at the top |
+| Pin on a task row (hover) | Pin or unpin that unfinished task |
+| `1`–`9` | Select a slot in the active hotbar category |
+| `[` / `]` | Previous / next hotbar category |
 | `R` or HUD **Rotate** | Rotate placement, the selected piece, or a lifted piece in 90° steps |
 | `M` or **Move** | Lift the selected piece; click a valid cell to drop it |
 | Right click a piece | Return it to inventory |
@@ -83,7 +85,7 @@ npm run preview
 | `Esc` | Cancel/deselect / close the shop / clear store mode |
 | `H` | Photo mode (hide HUD); press again to return |
 | HUD **Reset Camera** | Return to the reference isometric view |
-| Task **Reset** | Restore the starter world (confirmation required) |
+| Task **Reset world** | Two-click reset back to an empty world |
 
 ## Economy and catalog
 
@@ -207,4 +209,4 @@ The cozy miniature tone is inspired by the broader genre of garden diorama games
 
 ## License
 
-[MIT](LICENSE) © 2026 Moss & Ember contributors.
+[MIT](LICENSE) © 2026 Evergrow contributors.

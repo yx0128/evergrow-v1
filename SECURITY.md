@@ -21,7 +21,7 @@ You can expect an acknowledgement within 72 hours and a remediation plan within 
 
 ## Scope
 
-Moss & Ember is a static, client-only application. There is no server, authentication, database, or network request at runtime. The most relevant risks are:
+Evergrow is a static, client-only application. There is no server, authentication, database, or network request at runtime. The most relevant risks are:
 
 - XSS through user-supplied task titles or item text;
 - prototype pollution or crashes from malicious `localStorage` data;

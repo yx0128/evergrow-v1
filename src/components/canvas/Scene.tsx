@@ -18,6 +18,7 @@ const Effects = lazy(() => import('./Effects'));
 
 interface WorldCanvasProps {
   resetSignal: number;
+  gridVisible: boolean;
   onFeedback: (result: ActionResult, sound: 'place' | 'store' | 'error') => void;
 }
 
@@ -49,8 +50,8 @@ function CameraRig({ resetSignal }: { resetSignal: number }) {
       rotateSpeed={0.72}
       zoomSpeed={0.8}
       panSpeed={0.7}
-      minDistance={4.5}
-      maxDistance={48}
+      minDistance={7}
+      maxDistance={28}
       minPolarAngle={0.2}
       maxPolarAngle={Math.PI * 0.475}
       mouseButtons={{
@@ -197,7 +198,7 @@ function Lights({ day, shadowSize }: { day: boolean; shadowSize: number }) {
   );
 }
 
-function Scene({ resetSignal, onFeedback }: WorldCanvasProps) {
+function Scene({ resetSignal, gridVisible, onFeedback }: WorldCanvasProps) {
   const themeMode = useWorldStore((state) => state.themeMode);
   const graphicsQuality = useWorldStore((state) => state.graphicsQuality);
   const day = themeMode === 'day';
@@ -211,20 +212,22 @@ function Scene({ resetSignal, onFeedback }: WorldCanvasProps) {
       {!day && <NightSky />}
       <Diorama onFeedback={onFeedback} />
       <LightingPool />
-      <Grid
-        position={[0, -0.03, 0]}
-        args={[10, 10]}
-        cellSize={1}
-        cellThickness={0.6}
-        cellColor={day ? '#D9CDBA' : '#3B352F'}
-        sectionSize={5}
-        sectionThickness={1.1}
-        sectionColor={day ? '#BFB29B' : '#574D42'}
-        fadeDistance={30}
-        fadeStrength={2}
-        infiniteGrid
-        followCamera={false}
-      />
+      {gridVisible ? (
+        <Grid
+          position={[0.5, -0.03, 0.5]}
+          args={[10, 10]}
+          cellSize={1}
+          cellThickness={0.6}
+          cellColor={day ? '#D9CDBA' : '#3B352F'}
+          sectionSize={5}
+          sectionThickness={1.1}
+          sectionColor={day ? '#BFB29B' : '#574D42'}
+          fadeDistance={30}
+          fadeStrength={2}
+          infiniteGrid
+          followCamera={false}
+        />
+      ) : null}
       <CameraRig resetSignal={resetSignal} />
       <DprController quality={graphicsQuality} />
       <ExposureController night={!day} />
@@ -237,7 +240,7 @@ function Scene({ resetSignal, onFeedback }: WorldCanvasProps) {
   );
 }
 
-export function WorldCanvas({ resetSignal, onFeedback }: WorldCanvasProps) {
+export function WorldCanvas({ resetSignal, gridVisible, onFeedback }: WorldCanvasProps) {
   const graphicsQuality = useWorldStore((state) => state.graphicsQuality);
 
   return (
@@ -254,7 +257,11 @@ export function WorldCanvas({ resetSignal, onFeedback }: WorldCanvasProps) {
       className="h-full w-full"
     >
       <Suspense fallback={null}>
-        <Scene resetSignal={resetSignal} onFeedback={onFeedback} />
+        <Scene
+          resetSignal={resetSignal}
+          gridVisible={gridVisible}
+          onFeedback={onFeedback}
+        />
       </Suspense>
     </Canvas>
   );

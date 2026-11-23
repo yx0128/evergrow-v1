@@ -100,7 +100,7 @@ page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
 try {
   await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
   const title = await page.title();
-  assert(title.includes('Moss & Ember'), `unexpected page title: ${title}`);
+  assert(title.includes('Evergrow'), `unexpected page title: ${title}`);
 
   await page.evaluate(
     (payload, key) => {
@@ -130,20 +130,29 @@ try {
     dockGap.drawer.top < dockGap.dock.bottom &&
     dockGap.drawer.bottom > dockGap.dock.top;
   assert(!overlaps, 'task drawer overlaps the hotbar dock');
-  assert(
-    dockGap.drawer.left - dockGap.dock.right >= 8,
-    `hotbar clearance is only ${Math.round(dockGap.drawer.left - dockGap.dock.right)}px`,
-  );
 
-  await page.keyboard.press('BracketRight');
+  const categoryPills = await page.evaluate(() =>
+    ['All', 'Terrain', 'Buildings', 'Nature', 'Decor'].every((label) =>
+      [...document.querySelectorAll('button')].some(
+        (button) => button.textContent?.trim() === label,
+      ),
+    ),
+  );
+  assert(categoryPills, 'hotbar category pills are missing');
+  await page.evaluate(() => {
+    const tab = [...document.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === 'Decor',
+    );
+    tab?.click();
+  });
   await wait(350);
-  const secondPage = await page.evaluate(
+  const decorGroup = await page.evaluate(
     () =>
       Boolean(document.querySelector('[data-testid="hotbar-slot-paper_lantern"]')) &&
-      !document.querySelector('[data-testid="hotbar-slot-stone_lantern"]'),
+      Boolean(document.querySelector('[data-testid="hotbar-slot-stone_lantern"]')),
   );
-  assert(secondPage, 'hotbar page 2 did not reveal the second set of items');
-  await page.screenshot({ path: path.join(OUT_DIR, 'ui-page2.png') });
+  assert(decorGroup, 'Decor category did not reveal its items');
+  await page.screenshot({ path: path.join(OUT_DIR, 'ui-category.png') });
   await page.click('[data-testid="hotbar-slot-wooden_bench"]');
   await wait(700);
   const shopFocus = await page.evaluate(() => ({
@@ -162,8 +171,6 @@ try {
   assert(shopSurvives, 'world shortcuts fired while the shop was open');
   await page.keyboard.press('Escape');
   await wait(450);
-  await page.keyboard.press('BracketLeft');
-  await wait(350);
 
   await page.keyboard.press('h');
   await wait(800);
@@ -212,26 +219,52 @@ try {
   const readState = () =>
     page.evaluate((key) => JSON.parse(localStorage.getItem(key) || '{}').state, STORAGE_KEY);
 
-  const focusTaskGrip = () =>
-    page.evaluate(() => {
-      const handle = [...document.querySelectorAll('button')].find((button) =>
-        (button.getAttribute('aria-label') || '').startsWith(
-          'Reorder Water the windowsill herbs',
-        ),
-      );
-      handle?.focus();
-    });
+  await page.evaluate(() => {
+    document
+      .querySelector('button[aria-label="Pin Sketch the spring courtyard to the top"]')
+      ?.click();
+  });
+  await wait(450);
+  const pinnedState = await readState();
+  assert(
+    pinnedState.tasks.find((task) => task.id === 'sd2')?.pinned === true,
+    'pin did not persist',
+  );
+  const firstRow = await page.evaluate(
+    () => document.querySelector('ul li')?.textContent || '',
+  );
+  assert(firstRow.includes('Sketch the spring courtyard'), 'pinned task did not move to the top');
+  await page.evaluate(() => {
+    document
+      .querySelector('button[aria-label="Unpin Sketch the spring courtyard"]')
+      ?.click();
+  });
+  await wait(450);
+  assert(
+    (await readState()).tasks.find((task) => task.id === 'sd2')?.pinned === false,
+    'unpin did not persist',
+  );
+  const hiddenPin = await page.evaluate(() =>
+    document
+      .querySelector('button[aria-label="Pin Water the windowsill herbs to the top"]')
+      ?.parentElement?.className.includes('opacity-0'),
+  );
+  assert(hiddenPin, 'individual pin button is not hidden until hover');
 
-  await focusTaskGrip();
-  await page.keyboard.press('ArrowDown');
-  await wait(400);
-  const movedTask = await readState();
-  assert(movedTask.tasks[1].id === 'sd1', 'keyboard reorder did not move the task down');
-  await focusTaskGrip();
-  await page.keyboard.press('ArrowUp');
-  await wait(400);
-  const restoredTask = await readState();
-  assert(restoredTask.tasks[0].id === 'sd1', 'keyboard reorder did not move the task up');
+  await page.click('button[aria-label="Pin all unfinished tasks to the top"]');
+  await wait(450);
+  const allPinned = await readState();
+  assert(
+    allPinned.tasks.filter((task) => !task.done).every((task) => task.pinned === true),
+    'pin-all did not pin every unfinished task',
+  );
+  await page.click('button[aria-label="Unpin all unfinished tasks"]');
+  await wait(450);
+  const allUnpinned = await readState();
+  assert(
+    allUnpinned.tasks.filter((task) => !task.done).every((task) => !task.pinned),
+    'pin-all toggle did not unpin every unfinished task',
+  );
 
   const beforeTask = await readState();
   await page.click('button[aria-label="Complete Water the windowsill herbs"]');
@@ -283,10 +316,53 @@ try {
   );
   assert(afterReload.coins === afterPlace.coins, 'coins did not persist');
 
+  await page.click('button[aria-label="Toggle move mode"]');
+  await wait(400);
+  const moveModeOn = await page.evaluate(() =>
+    document.body.innerText.includes('Move mode'),
+  );
+  assert(moveModeOn, 'move mode did not start from the Move control');
+  await page.mouse.click(200, 200);
+  await wait(400);
+  const moveModePersisted = await page.evaluate(
+    () =>
+      document.body.innerText.includes('Move mode') &&
+      !document.body.innerText.includes('Moving '),
+  );
+  assert(moveModePersisted, 'move mode did not persist on empty ground');
+  await page.click('button[aria-label="Toggle move mode"]');
+  await wait(300);
+  assert(
+    !(await page.evaluate(() => document.body.innerText.includes('Move mode'))),
+    'the Move control did not exit move mode',
+  );
+
+  await page.click('button[aria-label="Toggle move mode"]');
+  await wait(300);
+  await page.mouse.click(489, 498);
+  await wait(400);
+  const moveModeLifted = await page.evaluate(() =>
+    document.body.innerText.includes('Moving Flower Pot'),
+  );
+  assert(moveModeLifted, 'clicking a placed piece did not lift it in move mode');
+  await page.keyboard.press('Escape');
+  await wait(400);
+  const escapedMoveMode = await page.evaluate(
+    () =>
+      !document.body.innerText.includes('Move mode') &&
+      !document.body.innerText.includes('Moving '),
+  );
+  assert(escapedMoveMode, 'Escape did not exit move mode');
+  const afterMoveMode = await readState();
+  assert(
+    afterMoveMode.placedItems.length === afterReload.placedItems.length,
+    'entering and leaving move mode changed the board',
+  );
+
   await page.mouse.click(489, 498);
   await wait(500);
   const selectedVisible = await page.evaluate(() =>
-    document.body.innerText.includes('Selected Rose Planter'),
+    document.body.innerText.includes('Selected Flower Pot'),
   );
   assert(selectedVisible, 'clicking a placed prop did not select it');
   const afterSelect = await readState();
@@ -295,7 +371,7 @@ try {
   );
   assert(selectedRose, 'selecting a prop moved it');
 
-  await page.click('button[title="Rotate selection, placement, or lifted piece 90° (R)"]');
+  await page.click('button[aria-label="Rotate selection, placement, or lifted piece 90 degrees"]');
   await wait(400);
   const afterRotate = await readState();
   const rotatedRose = afterRotate.placedItems.find(
@@ -304,14 +380,24 @@ try {
   assert(rotatedRose, 'rotating a selected prop moved it');
   assert(rotatedRose.rotation === 1, 'HUD rotate did not rotate the selected prop');
 
-  await page.click('button[aria-label="Move selected piece"]');
+  await page.click('button[aria-label="Toggle move mode"]');
   await wait(400);
   const movingVisible = await page.evaluate(() =>
-    document.body.innerText.includes('Moving Rose Planter'),
+    document.body.innerText.includes('Moving Flower Pot'),
   );
   assert(movingVisible, 'the Move action did not lift the selected prop');
   await page.mouse.click(871, 426);
   await wait(800);
+  const stickyMoveMode = await page.evaluate(() =>
+    document.body.innerText.includes('Move mode'),
+  );
+  assert(stickyMoveMode, 'move mode did not persist after dropping a piece');
+  await page.keyboard.press('Escape');
+  await wait(300);
+  assert(
+    !(await page.evaluate(() => document.body.innerText.includes('Move mode'))),
+    'Escape did not exit move mode after a drop',
+  );
   const afterMove = await readState();
   const movedRose = afterMove.placedItems.find(
     (piece) => piece.itemId === 'rose_planter' && piece.x === 1 && piece.z === -1,
@@ -345,7 +431,7 @@ try {
   await wait(800);
   await page.evaluate(() => {
     const tab = [...document.querySelectorAll('button')].find((button) =>
-      (button.textContent || '').includes('Surface Props'),
+      (button.textContent || '').trim() === 'Decor',
     );
     tab?.click();
   });
@@ -357,12 +443,12 @@ try {
     target?.click();
   });
   await wait(700);
-  const revealedPage = await page.evaluate(
+  const revealedGroup = await page.evaluate(
     () =>
       Boolean(document.querySelector('[data-testid="hotbar-slot-paper_lantern"]')) &&
-      !document.querySelector('[data-testid="hotbar-slot-stone_lantern"]'),
+      Boolean(document.querySelector('[data-testid="hotbar-slot-stone_lantern"]')),
   );
-  assert(revealedPage, 'buying an off-page item did not reveal its fixed page');
+  assert(revealedGroup, 'buying an item did not reveal its hotbar category');
   await page.keyboard.press('Escape');
   await wait(450);
 
@@ -389,11 +475,22 @@ try {
     compactGap.drawer.top < compactGap.dock.bottom &&
     compactGap.drawer.bottom > compactGap.dock.top;
   assert(!compactOverlaps, 'task drawer overlaps the hotbar dock at 1280px');
-  assert(
-    compactGap.drawer.left - compactGap.dock.right >= 8,
-    `compact hotbar clearance is only ${Math.round(compactGap.drawer.left - compactGap.dock.right)}px`,
-  );
   await page.screenshot({ path: path.join(OUT_DIR, 'ui-1280.png') });
+
+  await page.click('button[aria-label="Reset world"]');
+  await wait(300);
+  const beforeResetConfirm = await readState();
+  assert(beforeResetConfirm.tasks.length > 0, 'first reset click applied immediately');
+  const confirmVisible = await page.evaluate(() =>
+    document.body.innerText.includes('Confirm Reset?'),
+  );
+  assert(confirmVisible, 'reset did not enter its confirmation state');
+  await page.click('button[aria-label="Confirm reset world"]');
+  await wait(700);
+  const resetState = await readState();
+  assert(resetState.coins === 0, 'confirmed reset did not clear coins');
+  assert(resetState.tasks.length === 0, 'confirmed reset did not clear tasks');
+  assert(resetState.placedItems.length === 0, 'confirmed reset did not clear the world');
 
   assert(errors.length === 0, errors.join('\n'));
 

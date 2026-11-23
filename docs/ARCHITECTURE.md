@@ -1,6 +1,6 @@
 # Architecture
 
-Moss & Ember is a client-only Vite application. There is no server, account system, telemetry, or network dependency at runtime. The whole experience is a React tree wrapped around a single Three.js canvas, with Zustand as the authoritative world state and `localStorage` as the only persistence layer.
+Evergrow is a client-only Vite application. There is no server, account system, telemetry, or network dependency at runtime. The whole experience is a React tree wrapped around a single Three.js canvas, with Zustand as the authoritative world state and `localStorage` as the only persistence layer.
 
 ## Runtime layers
 
@@ -19,8 +19,8 @@ App.tsx
 │       └── Effects (lazy Bloom → ACES tone mapping)
 └── HUD
     ├── TopBar (theme, reset camera, photo mode)
-    ├── TaskDrawer (add / complete / delete / drag-reorder / reset)
-    ├── InventoryHotbar (two fixed pages, 1–9, page pager, rotate/move/store/shop rail)
+    ├── TaskDrawer (add / complete / pin / delete / drag-reorder / confirm reset)
+    ├── InventoryHotbar (category pills, 1–9, rotate/move/store/shop rail)
     ├── BuildShop modal (base / prop tabs)
     ├── ControlsLegend
     └── Toasts
@@ -128,7 +128,9 @@ With no build item selected, left-clicking a placed piece selects it and leaves 
 
 HUD **Store** returns the selected piece to inventory without entering store mode; with no selection it toggles click-to-store mode. **Move** / `M` lifts the selected piece into a move ghost, where the pointer previews the destination. Clicking a valid cell drops it; `Esc`, the hotbar cancel button, or a right-click cancels the move and returns the piece to selection. Moving does not touch inventory and is persisted as the same `PlacedItem` with new `x`/`z` and `placedAt`. A base tile also carries its surface prop. While lifted, `R` or HUD Rotate reorients the group; the ghost stays anchored at its last cell when the pointer moves onto the HUD. Moving a prop requires an empty base at the destination; moving a base requires a completely empty destination cell. Invalid drops keep the move active so the player can retry.
 
-The hotbar is derived from `HOTBAR_ORDER`, not from inventory keys. Slots are fixed in two pages of nine (`src/lib/hotbar.ts`), so purchases, placements, and stores never renumber a slot or hide an owned item. `1–9` addresses the current page; `[` / `]` page without changing selection. Zero-stock slots are catalog affordances that open the shop focused on that item, and buying reveals the item’s page. The task drawer reserves `--hud-dock-space` at the bottom so the two panels cannot collide.
+The hotbar is derived from `HOTBAR_ORDER`, not from inventory keys. Items are grouped into `Terrain`, `Nature`, `Decor`, and `Buildings` (`HotbarGroup`), with stable order inside each group (`src/lib/hotbar.ts`), so purchases, placements, and stores never reshuffle a category. `1–9` addresses the active category; `[` / `]` cycles categories. Zero-stock slots are greyed catalog affordances that open the shop focused on that item, and buying switches to the item’s category. The task drawer reserves `--hud-dock-space` at the bottom so the two panels cannot collide.
+
+Tasks carry an optional persisted `pinned` flag. Incomplete pinned tasks are stably partitioned above the rest; completing a task clears its pin. Per-task pins appear on hover/focus and stay visible while pinned; the pin beside Add toggles every unfinished task at once. Drag and keyboard reordering operate on that displayed order, and drops cannot cross the pinned boundary. Reset is a two-click confirm state rather than a native `window.confirm`.
 
 ## GLB loader
 

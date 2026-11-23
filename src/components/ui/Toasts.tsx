@@ -15,7 +15,7 @@ export function Toasts({
   onDismiss: (id: string) => void;
 }) {
   return (
-    <div className="pointer-events-none fixed left-1/2 top-20 z-50 flex w-[min(92vw,420px)] -translate-x-1/2 flex-col items-center gap-2">
+    <div className="pointer-events-none fixed left-4 top-20 z-50 flex w-[min(92vw,360px)] flex-col items-start gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}

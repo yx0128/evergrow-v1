@@ -1,6 +1,6 @@
 # Models
 
-This directory contains the 13 runtime GLB miniatures used by Moss & Ember. They are generated, not hand-edited.
+This directory contains the 13 runtime GLB miniatures used by Evergrow. They are generated, not hand-edited.
 
 | File | Kind | Footprint (Blender) |
 | --- | --- | --- |

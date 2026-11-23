@@ -20,7 +20,7 @@ Expected: zero TypeScript errors, zero ESLint warnings, 24 passing store tests, 
 npm run preview -- --port 4183
 ```
 
-Use an explicit port. If the port is busy, Vite silently moves to another one and you may end up testing a different project. Confirm the page title is **Moss & Ember**.
+Use an explicit port. If the port is busy, Vite silently moves to another one and you may end up testing a different project. Confirm the page title is **Evergrow**.
 
 ## 3. Headless visual and interaction pass
 
@@ -75,11 +75,14 @@ Run it at `1440×900`; the default viewport is set in the script.
 | Press `R` | Placement ghost rotates 90°, persists while selecting |
 | Press `R` or HUD **Rotate** while moving | Lifted piece (and its prop) rotates 90°; dropping persists it |
 | Drag a task grip | Inserts the task before or after the hovered row; order persists |
+| Click a task pin on hover | Pins an unfinished task above the list; completing it unpins it |
+| Click the pin beside **Add** | Pins or unpins every unfinished task at once |
+| Click **Reset world** twice | First click arms “Confirm Reset?”; second click restores the starter world |
 | Focus a task grip, press `↑` / `↓` | Reorders the task without a mouse |
-| Press `1–9` | Selects the matching owned item on the current page |
-| Press `[` / `]` | Pages the hotbar without changing slot identities |
+| Press `1–9` | Selects the matching slot in the active category |
+| Press `[` / `]` | Cycles hotbar categories (Terrain, Nature, Decor, Buildings) |
 | Click a zero-stock slot | Opens the shop focused on that item |
-| Buy an overflow item | Its fixed page is revealed; no owned item is hidden |
+| Buy an item from another category | The hotbar switches to that category; no owned item is hidden |
 | Press `Esc` | Cancels selection/store mode or closes the shop |
 | Press `H` | HUD hides; press again or click “Show interface” |
 | Toggle night | Warm lantern/firepoint lights, bloom, stars, dark sky |
@@ -96,7 +99,8 @@ Look for:
 - Lantern and firepot emission is visible at night but does not wash out the whole screen.
 - Day shadows read warm; night shadows read cool but not black.
 - The diorama is not hidden by the task drawer or hotbar.
-- The hotbar shows fixed slots with owned stock counts; zero-stock slots are dashed and open the shop.
+- The hotbar category pills fit in one row or scroll cleanly; owned slots are full colour and unowned slots are greyed, dashed, and open the shop.
+- Slot numbers are not shown in the bar.
 - Dragged tasks show a sage insertion line and settle in the new order after reload.
 - The task drawer stops above the hotbar at 1440 and 1280 with a long task list.
 - The grid fades toward the horizon and does not look like clipped text at the top edge.

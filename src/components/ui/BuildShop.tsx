@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Coins, ShoppingBag, X } from 'lucide-react';
-import {
-  BASE_ITEMS,
-  ITEM_MAP,
-  ITEMS,
-  PROP_ITEMS,
-} from '../../data/items';
+import { ShoppingBag, X } from 'lucide-react';
+import { ITEM_MAP } from '../../data/items';
+import { HOTBAR_GROUPS, getHotbarItems } from '../../lib/hotbar';
 import { playSound } from '../../lib/sound';
 import { useWorldStore } from '../../store/useWorldStore';
-import type { ItemCategory } from '../../types';
+import type { HotbarGroup } from '../../types';
 import type { ToastTone } from '../../types-ui';
-import { ItemGlyph } from './ItemGlyph';
+import { CoinIcon } from './CoinIcon';
 
 interface BuildShopProps {
   open: boolean;
@@ -30,15 +26,13 @@ export function BuildShop({
   const coins = useWorldStore((state) => state.coins);
   const inventory = useWorldStore((state) => state.inventory);
   const buyItem = useWorldStore((state) => state.buyItem);
-  const [tab, setTab] = useState<ItemCategory>('base');
+  const sellItem = useWorldStore((state) => state.sellItem);
+  const [tab, setTab] = useState<HotbarGroup>('terrain');
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
 
-  const items = useMemo(
-    () => (tab === 'base' ? BASE_ITEMS : PROP_ITEMS),
-    [tab],
-  );
+  const items = useMemo(() => getHotbarItems(tab), [tab]);
 
   useEffect(() => {
     if (!open) {
@@ -48,8 +42,8 @@ export function BuildShop({
     if (!focusItemId) return;
     const item = ITEM_MAP[focusItemId];
     if (!item) return;
-    if (item.category !== tab) {
-      setTab(item.category);
+    if (item.hotbarGroup !== tab) {
+      setTab(item.hotbarGroup);
       return;
     }
     const element = document.getElementById(`shop-item-${focusItemId}`);
@@ -108,7 +102,11 @@ export function BuildShop({
     }
   }
 
-  const ownedTotal = ITEMS.reduce((sum, item) => sum + (inventory[item.id] ?? 0), 0);
+  function handleSell(itemId: string) {
+    const result = sellItem(itemId);
+    playSound(result.ok ? 'store' : 'error');
+    onToast(result.message, result.ok ? 'success' : 'error');
+  }
 
   return (
     <div
@@ -125,32 +123,32 @@ export function BuildShop({
       />
       <div
         ref={panelRef}
-        className="glass-panel relative flex max-h-[86vh] w-full max-w-3xl animate-panel-in flex-col overflow-hidden rounded-[30px] shadow-panel"
+        className="glass-panel relative flex h-[88vh] max-h-[640px] w-full max-w-3xl animate-panel-in flex-col overflow-hidden rounded-[30px] shadow-panel"
       >
-        <header className="flex items-start justify-between gap-4 border-b border-ink/10 px-5 pb-3 pt-5 sm:px-6">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-sage-deep">
+        <header className="flex items-start justify-between gap-4 border-b border-ink/10 px-6 pb-4 pt-5">
+          <div className="min-w-0">
+            <p className="text-[10.5px] font-bold uppercase tracking-[0.22em] text-sage-deep">
               Build Shop
             </p>
             <h2
               id="shop-title"
-              className="pt-0.5 font-display text-[24px] leading-tight text-ink"
+              className="mt-1 font-display text-[22px] leading-tight text-ink"
             >
-              Grow the floating garden
+              Grow your world
             </h2>
-            <p className="pt-1 text-[11.5px] text-ink-soft/75">
-              {ownedTotal} pieces in inventory · every item fits one 1×1 cell.
+            <p className="mt-1 text-[11.5px] leading-snug text-ink-soft">
+              Buy tiles and props with coins you earn from finished tasks.
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full bg-gold/15 px-3 py-1.5 text-[13px] font-semibold text-gold-deep">
-              <Coins size={14} />
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-gold/20 px-3 py-1.5 text-[13.5px] font-semibold text-gold-ink ring-1 ring-gold/30">
+              <CoinIcon size={14} />
               {coins.toLocaleString()}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="hud-button focus-ring !h-9 !w-9 !p-0"
+              className="hud-icon focus-ring !h-9 !w-9"
               aria-label="Close build shop"
             >
               <X size={17} />
@@ -158,33 +156,29 @@ export function BuildShop({
           </div>
         </header>
 
-        <div className="flex gap-1.5 px-5 pt-3 sm:px-6">
-          {(
-            [
-              ['base', 'Base Tiles', BASE_ITEMS.length],
-              ['prop', 'Surface Props', PROP_ITEMS.length],
-            ] as const
-          ).map(([value, label, count]) => {
-            const active = tab === value;
+        <div className="hide-scrollbar flex gap-1.5 overflow-x-auto px-6 pt-3">
+          {HOTBAR_GROUPS.map(({ id, label }) => {
+            const active = tab === id;
+            const count = getHotbarItems(id).length;
             return (
               <button
-                key={value}
+                key={id}
                 type="button"
                 onClick={() => {
-                  setTab(value);
+                  setTab(id);
                   playSound('ui');
                 }}
-                className={`focus-ring flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[11.5px] font-semibold transition ${
+                className={`focus-ring flex min-w-[104px] items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[12px] font-semibold transition ${
                   active
                     ? 'bg-sage-deep text-ivory shadow-float'
-                    : 'bg-white/45 text-ink-soft/80 hover:bg-white/70'
+                    : 'bg-white/55 text-ink-soft hover:bg-white/80 hover:text-ink'
                 }`}
                 aria-pressed={active}
               >
                 {label}
                 <span
-                  className={`rounded-full px-1.5 text-[9.5px] font-bold ${
-                    active ? 'bg-ivory/20' : 'bg-ink/10'
+                  className={`rounded-full px-1.5 text-[10px] font-bold ${
+                    active ? 'bg-ivory/25 text-ivory' : 'bg-ink/10 text-ink-soft'
                   }`}
                 >
                   {count}
@@ -194,8 +188,8 @@ export function BuildShop({
           })}
         </div>
 
-        <div className="panel-scroll min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
-          <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+        <div className="panel-scroll mt-3 min-h-0 flex-1 overflow-y-auto px-6 pb-5">
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {items.map((item) => {
               const owned = inventory[item.id] ?? 0;
               const affordable = coins >= item.cost;
@@ -203,62 +197,88 @@ export function BuildShop({
                 <li
                   key={item.id}
                   id={`shop-item-${item.id}`}
-                  className={`group flex flex-col rounded-2xl border border-ink/10 bg-white/45 p-3 transition hover:border-sage/40 hover:bg-white/65 ${
+                  className={`group flex flex-col rounded-3xl border border-ink/10 bg-white/55 p-3.5 transition hover:-translate-y-0.5 hover:border-sage/45 hover:bg-white/80 hover:shadow-float ${
                     highlightId === item.id
-                      ? 'ring-2 ring-sage-deep/45 bg-white/70'
+                      ? 'ring-2 ring-sage-deep/45 bg-white/80'
                       : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-white/70 shadow-inner-soft"
+                      className="relative flex h-[74px] w-[74px] shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/80 shadow-inner-soft"
                       style={{ backgroundColor: `${item.accent}26` }}
                     >
-                      <ItemGlyph item={item} size={22} />
+                      <img
+                        src={`${import.meta.env.BASE_URL}items/${item.id}.png`}
+                        alt={item.name}
+                        className={`h-full w-full object-contain ${item.id === 'paper_lantern' ? 'scale-75' : ''}`}
+                        loading="lazy"
+                        draggable={false}
+                      />
+                      {owned > 0 ? (
+                        <span className="absolute right-1 top-1 rounded-full bg-sage-deep px-1.5 py-0.5 text-[9.5px] font-bold text-ivory shadow-float">
+                          {owned}
+                        </span>
+                      ) : null}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="truncate font-display text-[14.5px] leading-tight text-ink">
-                          {item.name}
-                        </h3>
-                        {owned > 0 ? (
-                          <span className="shrink-0 rounded-full bg-sage/20 px-1.5 py-0.5 text-[9px] font-bold text-sage-deep">
-                            ×{owned}
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="line-clamp-2 pt-0.5 text-[10.5px] leading-snug text-ink-soft/65">
+                      <h3 className="truncate font-display text-[15px] leading-tight text-ink">
+                        {item.name}
+                      </h3>
+                      <p className="mt-1 line-clamp-2 text-[11.5px] leading-snug text-ink-soft">
                         {item.blurb}
                       </p>
+                      <span
+                        className={`mt-1.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                          owned > 0
+                            ? 'bg-sage/20 text-sage-deep'
+                            : 'bg-ink/5 text-ink-soft/80'
+                        }`}
+                      >
+                        {owned > 0 ? `${owned} in inventory` : 'Not owned yet'}
+                      </span>
                     </div>
                   </div>
-                  <div className="mt-2.5 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-1 text-[11px] font-bold text-gold-deep">
-                      <Coins size={12} />
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1 rounded-full bg-gold/20 px-2.5 py-1 text-[12px] font-bold text-gold-deep">
+                      <CoinIcon size={12} />
                       {item.cost}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => handleBuy(item.id)}
-                      disabled={!affordable}
-                      aria-label={
-                        affordable
-                          ? `Buy ${item.name} for ${item.cost} coins`
-                          : `${item.name} costs ${item.cost} coins; need ${item.cost - coins} more`
-                      }
-                      className={`focus-ring rounded-full px-3 py-1.5 text-[10.5px] font-bold transition ${
-                        affordable
-                          ? 'bg-terracotta/15 text-terracotta-deep hover:bg-terracotta hover:text-ivory active:scale-95'
-                          : 'cursor-not-allowed bg-ink/5 text-ink-soft/40'
-                      }`}
-                      title={
-                        affordable
-                          ? `Buy ${item.name} for ${item.cost} coins`
-                          : `Need ${item.cost - coins} more coins`
-                      }
-                    >
-                      {affordable ? 'Buy' : `Need ${item.cost - coins}`}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      {owned > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => handleSell(item.id)}
+                          className="focus-ring rounded-full bg-sage/15 px-3 py-1.5 text-[11px] font-bold text-sage-deep transition hover:bg-sage/30 active:scale-95"
+                          aria-label={`Sell one ${item.name} for ${item.cost} coins`}
+                          title={`Sell one for ${item.cost} coins`}
+                        >
+                          Sell +{item.cost}
+                        </button>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => handleBuy(item.id)}
+                        disabled={!affordable}
+                        aria-label={
+                          affordable
+                            ? `Buy ${item.name} for ${item.cost} coins`
+                            : `${item.name} costs ${item.cost} coins; need ${item.cost - coins} more`
+                        }
+                        className={`focus-ring rounded-full px-3.5 py-1.5 text-[11px] font-bold transition ${
+                          affordable
+                            ? 'bg-terracotta/15 text-terracotta-deep hover:bg-terracotta hover:text-ivory active:scale-95'
+                            : 'cursor-not-allowed bg-ink/5 text-ink-soft/70'
+                        }`}
+                        title={
+                          affordable
+                            ? `Buy ${item.name} for ${item.cost} coins`
+                            : `Need ${item.cost - coins} more coins`
+                        }
+                      >
+                        {affordable ? 'Buy' : `Need ${item.cost - coins}`}
+                      </button>
+                    </div>
                   </div>
                 </li>
               );
@@ -266,12 +286,12 @@ export function BuildShop({
           </ul>
         </div>
 
-        <footer className="flex items-center justify-between gap-3 border-t border-ink/10 px-5 py-3 text-[10.5px] text-ink-soft/60 sm:px-6">
+        <footer className="flex items-center justify-between gap-3 border-t border-ink/10 bg-white/25 px-6 py-3 text-[11px] text-ink-soft">
           <span className="flex items-center gap-1.5">
-            <ShoppingBag size={12} className="text-sage-deep" />
+            <ShoppingBag size={13} className="text-sage-deep" />
             Purchases go to your hotbar. Select, then click the grid.
           </span>
-          <span className="hidden sm:inline">B opens shop · Esc closes</span>
+          <span className="hidden shrink-0 sm:inline">B opens shop · Esc closes</span>
         </footer>
       </div>
     </div>

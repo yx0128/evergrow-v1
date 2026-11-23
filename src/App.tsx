@@ -3,21 +3,24 @@ import { Eye } from 'lucide-react';
 import { ITEM_MAP } from './data/items';
 import { createId } from './lib/id';
 import {
-  HOTBAR_PAGE_COUNT,
-  clampHotbarPage,
-  getHotbarSlots,
-  hotbarPageForItem,
+  HOTBAR_VIEWS,
+  getHotbarViewItems,
+  hotbarGroupForItem,
 } from './lib/hotbar';
 import { playSound } from './lib/sound';
 import { useWorldStore } from './store/useWorldStore';
 import { WorldCanvas } from './components/canvas/Scene';
+import { AudioPanel } from './components/ui/AudioPanel';
+import { FocusPanel } from './components/ui/FocusPanel';
 import { BuildShop } from './components/ui/BuildShop';
 import { ControlsLegend } from './components/ui/ControlsLegend';
 import { InventoryHotbar } from './components/ui/InventoryHotbar';
 import { TaskDrawer } from './components/ui/TaskDrawer';
 import { Toasts } from './components/ui/Toasts';
 import { TopBar } from './components/ui/TopBar';
-import type { ActionResult } from './types';
+import { useAudioPlayer } from './hooks/useAudioPlayer';
+import { useFocusSession } from './hooks/useFocusSession';
+import type { ActionResult, HotbarView } from './types';
 import type { ToastItem, ToastTone } from './types-ui';
 
 export default function App() {
@@ -37,15 +40,21 @@ export default function App() {
   const selectPiece = useWorldStore((state) => state.selectPiece);
   const rotate = useWorldStore((state) => state.rotate);
   const toggleStoreMode = useWorldStore((state) => state.toggleStoreMode);
-  const beginMove = useWorldStore((state) => state.beginMove);
+  const moveMode = useWorldStore((state) => state.moveMode);
+  const toggleMoveMode = useWorldStore((state) => state.toggleMoveMode);
   const cancelMove = useWorldStore((state) => state.cancelMove);
   const removeItem = useWorldStore((state) => state.removeItem);
+  const sellPlacedItem = useWorldStore((state) => state.sellPlacedItem);
 
+  const audio = useAudioPlayer();
   const [tasksOpen, setTasksOpen] = useState(true);
+  const [audioOpen, setAudioOpen] = useState(false);
+  const [focusOpen, setFocusOpen] = useState(false);
   const [shopOpen, setShopOpen] = useState(false);
   const [shopFocusItemId, setShopFocusItemId] = useState<string | null>(null);
-  const [hotbarPage, setHotbarPage] = useState(0);
+  const [hotbarView, setHotbarView] = useState<HotbarView>('all');
   const [uiHidden, setUiHidden] = useState(false);
+  const [gridVisible, setGridVisible] = useState(true);
   const [resetSignal, setResetSignal] = useState(0);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<string, number>());
@@ -95,6 +104,8 @@ export default function App() {
     [],
   );
 
+  const focus = useFocusSession({ onEvent: pushToast });
+
   useEffect(() => {
     const pending = timers.current;
     return () => {
@@ -120,6 +131,18 @@ export default function App() {
     toggleTheme();
     playSound('ui');
   }, [toggleTheme]);
+
+  const handleToggleMoveMode = useCallback(() => {
+    const result = toggleMoveMode();
+    if (!result.ok) pushToast(result.message, 'error');
+    else playSound('ui');
+  }, [toggleMoveMode, pushToast]);
+
+  const handleSellSelectedPiece = useCallback(() => {
+    if (!selectedPieceId) return;
+    const result = sellPlacedItem(selectedPieceId);
+    handleFeedback(result, 'store');
+  }, [selectedPieceId, sellPlacedItem, handleFeedback]);
 
   const openShopForItem = useCallback((itemId: string) => {
     setShopFocusItemId(itemId);
@@ -156,9 +179,13 @@ export default function App() {
 
       if (event.key === '[' || event.key === ']') {
         event.preventDefault();
-        setHotbarPage((current) =>
-          clampHotbarPage(current + (event.key === ']' ? 1 : -1)),
-        );
+        setHotbarView((current) => {
+          const index = HOTBAR_VIEWS.findIndex((view) => view.id === current);
+          const next =
+            (index + (event.key === ']' ? 1 : -1) + HOTBAR_VIEWS.length) %
+            HOTBAR_VIEWS.length;
+          return HOTBAR_VIEWS[next].id;
+        });
         playSound('ui');
         return;
       }
@@ -189,16 +216,14 @@ export default function App() {
         selectItem(null);
         return;
       }
-      if ((event.key === 'm' || event.key === 'M') && selectedPieceId) {
+      if (event.key === 'm' || event.key === 'M') {
         event.preventDefault();
-        const result = beginMove(selectedPieceId);
-        if (!result.ok) pushToast(result.message, 'error');
-        else playSound('ui');
+        handleToggleMoveMode();
         return;
       }
       if (/^[1-9]$/.test(event.key)) {
         const index = Number(event.key) - 1;
-        const item = getHotbarSlots(hotbarPage)[index]?.item;
+        const item = getHotbarViewItems(hotbarView, inventory)[index];
         if (!item) return;
         if ((inventory[item.id] ?? 0) > 0) {
           selectItem(item.id);
@@ -212,7 +237,7 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [
     shopOpen,
-    hotbarPage,
+    hotbarView,
     inventory,
     openShopForItem,
     rotate,
@@ -220,7 +245,7 @@ export default function App() {
     selectPiece,
     cancelMove,
     selectedPieceId,
-    beginMove,
+    handleToggleMoveMode,
     pushToast,
   ]);
 
@@ -231,7 +256,11 @@ export default function App() {
       }`}
       onContextMenu={(event) => event.preventDefault()}
     >
-      <WorldCanvas resetSignal={resetSignal} onFeedback={handleFeedback} />
+      <WorldCanvas
+        resetSignal={resetSignal}
+        gridVisible={gridVisible}
+        onFeedback={handleFeedback}
+      />
 
       {uiHidden ? (
         <button
@@ -249,14 +278,49 @@ export default function App() {
           <TopBar
             themeMode={themeMode}
             graphicsQuality={graphicsQuality}
+            gridVisible={gridVisible}
             onToggleTheme={handleToggleTheme}
             onToggleGraphicsQuality={() => {
               toggleGraphicsQuality();
               playSound('ui');
             }}
             onResetCamera={handleResetCamera}
+            onToggleGrid={() => {
+              setGridVisible((visible) => !visible);
+              playSound('ui');
+            }}
             onHideUI={() => {
               setUiHidden(true);
+              playSound('ui');
+            }}
+            onOpenAudio={() => {
+              setAudioOpen(true);
+              playSound('ui');
+            }}
+            onOpenFocus={() => {
+              setFocusOpen(true);
+              playSound('ui');
+            }}
+            audioActive={audioOpen || audio.isPlaying}
+            focusActive={focusOpen || focus.running}
+            focusRemaining={!focusOpen && focus.running ? focus.remaining : null}
+            focusOnBreak={focus.mode === 'pomodoro' && focus.phase === 'break'}
+          />
+
+          <AudioPanel
+            open={audioOpen}
+            player={audio}
+            onClose={() => {
+              setAudioOpen(false);
+              playSound('ui');
+            }}
+          />
+
+          <FocusPanel
+            open={focusOpen}
+            session={focus}
+            onClose={() => {
+              setFocusOpen(false);
               playSound('ui');
             }}
           />
@@ -267,25 +331,25 @@ export default function App() {
               setTasksOpen((open) => !open);
               playSound('ui');
             }}
-            onReset={() => setHotbarPage(0)}
+            onReset={() => setHotbarView('all')}
             onToast={pushToast}
           />
 
           <ControlsLegend />
 
           <InventoryHotbar
-            page={hotbarPage}
-            pageCount={HOTBAR_PAGE_COUNT}
+            view={hotbarView}
             inventory={inventory}
             selectedId={selectedItemId}
             selectedPiece={selectedPieceItem}
             movingItem={movingItem}
             rotation={effectiveRotation}
             storeMode={storeMode}
+            moveMode={moveMode}
             onSelect={selectItem}
             onOpenShopForItem={openShopForItem}
-            onPageChange={(page) => {
-              setHotbarPage(clampHotbarPage(page));
+            onViewChange={(view) => {
+              setHotbarView(view);
               playSound('ui');
             }}
             onRotate={rotate}
@@ -298,12 +362,8 @@ export default function App() {
               toggleStoreMode();
               playSound('ui');
             }}
-            onMoveSelected={() => {
-              if (!selectedPieceId) return;
-              const result = beginMove(selectedPieceId);
-              if (!result.ok) pushToast(result.message, 'error');
-              else playSound('ui');
-            }}
+            onToggleMoveMode={handleToggleMoveMode}
+            onSellSelectedPiece={handleSellSelectedPiece}
             onDeselect={() => {
               selectPiece(null);
               playSound('ui');
@@ -324,7 +384,11 @@ export default function App() {
           <BuildShop
             open={shopOpen}
             focusItemId={shopFocusItemId}
-            onPurchased={(itemId) => setHotbarPage(hotbarPageForItem(itemId))}
+            onPurchased={(itemId) =>
+              setHotbarView((current) =>
+                current === 'all' ? 'all' : hotbarGroupForItem(itemId),
+              )
+            }
             onClose={() => {
               setShopOpen(false);
               setShopFocusItemId(null);

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "A cozy 3D isometric miniature diorama and task gamification app with real GLB models, built with React, Three.js, and a task-powered coin economy.",
   "license": "MIT",
-  "author": "Moss & Ember contributors",
+  "author": "Evergrow contributors",
   "keywords": [
     "threejs",
     "react-three-fiber",

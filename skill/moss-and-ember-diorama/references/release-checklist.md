@@ -57,7 +57,7 @@ export GH_TOKEN="$(gh auth token)"   # one read
 gh repo create USER/REPO --public --description "..."
 git init -b main
 git add -A
-git commit -m "Initial commit: Moss & Ember"
+git commit -m "Initial commit: Evergrow"
 git remote add origin "https://github.com/USER/REPO.git"
 export GIT_ASKPASS="$(mktemp -t askpass)"
 cat > "$GIT_ASKPASS" <<'SH'

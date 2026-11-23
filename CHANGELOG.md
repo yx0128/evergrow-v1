@@ -1,14 +1,16 @@
 # Changelog
 
-All notable changes to Moss & Ember are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
+All notable changes to Evergrow are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
 ### Changed
 
-- Reworked the hotbar into two fixed nine-slot pages with `[`/`]` paging, a compact Rotate/Move/Store/Shop rail, category cues, and zero-stock shop links. Slot identity no longer changes when stock changes, and buying reveals the item’s page.
+- Reworked the hotbar into compact Terrain / Nature / Decor / Buildings pills with a scrollable row, stable per-category ordering, a Rotate/Move/Store/Shop rail, and zero-stock shop links. Buying reveals the item’s category.
+- Unowned hotbar items are greyed and dashed; slot order numbers were removed and terrain icons now share the sandstone glyph tinted green or blue.
 - The task drawer reserves the dock band so it cannot overlap the hotbar; the shop is focus-trapped and world shortcuts pause while it is open.
-- Task rows have a grip handle for drag reordering, with a sage insertion line, arrow-key support, and persisted order.
+- Task rows have a grip handle for drag reordering, with a sage insertion line, arrow-key support, and persisted order. Unfinished tasks can be pinned above the list, with a per-task pin on hover/focus and a pin-all control beside Add.
+- **Reset world** now uses a two-step “Confirm Reset?” state instead of a native browser confirmation. The task placeholder is simply “Add a task…”.
 
 ## [1.0.0] — 2026-11-21
 

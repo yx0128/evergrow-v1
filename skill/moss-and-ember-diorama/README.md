@@ -1,4 +1,4 @@
-# Moss & Ember Diorama — agent skill
+# Evergrow Diorama — agent skill
 
 A reusable playbook for building a desktop-first 3D isometric task diorama with React, Three.js, and real Blender-sculpted GLB art.
 

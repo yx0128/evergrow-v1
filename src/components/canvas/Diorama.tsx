@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { ThreeEvent } from '@react-three/fiber';
-import { DoubleSide } from 'three';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useThree, type ThreeEvent } from '@react-three/fiber';
+import { DoubleSide, Vector3 } from 'three';
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { BASE_HEIGHT, ITEMS, ITEM_MAP } from '../../data/items';
 import { findBase, findProp, isBasePiece } from '../../lib/grid';
 import { playSound } from '../../lib/sound';
@@ -47,13 +48,24 @@ export function Diorama({ onFeedback }: DioramaProps) {
   const themeMode = useWorldStore((state) => state.themeMode);
   const graphicsQuality = useWorldStore((state) => state.graphicsQuality);
   const storeMode = useWorldStore((state) => state.storeMode);
+  const moveMode = useWorldStore((state) => state.moveMode);
   const placeAt = useWorldStore((state) => state.placeAt);
+  const beginMove = useWorldStore((state) => state.beginMove);
   const selectPiece = useWorldStore((state) => state.selectPiece);
   const moveTo = useWorldStore((state) => state.moveTo);
   const cancelMove = useWorldStore((state) => state.cancelMove);
   const removeItem = useWorldStore((state) => state.removeItem);
   const removeAtCell = useWorldStore((state) => state.removeAtCell);
   const [hover, setHover] = useState<HoverCell | null>(null);
+  const camera = useThree((state) => state.camera);
+  const size = useThree((state) => state.size);
+  const controls = useThree((state) => state.controls) as OrbitControlsImpl | null;
+  const dragState = useRef<{
+    lastX: number;
+    lastY: number;
+    moved: boolean;
+  } | null>(null);
+  const suppressClick = useRef(false);
 
   useEffect(() => {
     preloadMiniatures(ITEMS);
@@ -169,14 +181,86 @@ export function Diorama({ onFeedback }: DioramaProps) {
   }
 
   function handlePlaneMove(event: ThreeEvent<PointerEvent>) {
+    if (dragState.current) return;
     const cell = cellFromPoint(event.point);
     setHover((current) =>
       current && current.x === cell.x && current.z === cell.z ? current : cell,
     );
   }
 
+  function handlePlanePointerDown(event: ThreeEvent<PointerEvent>) {
+    if (event.button !== 0 || !controls || dragState.current) return;
+    if (
+      event.intersections.length > 0 &&
+      event.intersections[0].object !== event.object
+    ) {
+      return;
+    }
+
+    const canvas = event.nativeEvent.target as HTMLElement | null;
+    dragState.current = {
+      lastX: event.clientX,
+      lastY: event.clientY,
+      moved: false,
+    };
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const state = dragState.current;
+      if (!state) return;
+      const dx = moveEvent.clientX - state.lastX;
+      const dy = moveEvent.clientY - state.lastY;
+      state.lastX = moveEvent.clientX;
+      state.lastY = moveEvent.clientY;
+      if (!state.moved && Math.abs(dx) + Math.abs(dy) > 3) {
+        state.moved = true;
+      }
+      if (!state.moved) return;
+
+      const distance = camera.position.distanceTo(controls.target);
+      const fov = 'fov' in camera ? camera.fov : 45;
+      const factor =
+        (2 * distance * Math.tan((fov * Math.PI) / 360)) /
+        Math.max(size.height, 1);
+      const right = new Vector3().setFromMatrixColumn(camera.matrix, 0);
+      const forward = new Vector3().setFromMatrixColumn(camera.matrix, 0);
+      forward.crossVectors(camera.up, forward);
+      const offset = right
+        .multiplyScalar(-dx * factor)
+        .add(forward.multiplyScalar(dy * factor));
+      camera.position.add(offset);
+      controls.target.add(offset);
+      controls.update();
+      if (canvas) canvas.style.cursor = 'grabbing';
+    };
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+      window.removeEventListener('blur', onUp);
+      const state = dragState.current;
+      dragState.current = null;
+      if (canvas) canvas.style.cursor = '';
+      if (state?.moved) {
+        suppressClick.current = true;
+        window.setTimeout(() => {
+          suppressClick.current = false;
+        }, 350);
+      }
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    window.addEventListener('blur', onUp);
+  }
+
   function handlePlaneClick(event: ThreeEvent<MouseEvent>) {
     event.stopPropagation();
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      return;
+    }
     if (storeMode) {
       const result = removeAtCell(event.point.x, event.point.z);
       onFeedback(result, result.ok ? 'store' : 'error');
@@ -196,6 +280,10 @@ export function Diorama({ onFeedback }: DioramaProps) {
   }
 
   function handlePieceClick(id: string) {
+    if (suppressClick.current) {
+      suppressClick.current = false;
+      return;
+    }
     if (storeMode) {
       const result = removeItem(id);
       onFeedback(result, result.ok ? 'store' : 'error');
@@ -213,6 +301,12 @@ export function Diorama({ onFeedback }: DioramaProps) {
       if (!piece) return;
       const result = placeAt(piece.x, piece.z);
       onFeedback(result, result.ok ? 'place' : 'error');
+      return;
+    }
+    if (moveMode) {
+      const result = beginMove(id);
+      if (result.ok) playSound('ui');
+      else onFeedback(result, 'error');
       return;
     }
     selectPiece(id);
@@ -344,6 +438,7 @@ export function Diorama({ onFeedback }: DioramaProps) {
         position={[0, 0, 0]}
         onPointerMove={handlePlaneMove}
         onPointerOut={() => setHover(null)}
+        onPointerDown={handlePlanePointerDown}
         onClick={handlePlaneClick}
         visible
       >

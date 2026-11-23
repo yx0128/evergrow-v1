@@ -1,6 +1,6 @@
 # Design contract
 
-Moss & Ember should feel like a quiet tabletop garden at the edge of a window: warm, dimensional, and unhurried. The interface borrows the material language of paper, glass, clay, and stone rather than SaaS chrome.
+Evergrow should feel like a quiet tabletop garden at the edge of a window: warm, dimensional, and unhurried. The interface borrows the material language of paper, glass, clay, and stone rather than SaaS chrome.
 
 ## Palette
 
@@ -53,8 +53,8 @@ Rules:
 - HUD margins: `16px`.
 - Top-left pill: day/night + High/Low graphics quality + reset camera + photo mode.
 - Top-right: task drawer `370px` wide, collapsible to a pill; the coin balance lives here. Its height reserves the bottom dock band (`--hud-dock-space`, `140px`) so it can never cover the hotbar.
-- Bottom center: two fixed pages of nine slots (`54px` at `≥1366px`, `48px` below) with an action rail for Rotate, Move, Store, and Shop above them.
-- Pages are addressed with `1–9` for the current page and `[` / `]` (or the pager arrows) to change pages.
+- Bottom center: a category-filtered hotbar (`Terrain`, `Nature`, `Decor`, `Buildings`) with compact pills, `54px` slots at `≥1366px` (`48px` below), and a Rotate/Move/Store/Shop action rail above them. The pill row scrolls horizontally when space is tight.
+- `1–9` addresses the active category; `[` / `]` cycles categories. Slots carry no visible order numbers.
 - Bottom-left: controls legend, only above `xl` width.
 - The diorama is framed left/center because the task drawer owns the right edge.
 - In photo mode the HUD disappears except a small “Show interface” affordance.
@@ -73,8 +73,8 @@ Rules:
 - Pills: same material, smaller shadow.
 - Inputs: ivory at 85–100% with a 10% ink border.
 - Selected hotbar slot lifts `4px` and gains a sage ring. A selected placed piece gets a soft sage cell tint.
-- Slot identity is fixed by `HOTBAR_ORDER`; buying, placing, or storing never renumbers a slot or hides an owned item.
-- Zero-stock slots are dashed with a gold `+`; clicking one opens the shop focused on that item.
+- Slot identity is fixed by `HOTBAR_ORDER` within each category; buying, placing, or storing never reshuffles the group.
+- Zero-stock slots are greyed, dashed, and carry a gold `+`; clicking one opens the shop focused on that item. Owned slots keep full colour and a solid category strip.
 - Ghost placement: translucent green (valid) or coral (invalid), `depthWrite: false`, with a faint cell tint beneath.
 - Shadows: warm sun in day, cool moon at night. High quality keeps 2048² shadows plus subtle emissive bloom; no AO/grading/vignette, so tile and prop colors stay clean like Low. Lantern glow panels and firepot flames use a deliberately warm golden yellow in both themes and quality modes.
 
@@ -91,14 +91,15 @@ Rules:
 
 - Quick / Standard / Deep Work are always visible with their coin value, so the reward is never a surprise.
 - Completing a task is one-way; the checkbox becomes a sage check and the row is struck through. This protects the economy and gives a clear “done” moment.
-- Each task row has a grip handle for drag reordering, with a sage insertion line. A focused grip also reorders with `↑` / `↓`, and the order persists.
-- Purchases go to the hotbar, not directly into the world. Buying reveals the item’s fixed page; the next action is always “select, then click”.
+- Each task row has a grip handle for drag reordering, with a sage insertion line. A focused grip also reorders with `↑` / `↓`, and the order persists. A pin beside **Add** lifts or releases every unfinished task at once. Per-task pins sit beside delete, stay visible when pinned, and otherwise appear on hover or focus; they lift unfinished tasks into a stable top group.
+- **Reset world** is a two-step action: the first click arms “Confirm Reset?”, the second restores the starter world; the armed state times out.
+- Purchases go to the hotbar, not directly into the world. Buying switches to the item’s category; the next action is always “select, then click”.
 - Each slot carries a category cue: a sage underline for bases, terracotta for surface props.
 - Store mode is explicit, but right-click storage is always available as a shortcut.
 - Click a placed piece to select it in place; it does not follow the mouse. A sage cell tint and a selection pill appear.
 - `R` or HUD **Rotate** reorients the selected piece in 90° steps; a selected base rotates its prop too. The HUD buttons are the single source for rotate/store actions.
 - HUD **Store** returns the selected piece to inventory. **Move** / `M` lifts the piece. A green ghost previews the destination; the ghost stays visible at its last cell while the pointer is over the HUD. Click a valid cell to drop; `Esc`/cancel returns it to selection. Base tiles carry their surface prop.
-- Reset requires a native confirmation and restores the exact starter world.
+- **Reset world** uses an inline two-step confirmation and restores the exact starter world.
 
 ## Accessibility
 
@@ -108,10 +109,10 @@ Rules:
 - Focus rings are cream + sage, visible on glass.
 - Text contrast stays at or above WCAG AA for body sizes on the cream panel.
 - Keyboard coverage: `1–9`, `[` / `]`, `R`, `M`, `B`, `H`, `Esc`, Enter in the task form.
-- The hotbar is a labelled toolbar; pager buttons expose `aria-live` page status and the shop is a focus-trapped dialog.
+- The hotbar is a labelled toolbar; category pills expose pressed state and the shop is a focus-trapped dialog.
 - Selection and moving are click/keyboard-only (no drag requirement), so they work with a trackpad and do not conflict with camera orbit.
 - The app is usable without audio; sound is a garnish.
 
 ## Copy voice
 
-Short, gentle, concrete. Prefer “Store the surface prop first.” over “Invalid operation.” Prefer “A fresh courtyard is waiting.” over “Reset complete.” No exclamation marks, no growth-hacking language, no streak pressure.
+Short, gentle, concrete. Prefer “Store the surface prop first.” over “Invalid operation.” Prefer “A fresh world is waiting.” over “Reset complete.” No exclamation marks, no growth-hacking language, no streak pressure.

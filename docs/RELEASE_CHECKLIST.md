@@ -46,7 +46,7 @@ npm run preview -- --port 4183
 ## Git
 
 - [ ] `git status` is clean after the final commit.
-- [ ] Single clean history: `Initial commit: Moss & Ember` (or a deliberate set of reviewed commits).
+- [ ] Single clean history: `Initial commit: Evergrow` (or a deliberate set of reviewed commits).
 - [ ] No secrets, tokens, `dist/`, `node_modules/`, or build caches.
 - [ ] Remote URL does not contain a token.
 - [ ] CI is green on `main`.

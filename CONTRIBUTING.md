@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for wanting to make Moss & Ember cozier.
+Thanks for wanting to make Evergrow cozier.
 
 ## Setup
 

@@ -43,7 +43,7 @@ function tone(ctx: AudioContext, options: ToneOptions): void {
   oscillator.stop(start + duration + 0.05);
 }
 
-export type SoundName = 'task' | 'place' | 'buy' | 'store' | 'error' | 'ui';
+export type SoundName = 'task' | 'place' | 'buy' | 'store' | 'error' | 'ui' | 'alarm';
 
 export function playSound(name: SoundName): void {
   const ctx = getContext();
@@ -65,6 +65,13 @@ export function playSound(name: SoundName): void {
     case 'store':
       tone(ctx, { frequency: 440, type: 'sine', gain: 0.03, duration: 0.2 });
       tone(ctx, { frequency: 329.63, delay: 0.06, type: 'sine', gain: 0.025, duration: 0.24 });
+      break;
+    case 'alarm':
+      for (const offset of [0, 0.78]) {
+        tone(ctx, { frequency: 659.25, delay: offset, gain: 0.07, duration: 0.65 });
+        tone(ctx, { frequency: 783.99, delay: offset + 0.18, gain: 0.065, duration: 0.65 });
+        tone(ctx, { frequency: 1046.5, delay: offset + 0.36, gain: 0.055, duration: 0.8 });
+      }
       break;
     case 'error':
       tone(ctx, { frequency: 170, type: 'sine', gain: 0.03, duration: 0.22 });

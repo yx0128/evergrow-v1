@@ -1,4 +1,4 @@
-# Agent guide — Moss & Ember
+# Agent guide — Evergrow
 
 This is the short entry point. The full reproduction story is in
 [`docs/REPRODUCTION.md`](docs/REPRODUCTION.md), and the design contracts are in
@@ -40,7 +40,8 @@ npm run models   # Blender 4.2+; see docs/ART_PIPELINE.md
 | Catalog, costs, rewards, starter world | `src/data/items.ts` |
 | Persistence, actions, validation | `src/store/useWorldStore.ts` |
 | Placement rules and cell helpers | `src/lib/grid.ts` |
-| Hotbar order, pages, slot mapping | `src/lib/hotbar.ts` |
+| Hotbar order, categories, slot mapping | `src/lib/hotbar.ts` |
+| Task pinning and display order | `src/lib/tasks.ts` |
 | GLB normalization, ghost tint, lantern lights | `src/components/canvas/MiniatureModel.tsx` |
 | Grid, ghost, raycast, pickup | `src/components/canvas/Diorama.tsx` |
 | Scene, camera, lights, post-processing | `src/components/canvas/Scene.tsx` |
@@ -52,8 +53,8 @@ npm run models   # Blender 4.2+; see docs/ART_PIPELINE.md
 
 **Add an item**
 
-1. Add a definition to `ITEMS` in `src/data/items.ts` (`name`, `shortName`, `category`, `cost`, `modelUrl`, `accent`, `glyph`, optional `light`).
-2. Add the id to `HOTBAR_ORDER` so it gets a fixed, reachable slot; keep pages at nine slots.
+1. Add a definition to `ITEMS` in `src/data/items.ts` (`name`, `shortName`, `category`, `hotbarGroup`, `cost`, `modelUrl`, `accent`, `glyph`, optional `light`).
+2. Add the id to `HOTBAR_ORDER` and give it a `Terrain`, `Nature`, `Decor`, or `Buildings` group.
 3. Add a builder to `BUILDERS` in `scripts/generate_models.py` and regenerate (`npm run models`).
 4. Add a test to `src/test/worldStore.test.ts` if the item changes layer or light behavior.
 5. Run `npm run typecheck && npm run lint && npm test && npm run build` and take a fresh screenshot.

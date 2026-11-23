@@ -1,37 +1,38 @@
 import {
   Archive,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
+  Coins,
   Move,
   RotateCw,
   ShoppingBag,
   X,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
-import type { ItemDef } from '../../types';
+import { useState, type ReactNode } from 'react';
+import type { HotbarView, ItemDef } from '../../types';
 import { playSound } from '../../lib/sound';
 import {
   HOTBAR_ITEMS,
-  getHotbarSlots,
-  ownedOnHotbarPage,
+  HOTBAR_VIEWS,
+  getHotbarViewItems,
 } from '../../lib/hotbar';
 import { ItemGlyph } from './ItemGlyph';
 
 interface InventoryHotbarProps {
-  page: number;
-  pageCount: number;
+  view: HotbarView;
   inventory: Record<string, number>;
   selectedId: string | null;
   selectedPiece: ItemDef | null;
   movingItem: ItemDef | null;
   rotation: number;
   storeMode: boolean;
+  moveMode: boolean;
   onSelect: (itemId: string) => void;
   onOpenShopForItem: (itemId: string) => void;
-  onPageChange: (page: number) => void;
+  onViewChange: (view: HotbarView) => void;
   onRotate: () => void;
   onToggleStoreMode: () => void;
-  onMoveSelected: () => void;
+  onToggleMoveMode: () => void;
+  onSellSelectedPiece: () => void;
   onDeselect: () => void;
   onCancelMove: () => void;
   onOpenShop: () => void;
@@ -42,31 +43,38 @@ const CATEGORY_LABEL: Record<ItemDef['category'], string> = {
   prop: 'surface prop',
 };
 
+const CATEGORY_BG: Record<ItemDef['hotbarGroup'], string> = {
+  terrain: 'bg-sand/[0.20] hover:bg-sand/[0.32]',
+  buildings: 'bg-gold/[0.20] hover:bg-gold/[0.30]',
+  nature: 'bg-sage/[0.16] hover:bg-sage/[0.28]',
+  decor: 'bg-sky/[0.18] hover:bg-sky/[0.28]',
+};
+
 export function InventoryHotbar({
-  page,
-  pageCount,
+  view,
   inventory,
   selectedId,
   selectedPiece,
   movingItem,
   rotation,
   storeMode,
+  moveMode,
   onSelect,
   onOpenShopForItem,
-  onPageChange,
+  onViewChange,
   onRotate,
   onToggleStoreMode,
-  onMoveSelected,
+  onToggleMoveMode,
+  onSellSelectedPiece,
   onDeselect,
   onCancelMove,
   onOpenShop,
 }: InventoryHotbarProps) {
-  const slots = getHotbarSlots(page);
+  const [collapsed, setCollapsed] = useState(false);
+  const items = getHotbarViewItems(view, inventory);
   const selected = selectedId
     ? HOTBAR_ITEMS.find((item) => item.id === selectedId)
     : undefined;
-  const ownedOnPage = ownedOnHotbarPage(page, inventory);
-  const canMove = Boolean(selectedPiece) && !movingItem;
 
   return (
     <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 flex w-max max-w-[calc(100vw-2rem)] -translate-x-1/2 flex-col items-center gap-2">
@@ -98,11 +106,16 @@ export function InventoryHotbar({
             Selected{' '}
             <strong className="font-semibold">{selectedPiece.name}</strong>
           </span>
-          <span className="text-ink-soft/50">·</span>
-          <Keycap>R</Keycap>
-          <span className="text-ink-soft">rotate</span>
-          <span className="text-ink-soft/50">·</span>
-          <span className="text-ink-soft">Right-click stores</span>
+          <button
+            type="button"
+            onClick={onSellSelectedPiece}
+            className="focus-ring flex items-center gap-0.5 rounded-full bg-sage/20 px-1.5 py-0.5 text-[9.5px] font-bold text-sage-deep transition hover:bg-sage/35"
+            aria-label={`Sell ${selectedPiece.name} for a full refund`}
+            title="Sell for a full refund"
+          >
+            <Coins size={10} />
+            Sell
+          </button>
           <button
             type="button"
             onClick={onDeselect}
@@ -128,88 +141,91 @@ export function InventoryHotbar({
           <Keycap>R</Keycap>
           <span className="text-ink-soft">rotate</span>
         </div>
+      ) : moveMode ? (
+        <div className="glass-pill rounded-full px-3 py-1.5 text-[10.5px] font-medium text-gold-deep shadow-float">
+          Move mode · click a placed piece · Move or Esc to exit
+        </div>
       ) : storeMode ? (
         <div className="glass-pill rounded-full px-3 py-1.5 text-[10.5px] font-medium text-terracotta-deep shadow-float">
-          Store mode · click a piece to return it to inventory
+          Store mode · click a piece to return it to inventory · Esc to exit
         </div>
       ) : null}
 
       <div
         data-testid="hotbar-dock"
-        className="glass-panel pointer-events-auto flex flex-col gap-1.5 rounded-[24px] p-2 shadow-panel"
+        className={`glass-panel pointer-events-auto flex max-w-[calc(100vw-2rem)] flex-col gap-2 rounded-[24px] px-5 py-3 shadow-panel ${
+          collapsed
+            ? 'w-auto'
+            : 'w-[560px] min-[1366px]:w-[700px]'
+        }`}
       >
-        <div className="flex items-center justify-between gap-2 px-0.5">
-          <div className="flex items-center gap-0.5">
-            <button
-              type="button"
-              onClick={() => onPageChange(page - 1)}
-              disabled={page <= 0}
-              className="focus-ring rounded-full p-1 text-ink-soft/60 transition hover:bg-white/60 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
-              aria-label="Previous hotbar page"
-              title="Previous page ([)"
-            >
-              <ChevronLeft size={14} />
-            </button>
-            <span
-              className="min-w-[62px] text-center text-[9px] font-semibold uppercase tracking-[0.12em] text-ink-soft"
-              aria-live="polite"
-            >
-              Page {page + 1}/{pageCount}
-            </span>
-            <button
-              type="button"
-              onClick={() => onPageChange(page + 1)}
-              disabled={page >= pageCount - 1}
-              className="focus-ring rounded-full p-1 text-ink-soft/60 transition hover:bg-white/60 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
-              aria-label="Next hotbar page"
-              title="Next page (])"
-            >
-              <ChevronRight size={14} />
-            </button>
-            <span className="ml-1 hidden text-[8.5px] font-medium text-ink-soft/80 min-[1366px]:inline">
-              {ownedOnPage} owned
-            </span>
-          </div>
+        <div className={`flex items-center gap-3 ${collapsed ? '' : 'justify-between px-0.5'}`}>
+          {collapsed ? null : (
+            <div className="flex min-w-0 items-center gap-1.5">
+              <div
+                className="hide-scrollbar flex min-w-0 items-center gap-1.5 overflow-x-auto"
+                role="group"
+                aria-label="Hotbar category"
+              >
+                {HOTBAR_VIEWS.map((entry) => {
+                  const active = view === entry.id;
+                  return (
+                    <button
+                      key={entry.id}
+                      type="button"
+                      onClick={() => onViewChange(entry.id)}
+                      className={`focus-ring shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold transition ${
+                        active
+                          ? 'bg-sage-deep text-ivory shadow-float'
+                          : 'bg-white/45 text-ink-soft/80 hover:bg-white/70'
+                      }`}
+                      aria-pressed={active}
+                    >
+                      {entry.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => {
                 onRotate();
                 playSound('ui');
               }}
-              className="hud-button focus-ring !h-8 !rounded-xl !px-2 !text-[10px]"
-              title="Rotate selection, placement, or lifted piece 90° (R)"
+              className="group hud-button focus-ring !h-8 !rounded-xl !border !border-transparent !px-2 !text-[10px] hover:!border-gold/30 hover:!bg-gold/15 hover:!text-gold-deep"
               aria-label="Rotate selection, placement, or lifted piece 90 degrees"
             >
               <RotateCw size={13} />
-              <span className="max-[1365px]:hidden">Rotate</span>
-              <span className="rounded bg-ink/8 px-1 font-mono text-[8px] text-ink-soft">
+              <span className={collapsed ? 'hidden' : 'max-[1365px]:hidden'}>Rotate</span>
+              <span className="rounded bg-ink/8 px-1 font-mono text-[8px] text-ink-soft transition group-hover:bg-gold/20 group-hover:text-gold-deep">
                 {rotation * 90}°
               </span>
             </button>
             <button
               type="button"
-              onClick={onMoveSelected}
-              disabled={!canMove}
-              className="hud-button focus-ring !h-8 !rounded-xl !px-2 !text-[10px]"
-              title={
-                selectedPiece
-                  ? 'Move selected piece (M)'
-                  : 'Select a placed piece to move it'
-              }
-              aria-label="Move selected piece"
+              onClick={onToggleMoveMode}
+              className={`hud-button focus-ring !h-8 !rounded-xl !border !px-2 !text-[10px] ${
+                moveMode
+                  ? '!border-gold/40 !bg-gold/20 !text-gold-deep ring-1 ring-gold/30'
+                  : '!border-transparent hover:!border-gold/30 hover:!bg-gold/15 hover:!text-gold-deep'
+              }`}
+              aria-pressed={moveMode}
+              aria-label="Toggle move mode"
             >
               <Move size={13} />
-              <span className="max-[1365px]:hidden">Move</span>
+              <span className={collapsed ? 'hidden' : 'max-[1365px]:hidden'}>Move</span>
             </button>
             <button
               type="button"
               onClick={onToggleStoreMode}
-              className={`hud-button focus-ring !h-8 !rounded-xl !px-2 !text-[10px] ${
+              className={`hud-button focus-ring !h-8 !rounded-xl !border !px-2 !text-[10px] ${
                 storeMode
-                  ? '!bg-terracotta/15 !text-terracotta-deep ring-1 ring-terracotta/30'
-                  : ''
+                  ? '!border-gold/40 !bg-gold/20 !text-gold-deep ring-1 ring-gold/30'
+                  : '!border-transparent hover:!border-gold/30 hover:!bg-gold/15 hover:!text-gold-deep'
               }`}
               aria-pressed={selectedPiece ? undefined : storeMode}
               aria-label={
@@ -217,41 +233,45 @@ export function InventoryHotbar({
                   ? `Store ${selectedPiece.name}`
                   : 'Toggle store mode'
               }
-              title={
-                selectedPiece
-                  ? `Store ${selectedPiece.name} to inventory`
-                  : 'Click a piece to store it in inventory'
-              }
             >
               <Archive size={13} />
-              <span className="max-[1365px]:hidden">Store</span>
+              <span className={collapsed ? 'hidden' : 'max-[1365px]:hidden'}>Store</span>
             </button>
             <span className="mx-0.5 h-4 w-px bg-ink/10" aria-hidden />
             <button
               type="button"
               onClick={onOpenShop}
               className="focus-ring flex h-8 items-center gap-1.5 rounded-xl border border-terracotta/25 bg-terracotta/10 px-2 text-[10px] font-bold text-terracotta-deep transition hover:bg-terracotta/20 active:scale-95"
-              title="Open build shop (B)"
               aria-haspopup="dialog"
             >
               <ShoppingBag size={13} />
-              <span className="max-[1365px]:hidden">Shop</span>
-              <span className="rounded bg-ivory/70 px-1 font-mono text-[8px] text-terracotta-deep">
-                B
-              </span>
+              <span className={collapsed ? 'hidden' : 'max-[1365px]:hidden'}>Shop</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCollapsed((current) => !current)}
+              className="focus-ring flex h-8 w-6 items-center justify-center rounded-lg text-ink-soft/60 transition hover:bg-white/60 hover:text-ink"
+              aria-expanded={!collapsed}
+              aria-label={collapsed ? 'Expand hotbar' : 'Collapse hotbar'}
+              title={collapsed ? 'Expand hotbar' : 'Collapse hotbar'}
+            >
+              <ChevronDown
+                size={13}
+                className={`transition-transform ${collapsed ? 'rotate-180' : ''}`}
+              />
             </button>
           </div>
         </div>
 
+        {collapsed ? null : (
         <div
-          className="flex items-end justify-center gap-1.5 max-[1365px]:gap-1"
+          className="hide-scrollbar flex w-full items-end justify-start gap-2.5 overflow-x-auto pb-1 pt-2.5 max-[1365px]:gap-2"
           role="toolbar"
           aria-label="Inventory hotbar"
         >
-          {slots.map(({ item, slot }) => {
+          {items.map((item) => {
             const owned = inventory[item.id] ?? 0;
             const active = selectedId === item.id;
-            const isBase = item.category === 'base';
             return (
               <button
                 key={item.id}
@@ -267,42 +287,27 @@ export function InventoryHotbar({
                 }}
                 className={`group relative flex h-[54px] w-[54px] shrink-0 flex-col items-center justify-center rounded-2xl border transition max-[1365px]:h-12 max-[1365px]:w-12 ${
                   active
-                    ? '-translate-y-1 border-sage-deep/60 bg-sage/25 shadow-float'
+                    ? `-translate-y-1 border-sage-deep/70 shadow-float ring-1 ring-sage-deep/25 ${CATEGORY_BG[item.hotbarGroup]}`
                     : owned > 0
-                      ? 'border-white/70 bg-white/45 hover:-translate-y-0.5 hover:border-sage/40 hover:bg-white/70'
-                      : 'border-dashed border-ink/15 bg-white/20 hover:-translate-y-0.5 hover:border-terracotta/35 hover:bg-white/45'
-                }`}
-                title={`${item.name} · ${owned} owned · ${CATEGORY_LABEL[item.category]}${
-                  owned > 0 ? '' : ' · click to open the shop'
+                      ? `border-white/70 hover:-translate-y-0.5 hover:border-sage/40 ${CATEGORY_BG[item.hotbarGroup]}`
+                      : 'border-dashed border-ink/20 bg-ink/[0.035] hover:-translate-y-0.5 hover:border-terracotta/35 hover:bg-white/45'
                 }`}
                 aria-label={`${item.name}, ${owned} owned, ${CATEGORY_LABEL[item.category]}${
                   owned > 0 ? '' : ', opens build shop'
                 }`}
                 aria-pressed={active}
               >
-                <span className="absolute left-1 top-0.5 font-mono text-[8.5px] font-semibold text-ink-soft">
-                  {slot}
-                </span>
-                <span
-                  className={`absolute inset-x-0 bottom-0 h-[3px] rounded-b-2xl ${
-                    isBase ? 'bg-sage/60' : 'text-terracotta/60'
-                  }`}
-                  style={
-                    isBase
-                      ? undefined
-                      : {
-                          backgroundImage:
-                            'repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 6px)',
-                        }
-                  }
-                  aria-hidden
-                />
                 <ItemGlyph
                   item={item}
                   size={21}
-                  className={owned > 0 ? undefined : 'opacity-45'}
+                  vibrant={owned > 0}
+                  className={owned > 0 ? undefined : 'opacity-35 grayscale'}
                 />
-                <span className="max-w-[48px] truncate px-0.5 pt-0.5 text-[9px] font-semibold leading-none text-ink-soft">
+                <span
+                  className={`max-w-[48px] truncate px-0.5 pt-0.5 text-[9.5px] font-semibold leading-none ${
+                    owned > 0 ? 'text-ink-soft' : 'text-ink-soft/55'
+                  }`}
+                >
                   {item.shortName}
                 </span>
                 {owned > 0 ? (
@@ -311,7 +316,7 @@ export function InventoryHotbar({
                   </span>
                 ) : (
                   <span
-                    className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold/25 text-[10px] font-bold text-gold-deep"
+                    className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-ink opacity-100"
                     aria-hidden
                   >
                     +
@@ -320,16 +325,8 @@ export function InventoryHotbar({
               </button>
             );
           })}
-          {slots.length < 9
-            ? Array.from({ length: 9 - slots.length }).map((_, index) => (
-                <div
-                  key={`empty-${index}`}
-                  className="h-[54px] w-[54px] shrink-0 rounded-2xl border border-dashed border-ink/10 bg-white/20 max-[1365px]:h-12 max-[1365px]:w-12"
-                  aria-hidden
-                />
-              ))
-            : null}
         </div>
+        )}
       </div>
     </div>
   );

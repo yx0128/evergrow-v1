@@ -1,6 +1,6 @@
 # Art pipeline
 
-Moss & Ember ships thirteen real GLB models. They are authored procedurally with Blender's Python API rather than exported from a modeling UI, which makes the art reproducible, reviewable, and cheap to iterate.
+Evergrow ships thirteen real GLB models. They are authored procedurally with Blender's Python API rather than exported from a modeling UI, which makes the art reproducible, reviewable, and cheap to iterate.
 
 ## Coordinate contract
 

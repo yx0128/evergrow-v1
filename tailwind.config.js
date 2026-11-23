@@ -15,6 +15,7 @@ export default {
         moss: '#556B45',
         gold: '#E0B15E',
         'gold-deep': '#C2914C',
+        'gold-ink': '#B8860B',
         terracotta: '#D08A67',
         'terracotta-deep': '#B86847',
         rose: '#D98A92',
@@ -41,8 +42,8 @@ export default {
       },
       keyframes: {
         'toast-in': {
-          '0%': { opacity: '0', transform: 'translate(-50%, -14px) scale(0.96)' },
-          '100%': { opacity: '1', transform: 'translate(-50%, 0) scale(1)' },
+          '0%': { opacity: '0', transform: 'translateY(-14px) scale(0.96)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
         'panel-in': {
           '0%': { opacity: '0', transform: 'translateY(8px) scale(0.985)' },

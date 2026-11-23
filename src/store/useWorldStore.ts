@@ -1,13 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import {
-  ITEM_MAP,
-  STARTER_COINS,
-  STARTER_INVENTORY,
-  STARTER_PLACEMENTS,
-  STARTER_TASKS,
-  TASK_REWARDS,
-} from '../data/items';
+import { ITEM_MAP, TASK_REWARDS } from '../data/items';
+import { isValidIsoDate } from '../lib/dates';
 import { createId } from '../lib/id';
 import { cellKey, findBase, findProp, isBasePiece, worldToCell } from '../lib/grid';
 import type {
@@ -17,13 +11,17 @@ import type {
   PlacedItem,
   Rotation,
   Task,
+  Subtask,
   GraphicsQuality,
+  TaskLayout,
+  TaskPriority,
   TaskTier,
   ThemeMode,
 } from '../types';
 
 const STORAGE_KEY = 'moss-and-ember-v1';
 const MAX_TASKS = 200;
+const MAX_SUBTASKS = 50;
 const MAX_PLACED = 4000;
 const MAX_COINS = 9_999_999;
 const MAX_STOCK = 999;
@@ -35,49 +33,54 @@ export interface WorldState extends PersistedWorld {
   movingRotation: Rotation;
   rotation: Rotation;
   storeMode: boolean;
+  moveMode: boolean;
   hydrated: boolean;
-  addTask: (title: string, tier: TaskTier) => ActionResult;
+  addTask: (
+    title: string,
+    tier: TaskTier,
+    priority?: TaskPriority,
+    dueDate?: string | null,
+    subtaskTitles?: string[],
+  ) => ActionResult;
+  addSubtask: (taskId: string, title: string) => ActionResult;
+  toggleSubtask: (taskId: string, subtaskId: string) => ActionResult;
+  updateSubtask: (taskId: string, subtaskId: string, title: string) => ActionResult;
+  deleteSubtask: (taskId: string, subtaskId: string) => void;
   toggleTask: (id: string) => ActionResult;
   deleteTask: (id: string) => void;
-  reorderTask: (taskId: string, insertIndex: number) => void;
+  setTaskPriority: (id: string, priority: TaskPriority) => ActionResult;
+  setTaskDueDate: (id: string, dueDate: string | null) => ActionResult;
+  toggleTaskPin: (id: string) => ActionResult;
+  togglePinAllIncompleteTasks: () => ActionResult;
   buyItem: (itemId: string) => ActionResult;
+  sellItem: (itemId: string) => ActionResult;
   selectItem: (itemId: string | null) => void;
   selectPiece: (placedId: string | null) => void;
   rotate: () => void;
   toggleTheme: () => void;
   toggleStoreMode: () => void;
+  toggleMoveMode: () => ActionResult;
   toggleGraphicsQuality: () => void;
+  setTaskLayout: (layout: TaskLayout) => void;
   placeAt: (x: number, z: number) => ActionResult;
   beginMove: (placedId: string) => ActionResult;
   moveTo: (x: number, z: number) => ActionResult;
   cancelMove: () => void;
+  sellPlacedItem: (placedId: string) => ActionResult;
   removeItem: (placedId: string) => ActionResult;
   removeAtCell: (x: number, z: number) => ActionResult;
   resetWorld: () => void;
 }
 
 export function createDefaultData(): PersistedWorld {
-  const placedAt = Date.now() - 4000;
   return {
-    coins: STARTER_COINS,
-    tasks: STARTER_TASKS.map((task, index) => ({
-      id: `starter-${index + 1}`,
-      title: task.title,
-      tier: task.tier,
-      done: false,
-      createdAt: placedAt + index,
-    })),
-    inventory: { ...STARTER_INVENTORY },
-    placedItems: STARTER_PLACEMENTS.map((cell, index) => ({
-      id: `starter_tile_${index + 1}`,
-      itemId: 'sandstone_tile',
-      x: cell.x,
-      z: cell.z,
-      rotation: 0 as Rotation,
-      placedAt,
-    })),
+    coins: 0,
+    tasks: [],
+    inventory: {},
+    placedItems: [],
     themeMode: 'day',
     graphicsQuality: 'high',
+    taskLayout: 'bar',
   };
 }
 
@@ -89,6 +92,7 @@ function defaultTransient() {
     movingRotation: 0 as Rotation,
     rotation: 0 as Rotation,
     storeMode: false,
+    moveMode: false,
     hydrated: true,
   };
 }
@@ -112,6 +116,26 @@ function validTier(value: unknown): value is TaskTier {
   return value === 'quick' || value === 'standard' || value === 'deep';
 }
 
+function validPriority(value: unknown): value is TaskPriority {
+  return value === 'low' || value === 'medium' || value === 'high';
+}
+
+function sanitizeSubtasks(value: unknown): Subtask[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  const subtasks: Subtask[] = [];
+  for (const raw of value.slice(0, MAX_SUBTASKS)) {
+    if (!isRecord(raw)) continue;
+    const title = cleanString(raw.title, 120);
+    if (!title) continue;
+    let id = cleanString(raw.id, 80) ?? createId('subtask');
+    if (seen.has(id)) id = createId('subtask');
+    seen.add(id);
+    subtasks.push({ id, title, done: raw.done === true });
+  }
+  return subtasks;
+}
+
 function sanitizeTasks(value: unknown): Task[] {
   if (!Array.isArray(value)) return [];
   const seen = new Set<string>();
@@ -131,9 +155,13 @@ function sanitizeTasks(value: unknown): Task[] {
       id,
       title,
       tier: raw.tier,
+      priority: validPriority(raw.priority) ? raw.priority : 'medium',
       done: raw.done === true,
       createdAt,
+      pinned: raw.pinned === true,
+      subtasks: sanitizeSubtasks(raw.subtasks),
     };
+    if (isValidIsoDate(raw.dueDate)) task.dueDate = raw.dueDate;
     if (task.done && typeof raw.completedAt === 'number') {
       task.completedAt = raw.completedAt;
     }
@@ -205,12 +233,13 @@ export function sanitizePersisted(value: unknown): PersistedWorld {
   const inventory = sanitizeInventory(value.inventory);
   const placedItems = sanitizePlaced(value.placedItems);
   return {
-    coins: clampInt(value.coins, 0, MAX_COINS, STARTER_COINS),
-    tasks: tasks.length > 0 || Array.isArray(value.tasks) ? tasks : defaults.tasks,
+    coins: clampInt(value.coins, 0, MAX_COINS, 0),
+    tasks,
     inventory,
     placedItems,
     themeMode: value.themeMode === 'night' ? 'night' : 'day',
     graphicsQuality: value.graphicsQuality === 'low' ? 'low' : 'high',
+    taskLayout: value.taskLayout === 'tab' ? 'tab' : 'bar',
   };
 }
 
@@ -264,7 +293,13 @@ export const useWorldStore = create<WorldState>()(
       ...createDefaultData(),
       ...defaultTransient(),
 
-      addTask: (title, tier) => {
+      addTask: (
+        title,
+        tier,
+        priority = 'medium',
+        dueDate = null,
+        subtaskTitles = [],
+      ) => {
         const clean = title.trim().replace(/\s+/g, ' ');
         if (!clean) return failure('Give the task a short name first.');
         if (clean.length > 120) return failure('Keep task names under 120 characters.');
@@ -273,11 +308,108 @@ export const useWorldStore = create<WorldState>()(
           id: createId('task'),
           title: clean,
           tier,
+          priority: validPriority(priority) ? priority : 'medium',
           done: false,
           createdAt: Date.now(),
+          subtasks: [],
         };
+        for (const raw of subtaskTitles.slice(0, MAX_SUBTASKS)) {
+          const subtaskTitle = cleanString(raw, 120);
+          if (subtaskTitle) {
+            task.subtasks.push({
+              id: createId('subtask'),
+              title: subtaskTitle,
+              done: false,
+            });
+          }
+        }
+        if (isValidIsoDate(dueDate)) task.dueDate = dueDate;
         set((state) => ({ tasks: [task, ...state.tasks] }));
         return { ok: true, message: `Added “${clean}”.` };
+      },
+
+      addSubtask: (taskId, title) => {
+        const task = get().tasks.find((entry) => entry.id === taskId);
+        if (!task) return failure('That task no longer exists.');
+        const clean = title.trim().replace(/\s+/g, ' ');
+        if (!clean) return failure('Give the subtask a short name first.');
+        if (clean.length > 120) {
+          return failure('Keep subtasks under 120 characters.');
+        }
+        if (task.subtasks.length >= MAX_SUBTASKS) {
+          return failure('This task has too many subtasks.');
+        }
+        const subtask: Subtask = {
+          id: createId('subtask'),
+          title: clean,
+          done: false,
+        };
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === taskId
+              ? { ...entry, subtasks: [...entry.subtasks, subtask] }
+              : entry,
+          ),
+        }));
+        return { ok: true, message: `Added subtask “${clean}”.` };
+      },
+
+      toggleSubtask: (taskId, subtaskId) => {
+        const task = get().tasks.find((entry) => entry.id === taskId);
+        if (!task) return failure('That task no longer exists.');
+        const subtask = task.subtasks.find((entry) => entry.id === subtaskId);
+        if (!subtask) return failure('That subtask no longer exists.');
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === taskId
+              ? {
+                  ...entry,
+                  subtasks: entry.subtasks.map((item) =>
+                    item.id === subtaskId ? { ...item, done: !item.done } : item,
+                  ),
+                }
+              : entry,
+          ),
+        }));
+        return { ok: true, message: subtask.done ? 'Subtask reopened.' : 'Subtask complete.' };
+      },
+
+      updateSubtask: (taskId, subtaskId, title) => {
+        const task = get().tasks.find((entry) => entry.id === taskId);
+        if (!task) return failure('That task no longer exists.');
+        const subtask = task.subtasks.find((entry) => entry.id === subtaskId);
+        if (!subtask) return failure('That subtask no longer exists.');
+        const clean = title.trim().replace(/\s+/g, ' ');
+        if (!clean) return failure('Give the subtask a short name first.');
+        if (clean.length > 120) {
+          return failure('Keep subtasks under 120 characters.');
+        }
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === taskId
+              ? {
+                  ...entry,
+                  subtasks: entry.subtasks.map((item) =>
+                    item.id === subtaskId ? { ...item, title: clean } : item,
+                  ),
+                }
+              : entry,
+          ),
+        }));
+        return { ok: true, message: `Updated subtask “${clean}”.` };
+      },
+
+      deleteSubtask: (taskId, subtaskId) => {
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === taskId
+              ? {
+                  ...entry,
+                  subtasks: entry.subtasks.filter((item) => item.id !== subtaskId),
+                }
+              : entry,
+          ),
+        }));
       },
 
       toggleTask: (id) => {
@@ -289,7 +421,7 @@ export const useWorldStore = create<WorldState>()(
           coins: Math.min(MAX_COINS, state.coins + reward),
           tasks: state.tasks.map((entry) =>
             entry.id === id
-              ? { ...entry, done: true, completedAt: Date.now() }
+              ? { ...entry, done: true, completedAt: Date.now(), pinned: false }
               : entry,
           ),
         }));
@@ -300,20 +432,71 @@ export const useWorldStore = create<WorldState>()(
         set((state) => ({ tasks: state.tasks.filter((task) => task.id !== id) }));
       },
 
-      reorderTask: (taskId, insertIndex) => {
-        if (!Number.isFinite(insertIndex)) return;
-        set((state) => {
-          const fromIndex = state.tasks.findIndex((task) => task.id === taskId);
-          if (fromIndex === -1) return {};
-          const tasks = [...state.tasks];
-          const [task] = tasks.splice(fromIndex, 1);
-          const toIndex = Math.max(
-            0,
-            Math.min(tasks.length, Math.floor(insertIndex)),
-          );
-          tasks.splice(toIndex, 0, task);
-          return { tasks };
-        });
+      setTaskPriority: (id, priority) => {
+        const task = get().tasks.find((entry) => entry.id === id);
+        if (!task) return failure('That task no longer exists.');
+        if (!validPriority(priority)) return failure('Unknown priority.');
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === id ? { ...entry, priority } : entry,
+          ),
+        }));
+        return { ok: true, message: `Priority set to ${priority}.` };
+      },
+
+      setTaskDueDate: (id, dueDate) => {
+        const task = get().tasks.find((entry) => entry.id === id);
+        if (!task) return failure('That task no longer exists.');
+        if (dueDate !== null && !isValidIsoDate(dueDate)) {
+          return failure('Pick a valid deadline.');
+        }
+        set((state) => ({
+          tasks: state.tasks.map((entry) => {
+            if (entry.id !== id) return entry;
+            const next = { ...entry };
+            if (dueDate === null) delete next.dueDate;
+            else next.dueDate = dueDate;
+            return next;
+          }),
+        }));
+        return {
+          ok: true,
+          message: dueDate ? 'Deadline saved.' : 'Deadline cleared.',
+        };
+      },
+
+      toggleTaskPin: (id) => {
+        const task = get().tasks.find((entry) => entry.id === id);
+        if (!task) return failure('That task no longer exists.');
+        if (task.done) return failure('Completed tasks stay in the list.');
+        set((state) => ({
+          tasks: state.tasks.map((entry) =>
+            entry.id === id ? { ...entry, pinned: !entry.pinned } : entry,
+          ),
+        }));
+        return {
+          ok: true,
+          message: task.pinned
+            ? `Unpinned “${task.title}”.`
+            : `Pinned “${task.title}” to the top.`,
+        };
+      },
+
+      togglePinAllIncompleteTasks: () => {
+        const pending = get().tasks.filter((task) => !task.done);
+        if (pending.length === 0) return failure('Add an unfinished task first.');
+        const allPinned = pending.every((task) => task.pinned);
+        set((state) => ({
+          tasks: state.tasks.map((task) =>
+            task.done ? task : { ...task, pinned: !allPinned },
+          ),
+        }));
+        return {
+          ok: true,
+          message: allPinned
+            ? 'Unpinned all unfinished tasks.'
+            : 'Pinned all unfinished tasks to the top.',
+        };
       },
 
       buyItem: (itemId) => {
@@ -332,12 +515,38 @@ export const useWorldStore = create<WorldState>()(
         return { ok: true, message: `Bought ${item.name}.` };
       },
 
+      sellItem: (itemId) => {
+        const item = itemFor(itemId);
+        if (!item) return failure('Unknown item.');
+        const owned = get().inventory[itemId] ?? 0;
+        if (owned <= 0) return failure('None of that item to sell.');
+        set((state) => {
+          const inventory = { ...state.inventory };
+          if (owned <= 1) delete inventory[itemId];
+          else inventory[itemId] = owned - 1;
+          return {
+            coins: Math.min(MAX_COINS, state.coins + item.cost),
+            inventory,
+            selectedItemId:
+              state.selectedItemId === itemId && owned <= 1
+                ? null
+                : state.selectedItemId,
+          };
+        });
+        return {
+          ok: true,
+          message: `Sold ${item.name} · +${item.cost} coins`,
+          reward: item.cost,
+        };
+      },
+
       selectItem: (itemId) => {
         if (itemId === null) {
           set({
             selectedItemId: null,
             selectedPieceId: null,
             storeMode: false,
+            moveMode: false,
             movingItemId: null,
             movingRotation: 0,
           });
@@ -350,6 +559,7 @@ export const useWorldStore = create<WorldState>()(
           selectedItemId: state.selectedItemId === itemId ? null : itemId,
           selectedPieceId: null,
           storeMode: false,
+          moveMode: false,
           movingItemId: null,
           movingRotation: 0,
         }));
@@ -369,9 +579,14 @@ export const useWorldStore = create<WorldState>()(
           selectedPieceId: state.selectedPieceId === placedId ? null : placedId,
           selectedItemId: null,
           storeMode: false,
+          moveMode: false,
           movingItemId: null,
           movingRotation: 0,
         }));
+      },
+
+      setTaskLayout: (layout) => {
+        set({ taskLayout: layout });
       },
 
       toggleGraphicsQuality: () => {
@@ -430,9 +645,38 @@ export const useWorldStore = create<WorldState>()(
           storeMode: !state.storeMode,
           selectedItemId: state.storeMode ? state.selectedItemId : null,
           selectedPieceId: null,
+          moveMode: false,
           movingItemId: null,
           movingRotation: 0,
         }));
+      },
+
+      toggleMoveMode: () => {
+        const state = get();
+        if (state.moveMode) {
+          set({
+            moveMode: false,
+            movingItemId: null,
+            movingRotation: 0,
+            selectedPieceId: null,
+          });
+          return { ok: true, message: 'Move mode off.' };
+        }
+        if (state.selectedPieceId) {
+          const result = get().beginMove(state.selectedPieceId);
+          if (!result.ok) return result;
+          set({ moveMode: true });
+          return result;
+        }
+        set({
+          moveMode: true,
+          selectedItemId: null,
+          selectedPieceId: null,
+          storeMode: false,
+          movingItemId: null,
+          movingRotation: 0,
+        });
+        return { ok: true, message: 'Move mode. Click a placed piece.' };
       },
 
       placeAt: (rawX, rawZ) => {
@@ -470,6 +714,7 @@ export const useWorldStore = create<WorldState>()(
           inventory: { ...state.inventory, [selected]: remaining },
           selectedItemId: remaining > 0 ? selected : null,
           selectedPieceId: null,
+          moveMode: false,
           movingItemId: null,
           movingRotation: 0,
         });
@@ -488,6 +733,7 @@ export const useWorldStore = create<WorldState>()(
           selectedItemId: null,
           selectedPieceId: null,
           storeMode: false,
+          moveMode: true,
         });
         return {
           ok: true,
@@ -539,7 +785,11 @@ export const useWorldStore = create<WorldState>()(
             });
             return { ok: true, message: `Rotated ${item.name}.` };
           }
-          set({ movingItemId: null, movingRotation: 0, selectedPieceId: null });
+          set({
+            movingItemId: null,
+            movingRotation: 0,
+            selectedPieceId: null,
+          });
           return { ok: true, message: `${item.name} stays put.` };
         }
         const others = state.placedItems.filter(
@@ -602,7 +852,33 @@ export const useWorldStore = create<WorldState>()(
           movingItemId: null,
           movingRotation: 0,
           selectedPieceId: movingId,
+          moveMode: false,
         });
+      },
+
+      sellPlacedItem: (placedId) => {
+        const state = get();
+        const piece = state.placedItems.find((entry) => entry.id === placedId);
+        if (!piece) return failure('That piece is already gone.');
+        const item = itemFor(piece.itemId);
+        if (!item) return failure('Unknown item.');
+        if (isBasePiece(piece) && findProp(state.placedItems, piece.x, piece.z)) {
+          return failure('Sell or move the surface prop first.');
+        }
+        set({
+          placedItems: state.placedItems.filter((entry) => entry.id !== placedId),
+          coins: Math.min(MAX_COINS, state.coins + item.cost),
+          movingItemId: state.movingItemId === placedId ? null : state.movingItemId,
+          movingRotation: state.movingItemId === placedId ? 0 : state.movingRotation,
+          selectedPieceId:
+            state.selectedPieceId === placedId ? null : state.selectedPieceId,
+          moveMode: false,
+        });
+        return {
+          ok: true,
+          message: `Sold ${item.name} · +${item.cost} coins`,
+          reward: item.cost,
+        };
       },
 
       removeItem: (placedId) => {
@@ -626,6 +902,7 @@ export const useWorldStore = create<WorldState>()(
           movingItemId: state.movingItemId === placedId ? null : state.movingItemId,
           movingRotation: state.movingItemId === placedId ? 0 : state.movingRotation,
           selectedPieceId: state.selectedPieceId === placedId ? null : state.selectedPieceId,
+          moveMode: false,
         });
         return { ok: true, message: `Returned ${item.name} to inventory.` };
       },
@@ -640,7 +917,8 @@ export const useWorldStore = create<WorldState>()(
       },
 
       resetWorld: () => {
-        set({ ...createDefaultData(), ...defaultTransient() });
+        const taskLayout = get().taskLayout;
+        set({ ...createDefaultData(), ...defaultTransient(), taskLayout });
       },
     }),
     {
@@ -654,6 +932,7 @@ export const useWorldStore = create<WorldState>()(
         placedItems: state.placedItems,
         themeMode: state.themeMode,
         graphicsQuality: state.graphicsQuality,
+        taskLayout: state.taskLayout,
       }),
       merge: (persisted, current) => ({
         ...current,

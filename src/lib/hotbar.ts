@@ -1,41 +1,72 @@
-import { HOTBAR_ORDER, HOTBAR_PAGE_SIZE, ITEM_MAP } from '../data/items';
-import type { ItemDef } from '../types';
+import { HOTBAR_ORDER, ITEM_MAP } from '../data/items';
+import type { HotbarGroup, HotbarView, ItemDef } from '../types';
+
+export const HOTBAR_GROUPS: Array<{ id: HotbarGroup; label: string }> = [
+  { id: 'terrain', label: 'Terrain' },
+  { id: 'buildings', label: 'Buildings' },
+  { id: 'nature', label: 'Nature' },
+  { id: 'decor', label: 'Decor' },
+];
 
 export const HOTBAR_ITEMS: ItemDef[] = HOTBAR_ORDER.flatMap((id) => {
   const item = ITEM_MAP[id];
   return item ? [item] : [];
 });
 
-export const HOTBAR_PAGE_COUNT = Math.max(
-  1,
-  Math.ceil(HOTBAR_ITEMS.length / HOTBAR_PAGE_SIZE),
+export const HOTBAR_VIEWS: Array<{ id: HotbarView; label: string }> = [
+  { id: 'all', label: 'All' },
+  ...HOTBAR_GROUPS,
+];
+
+const CATEGORY_ORDER = new Map<string, number>(
+  HOTBAR_GROUPS.map((group, index) => [group.id, index]),
+);
+const ITEM_ORDER = new Map<string, number>(
+  HOTBAR_ORDER.map((id, index) => [id, index]),
 );
 
-export function clampHotbarPage(page: number): number {
-  if (!Number.isFinite(page)) return 0;
-  return Math.max(
-    0,
-    Math.min(HOTBAR_PAGE_COUNT - 1, Math.floor(page)),
-  );
+export function getHotbarItems(group: HotbarGroup): ItemDef[] {
+  return HOTBAR_ITEMS.filter((item) => item.hotbarGroup === group);
 }
 
-export function getHotbarSlots(page: number): Array<{ item: ItemDef; slot: number }> {
-  const start = clampHotbarPage(page) * HOTBAR_PAGE_SIZE;
-  return HOTBAR_ITEMS.slice(start, start + HOTBAR_PAGE_SIZE).map((item, index) => ({
-    item,
-    slot: index + 1,
-  }));
+function ownedFirst(item: ItemDef, inventory: Record<string, number>): number {
+  return (inventory[item.id] ?? 0) > 0 ? 0 : 1;
 }
 
-export function hotbarPageForItem(itemId: string): number {
-  const index = HOTBAR_ORDER.indexOf(itemId);
-  return index === -1 ? 0 : Math.floor(index / HOTBAR_PAGE_SIZE);
+export function getHotbarViewItems(
+  view: HotbarView,
+  inventory: Record<string, number>,
+): ItemDef[] {
+  const items = view === 'all' ? [...HOTBAR_ITEMS] : getHotbarItems(view);
+  return items.sort((a, b) => {
+    const ownedDiff = ownedFirst(a, inventory) - ownedFirst(b, inventory);
+    if (ownedDiff !== 0) return ownedDiff;
+    const categoryDiff =
+      (CATEGORY_ORDER.get(a.hotbarGroup) ?? 0) -
+      (CATEGORY_ORDER.get(b.hotbarGroup) ?? 0);
+    if (categoryDiff !== 0) return categoryDiff;
+    return (ITEM_ORDER.get(a.id) ?? 0) - (ITEM_ORDER.get(b.id) ?? 0);
+  });
 }
 
-export function ownedOnHotbarPage(
-  page: number,
+export function hotbarGroupForItem(itemId: string): HotbarGroup {
+  return ITEM_MAP[itemId]?.hotbarGroup ?? 'terrain';
+}
+
+export function ownedInGroup(
+  group: HotbarGroup,
   inventory: Record<string, number>,
 ): number {
-  return getHotbarSlots(page).filter(({ item }) => (inventory[item.id] ?? 0) > 0)
+  return getHotbarItems(group).filter((item) => (inventory[item.id] ?? 0) > 0)
     .length;
+}
+
+export function defaultHotbarGroup(
+  inventory: Record<string, number>,
+): HotbarGroup {
+  return (
+    HOTBAR_GROUPS.find((group) =>
+      getHotbarItems(group.id).some((item) => (inventory[item.id] ?? 0) > 0),
+    )?.id ?? HOTBAR_GROUPS[0].id
+  );
 }

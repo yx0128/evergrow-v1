@@ -3,7 +3,7 @@ name: moss-and-ember-diorama
 description: Build and ship a polished, desktop-first 3D isometric miniature diorama with React 18, TypeScript, Vite, Three.js, a task-powered coin economy, two-layer 1x1 placement, real Blender-sculpted GLB models, day/night lighting, validated localStorage persistence, professional documentation, CI, visual QA, and a published skill backup. Use when someone asks for a cozy 3D diorama, a task-reward world builder, a Three.js isometric garden, a Blender-to-GLB pipeline, or a complete from-scratch web app with release engineering.
 ---
 
-# Moss & Ember Diorama
+# Evergrow Diorama
 
 A complete playbook for shipping a cozy floating miniature courtyard where real tasks earn coins, coins buy 1×1 tiles and props, and every asset is a real Blender-sculpted GLB.
 
@@ -237,10 +237,10 @@ Record UTC + local times, wall-clock duration, all five token columns, raw total
 
 ```bash
 export GH_TOKEN="$(gh auth token)"   # one keychain read
-gh repo create USER/REPO --public --description "Moss & Ember — a cozy 3D isometric task diorama."
+gh repo create USER/REPO --public --description "Evergrow — a cozy 3D isometric task diorama."
 git init -b main
 git add -A
-git commit -m "Initial commit: Moss & Ember"
+git commit -m "Initial commit: Evergrow"
 git remote add origin "https://github.com/USER/REPO.git"
 export GIT_ASKPASS="$(mktemp -t askpass)"
 cat > "$GIT_ASKPASS" <<'SH'

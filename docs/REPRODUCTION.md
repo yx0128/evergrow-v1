@@ -1,6 +1,6 @@
 # Reproduction guide
 
-This document is the complete recipe for rebuilding **Moss & Ember** from an empty directory, including the art. It is written for a human developer or an AI coding agent with shell access.
+This document is the complete recipe for rebuilding **Evergrow** from an empty directory, including the art. It is written for a human developer or an AI coding agent with shell access.
 
 ## 0. Target outcome
 
@@ -107,7 +107,7 @@ Create:
 - `tailwind.config.js` — design tokens from [DESIGN.md](DESIGN.md); display/sans stacks; panel/toast animations.
 - `postcss.config.js` — Tailwind + autoprefixer.
 - `eslint.config.js` — flat config with TypeScript, React hooks, React refresh, browser globals.
-- `index.html` — title `Moss & Ember · Cozy Task World`, favicon, description, `#root`.
+- `index.html` — title `Evergrow · Cozy Task World`, favicon, description, `#root`.
 - `.editorconfig`, `.gitignore`, `.nvmrc`.
 
 `.gitignore` must include `node_modules/`, `dist/`, `coverage/`, `*.tsbuildinfo`, `.DS_Store`, `.env*`, and Blender backups (`*.blend1`, `*.blend2`).
@@ -196,11 +196,11 @@ Traverse to enable shadows and swap materials in ghost mode. Wrap with an error 
 ## 7. HUD
 
 - `TopBar`: coin counter, day/night, reset camera, photo mode.
-- `TaskDrawer`: collapsible glass panel, progress, tier selector with rewards, checkbox completion, delete, reset with confirmation.
-- `InventoryHotbar`: 9 slots, stock badges, `1–9` labels, rotate/store/shop controls; selected item is lifted and ringed.
+- `TaskDrawer`: collapsible glass panel, progress, tier selector with rewards, checkbox completion, hover/focus pins plus pin-all, drag reorder, delete, and two-step reset.
+- `InventoryHotbar`: Terrain/Nature/Decor/Buildings pills, stock badges, `1–9` shortcuts, rotate/move/store/shop rail; owned slots are full colour and unowned slots are greyed; selected item is lifted and ringed.
 - `BuildShop`: modal, base/prop tabs, affordable/disabled buy states, owned counts.
 - `Toasts`, `ControlsLegend`, photo-mode exit pill.
-- `App.tsx` owns the keyboard map (`1–9`, `R`, `B`, `H`, `Esc`), toast timers, feedback sounds, and the UI/photo mode switch.
+- `App.tsx` owns the keyboard map (`1–9`, `[` / `]`, `R`, `B`, `H`, `Esc`), toast timers, feedback sounds, and the UI/photo mode switch.
 - Prevent the browser context menu on the root.
 
 Tailwind styling lives in `src/index.css` (`glass-panel`, `glass-pill`, `hud-button`, focus rings, scrollbars). Keep panels cream in both themes.
@@ -246,11 +246,11 @@ The goal is one credential read, then non-interactive pushes.
 ```bash
 # one shell, one keychain read
 export GH_TOKEN="$(gh auth token)"
-gh repo create USER/REPO --public --description "Moss & Ember — a cozy 3D isometric task diorama."
+gh repo create USER/REPO --public --description "Evergrow — a cozy 3D isometric task diorama."
 
 git init -b main
 git add -A
-git commit -m "Initial commit: Moss & Ember"
+git commit -m "Initial commit: Evergrow"
 git remote add origin "https://github.com/USER/REPO.git"
 
 export GIT_ASKPASS="$(mktemp -t askpass)"
@@ -279,7 +279,7 @@ Expected URL: `https://USER.github.io/REPO/`. Verify the HTML, the JS chunks, an
 
 ## 12. Agent prompt (optional starting point)
 
-> Build a desktop-first React 18 + TypeScript + Vite app called Moss & Ember: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and four props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 16 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.2333 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
+> Build a desktop-first React 18 + TypeScript + Vite app called Evergrow: a cozy 3D isometric floating diorama. Use Three.js via @react-three/fiber 8 and drei 9, Zustand with validated localStorage, Tailwind, lucide-react, and @react-three/postprocessing with subtle Bloom and ACES tone mapping (no AO or color grading). Implement a task-to-coin loop (10/25/50), a 3×3 sandstone starter courtyard with 80 coins and four props, a two-layer infinite 1×1 grid (base tiles and surface props), ghost placement with rotation, click-to-select and rotate pieces, explicit Move/`M` lift, right-click storage, day/night lighting, photo mode, a collapsible task drawer, hotbar, and shop. Generate 16 sculpted GLB models with a Blender Python script using bevels, lathe profiles, and emission strength 4.0 for lanterns/flames. Auto-normalize GLBs to a 0.96 footprint at runtime while keeping base tiles exactly 0.2333 tall. Add 24 store tests, a professional docs suite, CI, and a headless Chrome QA script. Document every contract and pitfall for another agent. Credit OpenCode and the model in STATE.md.
 
 ## 13. Pitfalls that cost time
 
