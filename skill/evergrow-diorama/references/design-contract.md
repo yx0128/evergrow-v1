@@ -25,7 +25,7 @@ No neon, pure white, or pure black. Glass panels stay cream in both themes.
 
 - 16px HUD margins.
 - Top-left: coins + day/night + High/Low quality + reset camera + photo mode.
-- Top-right: 370px collapsible task drawer.
+- Top-right: 370px task bar or full task tab.
 - Bottom center: nine 54px hotbar slots + rotate/store/shop.
 - Bottom-left: controls legend at `xl` only.
 - Diorama framed left/center so the right drawer does not cover it.
@@ -60,7 +60,7 @@ No neon, pure white, or pure black. Glass panels stay cream in both themes.
 }
 ```
 
-Key `moss-and-ember-v1`, version `1`. Never persist piece selection, moving state/rotation, placement rotation, store mode, or hydration. `graphicsQuality` is persisted and defaults to `high`.
+Key `evergrow-v1`, version `1`. Never persist piece selection, moving state/rotation, placement rotation, store mode, or hydration. `graphicsQuality` is persisted and defaults to `high`.
 
 ## Copy voice
 

@@ -12,7 +12,7 @@ npm test
 npm run build
 ```
 
-Expected: zero TypeScript errors, zero ESLint warnings, 24 passing store tests, a clean Vite build. `dist/` is generated and ignored.
+Expected: zero TypeScript errors, zero ESLint warnings, 61 passing tests, a clean Vite build. `dist/` is generated and ignored.
 
 ## 2. Start a clean preview
 
@@ -31,11 +31,11 @@ mkdir -p /tmp/moss-ember-qa && cd /tmp/moss-ember-qa
 npm init -y >/dev/null
 npm i puppeteer-core@23 --no-audit --no-fund
 
-cp /path/to/moss-and-ember/docs/qa/visual-check.mjs .
+cp /path/to/evergrow-v1/docs/qa/visual-check.mjs .
 BASE_URL=http://localhost:4183 OUT_DIR="$PWD/shots" node visual-check.mjs
 ```
 
-The script seeds a rich courtyard, then verifies:
+The script seeds a rich world, then verifies:
 
 - all GLBs decode without console/page errors;
 - the task checkbox pays exactly the tier reward;
@@ -45,7 +45,7 @@ The script seeds a rich courtyard, then verifies:
 - clicking a valid base drops a lifted prop without changing stock;
 - the state and the moved piece survive a reload;
 - the High/Low graphics toggle persists and low mode renders without post-processing;
-- four screenshots are written: `hero-day`, `hero-night`, `ui-day`, `shop`.
+- screenshots are written for `hero-day`, `hero-night`, `ui-day`, `shop`, `tasks-tab`, `audio`, and `focus`.
 
 Run it at `1440×900`; the default viewport is set in the script.
 
@@ -74,11 +74,25 @@ Run it at `1440×900`; the default viewport is set in the script.
 | Right-click a base with a prop on it | Rejected with “Store the surface prop first.” |
 | Press `R` | Placement ghost rotates 90°, persists while selecting |
 | Press `R` or HUD **Rotate** while moving | Lifted piece (and its prop) rotates 90°; dropping persists it |
-| Drag a task grip | Inserts the task before or after the hovered row; order persists |
 | Click a task pin on hover | Pins an unfinished task above the list; completing it unpins it |
-| Click the pin beside **Add** | Pins or unpins every unfinished task at once |
-| Click **Reset world** twice | First click arms “Confirm Reset?”; second click restores the starter world |
-| Focus a task grip, press `↑` / `↓` | Reorders the task without a mouse |
+| Click a task title | Expands deadline and priority editing |
+| Click **N subtasks** | Expands the checklist; progress bar tracks completed subtasks |
+| Click a subtask title | Edits it inline; Enter saves, Escape cancels |
+| Task layout button | Switches between side bar and full task tab |
+| Delete a task | Row disappears and a toast confirms the deletion |
+| Filter task status | All, Incomplete, and Completed filter the visible list |
+| Filter by priority/date/no date | Priority, calendar day, drag range, and No due date all combine correctly |
+| Pick a calendar day | Shows tasks due that day; drag across days selects a range |
+| Open the full task tab | List, Month, Week, and Day views are available; no New task control |
+| Drag a task card in Month/Week | Task moves to the target day and its due date persists |
+| Sell from the shop | Coins rise by the full catalog cost and stock falls |
+| Sell a placed piece | Piece disappears and the full cost is refunded |
+| Open the sound player | Nothing plays until Play is pressed |
+| Play, skip, loop, mute | Playback, track selection, loop duration, volume, and mute work independently |
+| Start a focus timer | Countdown runs; closing the panel shows the remaining time in the top capsule |
+| Finish a timer | Toasts and a two-round chime mark completion; pomodoro advances work/break blocks |
+| Click the pin beside **New task** | Pins or unpins every unfinished task at once |
+| Click **Reset world** twice | First click arms “Confirm Reset?”; second click restores an empty world |
 | Press `1–9` | Selects the matching slot in the active category |
 | Press `[` / `]` | Cycles hotbar categories (Terrain, Nature, Decor, Buildings) |
 | Click a zero-stock slot | Opens the shop focused on that item |
@@ -98,11 +112,14 @@ Look for:
 - No z-fighting between adjacent base tiles, water, and ghost plane.
 - Lantern and firepot emission is visible at night but does not wash out the whole screen.
 - Day shadows read warm; night shadows read cool but not black.
-- The diorama is not hidden by the task drawer or hotbar.
+- The diorama is not hidden by the task bar, task tab, or hotbar.
 - The hotbar category pills fit in one row or scroll cleanly; owned slots are full colour and unowned slots are greyed, dashed, and open the shop.
 - Slot numbers are not shown in the bar.
-- Dragged tasks show a sage insertion line and settle in the new order after reload.
-- The task drawer stops above the hotbar at 1440 and 1280 with a long task list.
+- Dragged calendar tasks show a sage drop highlight and keep the new due date after reload.
+- The task bar stops above the hotbar at 1440 and 1280 with a long task list.
+- The full task tab keeps a stable height; Week columns and Day lists scroll independently.
+- Audio never starts on page load or when the panel opens.
+- The sound and focus panels fit within the viewport at 1440×900.
 - The grid fades toward the horizon and does not look like clipped text at the top edge.
 - Text is legible on the glass panels at 100% zoom.
 
@@ -111,12 +128,12 @@ Look for:
 In DevTools:
 
 ```js
-JSON.parse(localStorage.getItem('moss-and-ember-v1'))
+JSON.parse(localStorage.getItem('evergrow-v1'))
 ```
 
 Confirm:
 
-- persisted keys are exactly `coins`, `tasks`, `inventory`, `placedItems`, `themeMode`;
+- persisted keys are exactly `coins`, `tasks`, `inventory`, `placedItems`, `themeMode`, `graphicsQuality`, `taskLayout`;
 - no transient fields (`selectedItemId`, `rotation`, `storeMode`) are stored;
 - placed cells are unique per layer;
 - every prop has a matching base cell.
@@ -125,7 +142,7 @@ Confirm:
 
 - [ ] All static gates pass.
 - [ ] Visual script passes with zero console errors.
-- [ ] All 13 GLBs load (no fallback labels visible).
+- [ ] All 16 GLBs load (no fallback labels visible).
 - [ ] Repeated tiles/props are instanced and still respond to click/selection/rotation/move/store.
 - [ ] The point-light count is fixed at ten; night assigns the nearest ten lights and day sets all to zero.
 - [ ] Low quality does not request the post-processing chunk and renders at the lower DPR/shadow size.
@@ -133,7 +150,8 @@ Confirm:
 - [ ] Lantern panels and firepot flames are warm golden yellow in day/night and High/Low; coals remain orange.
 - [ ] Switching to night keeps lanterns/firepots visible and glowing.
 - [ ] Lanterns/firepots still bloom and High keeps 2048² shadows; Low stays at 1024².
-- [ ] Screenshots refreshed and committed.
+- [ ] Screenshots refreshed and committed, including task tab, sound, and focus.
+- [ ] Audio stays silent until Play; focus timers continue with the panel closed.
 - [ ] README links resolve.
 - [ ] No secrets, `dist/`, `node_modules/`, or `*.blend1`.
 - [ ] `STATE.md` updated with the final session snapshot.

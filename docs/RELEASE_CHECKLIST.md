@@ -2,12 +2,13 @@
 
 ## Repository
 
-- [ ] `package.json` name is `moss-and-ember`; version follows semver.
+- [ ] `package.json` name is `evergrow`; version follows semver.
 - [ ] README hero, screenshots, quick start, controls, catalog, architecture, credits, and license are current.
 - [ ] `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/ART_PIPELINE.md`, `docs/DESIGN.md`, `docs/QA.md`, `docs/REPRODUCTION.md`, `docs/AGENT_GUIDE.md` are current.
 - [ ] `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CHANGELOG.md`, `LICENSE`.
 - [ ] `.github/workflows/ci.yml`, issue templates, PR template, Dependabot.
-- [ ] `public/models/README.md` and all 13 GLBs.
+- [ ] `public/models/README.md` and all 16 GLBs.
+- [ ] `public/music` and `public/ambience` audio assets present.
 - [ ] `STATE.md` committed last.
 
 ## Quality gates
@@ -21,23 +22,25 @@ npm run build
 npm run preview -- --port 4183
 ```
 
-- [ ] 24 store tests pass.
+- [ ] 61 tests pass (`worldStore`, tasks, calendar, focus, audio, hotbar).
 - [ ] TypeScript and ESLint emit no errors or warnings.
 - [ ] Production build succeeds.
 - [ ] Headless QA passes with zero console/page errors.
-- [ ] All 13 GLBs load (no fallback labels).
+- [ ] All 16 GLBs load (no fallback labels).
 - [ ] Exactly ten pooled point lights; day zero, night nearest ten.
 - [ ] Placed items are instanced and still support select/rotate/move/store.
 - [ ] Low quality skips post-processing; High lazy-loads it.
 - [ ] High/Low persists across reload.
-- [ ] Task payout, purchase, placement, storage, and reload persistence verified.
-- [ ] Day and night screenshots refreshed at 1440×900.
-- [ ] Diorama is not obscured by the task drawer or hotbar.
+- [ ] Task payout, subtasks, editing, filters, calendar drag-drop, purchase, selling, placement, storage, and reload persistence verified.
+- [ ] Day, night, shop, task tab, sound, and focus screenshots refreshed at 1440×900.
+- [ ] Diorama is not obscured by the task bar, task tab, or hotbar.
+- [ ] Audio is silent until Play; focus timers continue when their panel is closed.
+- [ ] Week and Day calendar panes keep a fixed height and scroll internally.
 - [ ] No gap between props and base tiles.
 
 ## Art
 
-- [ ] `npm run models` succeeds; all 13 files are non-zero.
+- [ ] `npm run models` succeeds; all 16 files are non-zero.
 - [ ] Base tiles print `1.000 × 1.000 × 0.233`.
 - [ ] Props print footprints `≤ 0.925`.
 - [ ] Lantern/flame emission is visible at night and blooms correctly.
@@ -50,8 +53,8 @@ npm run preview -- --port 4183
 - [ ] No secrets, tokens, `dist/`, `node_modules/`, or build caches.
 - [ ] Remote URL does not contain a token.
 - [ ] CI is green on `main`.
-- [ ] Pages workflow is green and the live demo loads all 13 GLBs.
-- [ ] `https://yx0128.github.io/moss-and-ember/` is set as the repository homepage.
+- [ ] Pages workflow is green and the live demo loads all 16 GLBs.
+- [ ] `https://yx0128.github.io/evergrow-v1/` is set as the repository homepage.
 
 ## GitHub
 

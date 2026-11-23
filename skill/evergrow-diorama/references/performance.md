@@ -2,7 +2,7 @@
 
 Three optimizations keep the diorama faithful to its GLBs while avoiding shader stutter, draw-call blowup, and a heavy initial payload.
 
-## 1. Fixed six-light pool
+## 1. Fixed ten-light pool
 
 Never render `<pointLight>` inside a miniature. The light count must never change, otherwise Three.js recompiles materials when lanterns are placed or stored.
 

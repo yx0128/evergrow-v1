@@ -2,7 +2,7 @@
 
 A reusable playbook for building a desktop-first 3D isometric task diorama with React, Three.js, and real Blender-sculpted GLB art.
 
-- **App:** <https://github.com/yx0128/moss-and-ember>
+- **App:** <https://github.com/yx0128/evergrow-v1>
 - **Skill entry point:** [SKILL.md](SKILL.md)
 
 ## What is inside
@@ -18,9 +18,9 @@ A reusable playbook for building a desktop-first 3D isometric task diorama with 
 Copy this directory to your agent's skill folder:
 
 ```bash
-cp -R moss-and-ember-diorama ~/.claude/skills/
+cp -R evergrow-diorama ~/.claude/skills/
 # or
-cp -R moss-and-ember-diorama ~/.config/opencode/skills/
+cp -R evergrow-diorama ~/.config/opencode/skills/
 ```
 
 Then ask for “a cozy 3D isometric task diorama with real GLB art” or similar.

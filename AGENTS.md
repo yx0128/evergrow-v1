@@ -19,7 +19,7 @@ npm run models   # Blender 4.2+; see docs/ART_PIPELINE.md
 
 ## Non-negotiables
 
-- Desktop-first at `1440×900`. Keep the HUD usable; do not let the diorama hide behind the task drawer.
+- Desktop-first at `1440×900`. Keep the HUD usable; do not let the diorama hide behind the task bar or task tab.
 - Palette: cream, sand, sage, moss, terracotta, rose, gold, slate. No neon, pure white, or pure black.
 - Every item is `1×1`. Base tiles are `0.2333` tall in world space; props sit flush at `y = 0.2333`.
 - `placedItems` is the single source of truth for the world. Inventory is unplaced stock. Coins never refund.
@@ -65,7 +65,7 @@ Rewards live in `TASK_REWARDS`; costs live on each item. Starter coins in `START
 
 **Change the camera**
 
-Update `DAY_CAMERA` and `CAMERA_TARGET` in `Scene.tsx`; verify at `1440×900` with the task drawer open and closed. Keep `maxPolarAngle` below the horizon.
+Update `DAY_CAMERA` and `CAMERA_TARGET` in `Scene.tsx`; verify at `1440×900` with the task bar and task tab open and closed. Keep `maxPolarAngle` below the horizon.
 
 **Change persistence**
 

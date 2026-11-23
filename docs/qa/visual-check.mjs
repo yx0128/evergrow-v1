@@ -7,7 +7,7 @@ const OUT_DIR = process.env.OUT_DIR ?? path.resolve('shots');
 const CHROME_PATH =
   process.env.CHROME_PATH ??
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const STORAGE_KEY = 'moss-and-ember-v1';
+const STORAGE_KEY = 'evergrow-v1';
 
 mkdirSync(OUT_DIR, { recursive: true });
 
@@ -98,7 +98,7 @@ page.on('console', (message) => {
 page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
 
 try {
-  await page.goto(BASE_URL, { waitUntil: 'networkidle0' });
+  await page.goto(BASE_URL, { waitUntil: 'domcontentloaded' });
   const title = await page.title();
   assert(title.includes('Evergrow'), `unexpected page title: ${title}`);
 
@@ -109,10 +109,40 @@ try {
     seed,
     STORAGE_KEY,
   );
-  await page.reload({ waitUntil: 'networkidle0' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await wait(4200);
 
   await page.screenshot({ path: path.join(OUT_DIR, 'ui-day.png') });
+
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Open tasks as a full tab"]')?.click();
+  });
+  await wait(450);
+  await page.screenshot({ path: path.join(OUT_DIR, 'tasks-tab.png') });
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Dock tasks as a side bar"]')?.click();
+  });
+  await wait(300);
+
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Open sound player"]')?.click();
+  });
+  await wait(450);
+  await page.screenshot({ path: path.join(OUT_DIR, 'audio.png') });
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Close sound player"]')?.click();
+  });
+  await wait(300);
+
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Open focus session"]')?.click();
+  });
+  await wait(450);
+  await page.screenshot({ path: path.join(OUT_DIR, 'focus.png') });
+  await page.evaluate(() => {
+    document.querySelector('button[aria-label="Close focus session"]')?.click();
+  });
+  await wait(300);
 
   const dockGap = await page.evaluate(() => {
     const rect = (selector) => {
@@ -307,7 +337,7 @@ try {
     'placement did not decrement inventory',
   );
 
-  await page.reload({ waitUntil: 'networkidle0' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await wait(3000);
   const afterReload = await readState();
   assert(
@@ -413,7 +443,7 @@ try {
     'moving a piece changed inventory',
   );
 
-  await page.reload({ waitUntil: 'networkidle0' });
+  await page.reload({ waitUntil: 'domcontentloaded' });
   await wait(2500);
   const afterMoveReload = await readState();
   assert(

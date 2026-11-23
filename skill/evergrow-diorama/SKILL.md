@@ -1,5 +1,5 @@
 ---
-name: moss-and-ember-diorama
+name: evergrow-diorama
 description: Build and ship a polished, desktop-first 3D isometric miniature diorama with React 18, TypeScript, Vite, Three.js, a task-powered coin economy, two-layer 1x1 placement, real Blender-sculpted GLB models, day/night lighting, validated localStorage persistence, professional documentation, CI, visual QA, and a published skill backup. Use when someone asks for a cozy 3D diorama, a task-reward world builder, a Three.js isometric garden, a Blender-to-GLB pipeline, or a complete from-scratch web app with release engineering.
 ---
 
@@ -7,17 +7,17 @@ description: Build and ship a polished, desktop-first 3D isometric miniature dio
 
 A complete playbook for shipping a cozy floating miniature courtyard where real tasks earn coins, coins buy 1×1 tiles and props, and every asset is a real Blender-sculpted GLB.
 
-Reference implementation: <https://github.com/yx0128/moss-and-ember>
-Skill backup: <https://github.com/yx0128/moss-and-ember-diorama-skill>
+Reference implementation: <https://github.com/yx0128/evergrow-v1>
+Skill backup: <https://github.com/yx0128/evergrow-diorama-skill>
 
 ## What this skill produces
 
 1. A working Vite + React 18 + TypeScript + Tailwind desktop app.
 2. A floating infinite 1×1 grid with a two-layer build system: base tiles at `y=0`, surface props at `y=0.35`.
 3. A task → coin economy (10 / 25 / 50) with a one-way completion rule.
-4. Thirteen Blender-authored GLB miniatures, a runtime auto-normalizer, ghost placement, right-click storage, and a labeled fallback.
+4. Sixteen Blender-authored GLB miniatures, a runtime auto-normalizer, ghost placement, right-click storage, and a labeled fallback.
 5. Day/night themes with subtle bloom, ACES tone mapping, shadows, lantern/firepoint lights, clean day-mode negative space, and a starfield.
-6. Validated Zustand persistence, 24 store tests, a fixed six-light pool, instanced placed items, lazy post-processing, and a headless-Chrome QA script.
+6. Validated Zustand persistence, 61 tests, a fixed ten-light pool, instanced placed items, lazy post-processing, and a headless-Chrome QA script.
 7. A persisted High/Low graphics preset that skips post-processing and reduces DPR/shadow size on Low.
 8. Professional docs, CI, a session-state report, a single clean initial commit, and a GitHub release.
 9. A reusable skill backup repository.
@@ -29,7 +29,7 @@ Skill backup: <https://github.com/yx0128/moss-and-ember-diorama-skill>
 - **Interaction:** left click builds, left click a placed piece selects it in place, `R`/HUD Rotate rotates the selection, HUD Store returns it, `M`/Move lifts it (base tiles carry their prop), right drag orbits, middle drag pans, wheel zooms, right-click stores, `1–9` selects, `B` opens shop, `H` hides the HUD, `Esc` cancels/deselects.
 - **Persistence:** coins, tasks, inventory, placed items, theme only. Validate untrusted saves.
 - **No backend:** no accounts, analytics, network assets, or required environment variables.
-- **Performance:** exactly six point lights, instanced placed items, lazy effects, and a persisted High/Low preset. Never add per-miniature point lights.
+- **Performance:** exactly ten point lights, instanced placed items, lazy effects, and a persisted High/Low preset. Never add per-miniature point lights.
 - **Visual verification is mandatory.** A passing build is not enough.
 
 ## Version pins that work together
@@ -80,7 +80,7 @@ Create:
 public/models/  scripts/  docs/  docs/qa/  docs/screenshots/
 src/{components/{canvas,ui},data,lib,store,test,theme}
 .github/{workflows,ISSUE_TEMPLATE}
-skill/moss-and-ember-diorama/references/
+skill/evergrow-diorama/references/
 ```
 
 Add Vite/TS/Tailwind/ESLint/Vitest configs. `.gitignore` must exclude `node_modules/`, `dist/`, `coverage/`, `*.tsbuildinfo`, `.env*`, `.DS_Store`, and `*.blend1`.
@@ -88,11 +88,11 @@ Add Vite/TS/Tailwind/ESLint/Vitest configs. `.gitignore` must exclude `node_modu
 ### Phase 3 — Domain first
 
 1. `src/types.ts` — `ItemDef`, `Task`, `PlacedItem`, `PersistedWorld`, `ActionResult`, `ThemeMode`, `TaskTier`, `Rotation`.
-2. `src/data/items.ts` — 13 items, costs, rewards, starter world (80 coins, 3×3 sandstone, 2 props), `BASE_HEIGHT=0.35`, `FOOTPRINT=0.96`.
+2. `src/data/items.ts` — 18 items, costs, rewards, empty start (0 coins, no tasks, no items), `BASE_HEIGHT=0.2333`, `FOOTPRINT=0.96`.
 3. `src/lib/grid.ts` — `cellKey`, `findBase`, `findProp`, `worldToCell`, `rotationToRadians`.
 4. `src/lib/sound.ts` — lazy Web Audio envelopes.
 5. `src/store/useWorldStore.ts` — actions, safe storage, strict sanitization, `graphicsQuality`.
-6. `src/test/worldStore.test.ts` — 24 tests.
+6. `src/test/worldStore.test.ts` — 61 tests.
 
 Do not start the canvas until `npm test` and `npm run typecheck` are green.
 
@@ -137,13 +137,13 @@ const offset = [-center.x * scale, -box.min.y * verticalScale, -center.z * scale
 
 ### Phase 5 — HUD
 
-Top bar (coins, theme, reset camera, photo mode), collapsible task drawer (tier rewards visible, one-way completion, delete, reset), inventory hotbar (nine slots, stock badges, `1–9`, rotate/store/shop), build shop modal (base/prop tabs, affordable states, owned counts), toasts, controls legend, photo-mode exit pill.
+Top bar (coins, theme, reset camera, photo mode), task bar or full task tab (tier rewards visible, one-way completion, delete, reset), inventory hotbar (nine slots, stock badges, `1–9`, rotate/store/shop), build shop modal (base/prop tabs, affordable states, owned counts), toasts, controls legend, photo-mode exit pill.
 
 Panels are cream glass in both themes. Use Georgia for display and Avenir/Segoe for UI. Keep the diorama out from under the right-hand drawer.
 
 ### Phase 6 — Blender GLB art
 
-Author all 13 models in `scripts/generate_models.py`:
+Author all 16 models in `scripts/generate_models.py`:
 
 - bevel modifiers on every box; subdivision where needed;
 - bmesh vertex jitter for foliage, stone puffs, petals, produce;
@@ -260,14 +260,14 @@ Never put the token in the remote URL, `.git/config`, a file, or shell history. 
 
 Copy this directory to:
 
-- `~/.claude/skills/moss-and-ember-diorama/`
-- `~/.config/opencode/skills/moss-and-ember-diorama/` (if present)
+- `~/.claude/skills/evergrow-diorama/`
+- `~/.config/opencode/skills/evergrow-diorama/` (if present)
 
-Publish `skill/moss-and-ember-diorama/` as its own public repo (`moss-and-ember-diorama-skill`) using the same askpass flow. Add a README linking back to the app.
+Publish `skill/evergrow-diorama/` as its own public repo (`evergrow-diorama-skill`) using the same askpass flow. Add a README linking back to the app.
 
 ## Testing checklist
 
-- [ ] 24 store tests pass.
+- [ ] 61 tests pass.
 - [ ] Typecheck/lint/build clean.
 - [ ] Task pays once; chime + toast fire.
 - [ ] Purchase → select → place → reload persists.
@@ -278,9 +278,9 @@ Publish `skill/moss-and-ember-diorama/` as its own public repo (`moss-and-ember-
 - [ ] The lift ghost stays visible at its last cell while the pointer is over the HUD.
 - [ ] Only one Rotate button and one Store button are visible in the HUD; the selection/move pills have no duplicates.
 - [ ] Day/night changes background, lights, stars, bloom; day mode has no confetti.
-- [ ] All 13 GLBs load; no fallback labels.
+- [ ] All 16 GLBs load; no fallback labels.
 - [ ] Repeated tiles/props are instanced, but click/selection/rotation/move/store still work.
-- [ ] Exactly six point lights exist; night assigns nearest six, day sets all to 0.
+- [ ] Exactly ten point lights exist; night assigns nearest six, day sets all to 0.
 - [ ] Low quality does not request the post-processing chunk and uses the lower DPR/shadow size.
 - [ ] High tile/prop colors match Low; lantern bloom and 2048² shadows remain.
 - [ ] No console errors.
@@ -307,7 +307,7 @@ Publish `skill/moss-and-ember-diorama/` as its own public repo (`moss-and-ember-
 | jsdom has no localStorage (Node 26) | Polyfill in `src/test/setup.ts`; use a safe storage adapter. |
 | Preview shows another project | Pass an explicit free port; verify the title. |
 | Repeated Keychain prompts | One `gh auth token`, `GIT_ASKPASS`, `credential.helper=`. |
-| Point lights are recreated per lantern | Use the fixed six-light `LightingPool`; never render `<pointLight>` inside a miniature. |
+| Point lights are recreated per lantern | Use the fixed ten-light `LightingPool`; never render `<pointLight>` inside a miniature. |
 | Instanced pieces cannot be clicked | Map `event.instanceId` to the visible piece list; do not rely on per-mesh scene clones. |
 | Low quality still loads effects | Keep `Effects.tsx` behind `React.lazy` + `graphicsQuality === 'high'` and split `postprocessing` into its own chunk. |
 | Grid looks like clipped text at the top | `fadeDistance 30`, `fadeStrength 2`, low-contrast colors. |

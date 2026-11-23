@@ -91,7 +91,7 @@ Base tiles are authored at `0.35` tall. The horizontal normalization shrinks the
 
 ## Verification
 
-- 13 non-zero GLBs.
+- 16 non-zero GLBs.
 - Base tiles print `1.000 × 1.000 × 0.350`.
 - Props print footprint `≤0.925`.
 - App loads with no placeholder labels.

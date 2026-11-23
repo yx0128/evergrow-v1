@@ -41,22 +41,22 @@ Rules:
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│ [theme · quality · reset · photo]                [task drawer] │
-│                                                              │
+│ [theme · quality · camera · grid · photo] [sound · focus]     │
+│                                            [task bar/tab]    │
 │                    floating diorama                          │
 │                                                              │
-│ [controls]                                   [task drawer]   │
-│                    [hotbar · rotate · store · shop]          │
+│ [controls]                                   [task bar]      │
+│                    [hotbar · rotate · move · store · shop]   │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 - HUD margins: `16px`.
-- Top-left pill: day/night + High/Low graphics quality + reset camera + photo mode.
-- Top-right: task drawer `370px` wide, collapsible to a pill; the coin balance lives here. Its height reserves the bottom dock band (`--hud-dock-space`, `140px`) so it can never cover the hotbar.
+- Top-left: two glass pills. The first holds day/night, quality, camera reset, grid, and photo mode. The second holds the sound player and focus session.
+- Top-right: task bar `370px` wide, or a full-screen task tab capped at `max-w-4xl` and `88vh`. Its height reserves the bottom dock band (`--hud-dock-space`, `140px`) so it can never cover the hotbar. A maximize/minimize control switches layouts.
 - Bottom center: a category-filtered hotbar (`Terrain`, `Nature`, `Decor`, `Buildings`) with compact pills, `54px` slots at `≥1366px` (`48px` below), and a Rotate/Move/Store/Shop action rail above them. The pill row scrolls horizontally when space is tight.
 - `1–9` addresses the active category; `[` / `]` cycles categories. Slots carry no visible order numbers.
 - Bottom-left: controls legend, only above `xl` width.
-- The diorama is framed left/center because the task drawer owns the right edge.
+- The diorama is framed left/center because the task bar owns the right edge.
 - In photo mode the HUD disappears except a small “Show interface” affordance.
 
 ## Camera
@@ -91,27 +91,37 @@ Rules:
 
 - Quick / Standard / Deep Work are always visible with their coin value, so the reward is never a surprise.
 - Completing a task is one-way; the checkbox becomes a sage check and the row is struck through. This protects the economy and gives a clear “done” moment.
-- Each task row has a grip handle for drag reordering, with a sage insertion line. A focused grip also reorders with `↑` / `↓`, and the order persists. A pin beside **Add** lifts or releases every unfinished task at once. Per-task pins sit beside delete, stay visible when pinned, and otherwise appear on hover or focus; they lift unfinished tasks into a stable top group.
-- **Reset world** is a two-step action: the first click arms “Confirm Reset?”, the second restores the starter world; the armed state times out.
+- Tasks sort automatically by completion, due date, then priority. Pinned unfinished tasks stay at the top. Clicking a task title opens deadline and priority editing; the subtask control expands a separate checklist, and clicking a subtask title edits it inline.
+- **Reset world** is a two-step action: the first click arms “Confirm Reset?”, the second restores an empty world; the armed state times out.
 - Purchases go to the hotbar, not directly into the world. Buying switches to the item’s category; the next action is always “select, then click”.
 - Each slot carries a category cue: a sage underline for bases, terracotta for surface props.
 - Store mode is explicit, but right-click storage is always available as a shortcut.
 - Click a placed piece to select it in place; it does not follow the mouse. A sage cell tint and a selection pill appear.
 - `R` or HUD **Rotate** reorients the selected piece in 90° steps; a selected base rotates its prop too. The HUD buttons are the single source for rotate/store actions.
 - HUD **Store** returns the selected piece to inventory. **Move** / `M` lifts the piece. A green ghost previews the destination; the ghost stays visible at its last cell while the pointer is over the HUD. Click a valid cell to drop; `Esc`/cancel returns it to selection. Base tiles carry their surface prop.
-- **Reset world** uses an inline two-step confirmation and restores the exact starter world.
+- **Reset world** uses an inline two-step confirmation and restores an empty world while keeping the chosen task layout.
 
 ## Accessibility
 
 - Every icon-only button has an `aria-label` and a `title`.
 - Toggles use `aria-pressed`.
-- The task input has a visible label via `aria-label` and submits on Enter.
+- The **New task** dialog uses labelled inputs and submits with its Add task button.
+- Task rows expose expandable deadline/priority and subtask controls with `aria-expanded`; calendar day cells and draggable task cards are keyboard-focusable.
 - Focus rings are cream + sage, visible on glass.
 - Text contrast stays at or above WCAG AA for body sizes on the cream panel.
-- Keyboard coverage: `1–9`, `[` / `]`, `R`, `M`, `B`, `H`, `Esc`, Enter in the task form.
+- Keyboard coverage: `1–9`, `[` / `]`, `R`, `M`, `B`, `H`, `Esc`, Enter in the New task dialog, and Enter/Space on calendar days.
 - The hotbar is a labelled toolbar; category pills expose pressed state and the shop is a focus-trapped dialog.
 - Selection and moving are click/keyboard-only (no drag requirement), so they work with a trackpad and do not conflict with camera orbit.
-- The app is usable without audio; sound is a garnish.
+- The app is fully usable without audio; music and focus chimes are optional. Audio never autoplays.
+
+## Sound and focus
+
+- The sound player is a cream glass modal with Music and Ambience tabs and a two-column track list. It never starts on open; the primary play button is the only way to begin.
+- Loop is explicit. A number input sets how many minutes to keep looping; `0` loops endlessly. Skipping tracks keeps the current playing state.
+- Volume is a native range input with a mute toggle beside it.
+- The focus panel offers Normal and Pomodoro. The large clock is sage green for focus work and gold for pomodoro breaks; the same colors tint the collapsed top-bar capsule.
+- The collapsed capsule appears only while the panel is closed and a timer is running. It shows `mm:ss`, and the focus icon stays active.
+- Timers keep running while the panel is closed. A calm two-round chime marks completions and phase changes.
 
 ## Copy voice
 

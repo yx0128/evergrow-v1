@@ -18,10 +18,14 @@ App.tsx
 │       ├── Grid (infinite, faded, non-interactive)
 │       └── Effects (lazy Bloom → ACES tone mapping)
 └── HUD
-    ├── TopBar (theme, reset camera, photo mode)
-    ├── TaskDrawer (add / complete / pin / delete / drag-reorder / confirm reset)
-    ├── InventoryHotbar (category pills, 1–9, rotate/move/store/shop rail)
-    ├── BuildShop modal (base / prop tabs)
+    ├── TopBar (theme, quality, camera, grid, photo, audio, focus)
+    ├── TaskDrawer (bar or full tab; list/month/week/day; create dialog)
+    │   ├── TaskRow (details, subtasks, checklist editing)
+    │   └── TaskCalendarBoard (drag-to-reschedule)
+    ├── InventoryHotbar (category pills, 1–9, rotate/move/store/sell/shop rail)
+    ├── BuildShop modal (base / prop tabs, buy and sell)
+    ├── AudioPanel (music / ambience player)
+    ├── FocusPanel (normal and pomodoro timers)
     ├── ControlsLegend
     └── Toasts
 ```
@@ -33,7 +37,28 @@ App.tsx
 ```ts
 type ThemeMode = 'day' | 'night';
 type TaskTier = 'quick' | 'standard' | 'deep';
+type TaskPriority = 'low' | 'medium' | 'high';
+type TaskLayout = 'bar' | 'tab';
 type Rotation = 0 | 1 | 2 | 3;
+
+interface Subtask {
+  id: string;
+  title: string;
+  done: boolean;
+}
+
+interface Task {
+  id: string;
+  title: string;
+  tier: TaskTier;
+  priority: TaskPriority;
+  done: boolean;
+  createdAt: number;
+  completedAt?: number;
+  dueDate?: string;
+  pinned?: boolean;
+  subtasks: Subtask[];
+}
 
 interface PersistedWorld {
   coins: number;
@@ -42,6 +67,7 @@ interface PersistedWorld {
   placedItems: PlacedItem[];
   themeMode: ThemeMode;
   graphicsQuality: 'high' | 'low';
+  taskLayout: TaskLayout;
 }
 
 interface PlacedItem {
@@ -61,8 +87,8 @@ Transient UI state (`selectedItemId`, `selectedPieceId`, `movingItemId`, `moving
 1. `inventory` counts unplaced stock. Placing decrements; storing increments. Buying never places directly.
 2. `placedItems` contains at most one base tile and at most one prop per `(x, z)` cell.
 3. A prop requires a base tile in the same cell; a base tile cannot be removed while a prop remains on it.
-4. Task rewards are paid once. A completed task cannot be toggled back to incomplete.
-5. Coins are clamped to `0..9,999,999`; inventory per item to `0..999`; coordinates to `±250`.
+4. Task rewards are paid once. A completed task cannot be toggled back to incomplete. Selling returns the full catalog cost of the sold item.
+5. Coins are clamped to `0..9,999,999`; inventory per item to `0..999`; coordinates to `±250`; subtasks to `50` per task.
 6. Unknown item IDs, duplicate IDs, non-integer cells, invalid rotations, and orphaned props are dropped on hydration.
 7. Persistence writes only `PersistedWorld`; hydration merges sanitized data over the default state.
 8. The point-light count is always ten. Never add or remove lights at runtime; pooled lights change position/color/intensity only.
@@ -71,30 +97,36 @@ Transient UI state (`selectedItemId`, `selectedPieceId`, `movingItemId`, `moving
 
 | Action | Behavior |
 | --- | --- |
-| `addTask(title, tier)` | Trims/limits title, prepends a task, returns `ActionResult`. |
+| `addTask(title, tier, priority?, dueDate?, subtaskTitles?)` | Trims/limits the title, builds initial subtasks, prepends a task. |
+| `addSubtask` / `toggleSubtask` / `updateSubtask` / `deleteSubtask` | Manages checklist entries without paying coins. |
+| `setTaskPriority(id, priority)` | Updates a task’s persisted priority. |
+| `setTaskDueDate(id, dueDate \| null)` | Validates and stores or clears an ISO deadline. |
 | `toggleTask(id)` | Completes an incomplete task, pays the tier reward, sets `completedAt`. |
-| `deleteTask(id)` | Removes a task; no refund. |
+| `deleteTask(id)` | Removes a task; no refund. The UI confirms with a toast. |
 | `buyItem(itemId)` | Deducts cost and adds one unit to inventory. |
+| `sellItem(itemId)` | Removes one inventory unit and refunds its full cost. |
+| `sellPlacedItem(placedId)` | Removes a placed piece and refunds its full cost; a base with a prop is blocked. |
 | `selectItem(itemId)` | Toggles build selection; refuses items with zero stock. Clears placed selection, moves, and store mode. |
 | `selectPiece(placedId)` | Toggles selection of a placed piece; clears build selection and moves. |
 | `rotate()` | Rotates the active context: the selected placed piece in place, `movingRotation` while lifted, otherwise the placement rotation. A selected base rotates its prop too. |
 | `toggleStoreMode()` | Clears placement/move state; left-click becomes pickup. |
 | `toggleGraphicsQuality()` | Flips the persisted `high`/`low` preset. |
+| `setTaskLayout(layout)` | Switches the task UI between the side bar and full tab. |
 | `beginMove(placedId)` | Lifts a piece (and its surface prop if it is a base) into the move ghost; clears placed selection. |
 | `moveTo(x, z)` | Validates the target and moves the piece group without touching inventory. Failure keeps the move active for a retry. |
 | `cancelMove()` | Puts the moving piece back at its original cell and returns it to selection. |
 | `placeAt(x, z)` | Validates layer rules and stock, appends a piece, decrements inventory, clears any move. |
 | `removeItem(placedId)` | Returns a piece to inventory; blocks base pickup under a prop. |
 | `removeAtCell(x, z)` | Stores the prop first, otherwise the base. |
-| `resetWorld()` | Restores starter courtyard, coins, tasks, and inventory. |
+| `resetWorld()` | Restores the empty world while preserving the task layout preference. |
 
 ### Persistence
 
-- Key: `moss-and-ember-v1`; schema version `1`; persisted `graphicsQuality` defaults to `high`.
+- Key: `evergrow-v1`; schema version `1`; persisted `graphicsQuality` defaults to `high` and `taskLayout` to `bar`. Legacy saves are migrated once from the pre-rename key.
 - Storage: `localStorage` with a memory fallback if access throws.
 - `sanitizePersisted` is deliberately defensive and unit-tested against hostile JSON.
 - The `merge` hook always sets `hydrated: true`.
-- No migration exists for version `0`; the starter world is the fallback.
+- No migration exists for version `0`; an empty world (`createDefaultData`) is the fallback.
 
 ## Placement and the two-layer grid
 
@@ -128,9 +160,15 @@ With no build item selected, left-clicking a placed piece selects it and leaves 
 
 HUD **Store** returns the selected piece to inventory without entering store mode; with no selection it toggles click-to-store mode. **Move** / `M` lifts the selected piece into a move ghost, where the pointer previews the destination. Clicking a valid cell drops it; `Esc`, the hotbar cancel button, or a right-click cancels the move and returns the piece to selection. Moving does not touch inventory and is persisted as the same `PlacedItem` with new `x`/`z` and `placedAt`. A base tile also carries its surface prop. While lifted, `R` or HUD Rotate reorients the group; the ghost stays anchored at its last cell when the pointer moves onto the HUD. Moving a prop requires an empty base at the destination; moving a base requires a completely empty destination cell. Invalid drops keep the move active so the player can retry.
 
-The hotbar is derived from `HOTBAR_ORDER`, not from inventory keys. Items are grouped into `Terrain`, `Nature`, `Decor`, and `Buildings` (`HotbarGroup`), with stable order inside each group (`src/lib/hotbar.ts`), so purchases, placements, and stores never reshuffle a category. `1–9` addresses the active category; `[` / `]` cycles categories. Zero-stock slots are greyed catalog affordances that open the shop focused on that item, and buying switches to the item’s category. The task drawer reserves `--hud-dock-space` at the bottom so the two panels cannot collide.
+The hotbar is derived from `HOTBAR_ORDER`, not from inventory keys. Items are grouped into `Terrain`, `Nature`, `Decor`, and `Buildings` (`HotbarGroup`), with stable order inside each group (`src/lib/hotbar.ts`), so purchases, placements, and stores never reshuffle a category. `1–9` addresses the active category; `[` / `]` cycles categories. Zero-stock slots are greyed catalog affordances that open the shop focused on that item, and buying switches to the item’s category. The task bar reserves `--hud-dock-space` at the bottom so it cannot collide with the hotbar.
 
-Tasks carry an optional persisted `pinned` flag. Incomplete pinned tasks are stably partitioned above the rest; completing a task clears its pin. Per-task pins appear on hover/focus and stay visible while pinned; the pin beside Add toggles every unfinished task at once. Drag and keyboard reordering operate on that displayed order, and drops cannot cross the pinned boundary. Reset is a two-click confirm state rather than a native `window.confirm`.
+Tasks carry an optional persisted `pinned` flag and are otherwise sorted by completion, due date, then priority (pinned unfinished tasks stay on top). Status, priority, exact-date, date-range, and no-due-date filters run in `src/lib/tasks.ts`. The full tab adds Month, Week, and Day calendar views; task cards can be dragged between days to call `setTaskDueDate`. Task creation lives in the side bar. Clicking a task title opens deadline/priority editing, while subtasks have their own collapsed checklist with inline title editing. Reset is a two-click confirm state rather than a native `window.confirm`.
+
+## Sound and focus
+
+`src/hooks/useAudioPlayer.ts` owns a single `HTMLAudioElement`. It never autoplays: `isPlaying` starts false and playback begins from a click. Tracks come from `src/lib/audioLibrary.ts` and live in `public/music` and `public/ambience`. Loop uses the media element for track repetition plus a deadline timer when a loop duration is set; volume and mute write directly to the element.
+
+`src/hooks/useFocusSession.ts` owns normal and pomodoro timers with an absolute `endAt` deadline so background throttling does not drift. Normal sessions use one configurable countdown. Pomodoro walks work → break → work for the configured block count, emits toasts on every transition, and chimes with the `alarm` Web Audio cue. The hook lives in `App`, so timers continue while the panel is closed; the TopBar capsule shows remaining time only in that state.
 
 ## GLB loader
 
@@ -155,9 +193,9 @@ Placement bounce uses `Date.now()` for both the stored timestamp and the animati
 - Perspective `fov: 32`, `near: 0.1`, `far: 160`.
 - Default position `[7.4, 8.4, 9.6]`, target `[0, 0.2333, 0]`.
 - `OrbitControls`: left mouse disabled (`LEFT: -1`), right drag rotates, middle drag pans, wheel zooms.
-- Distances `4.5..48`; polar angle `0.2..0.475π` keeps the camera above the floating plane.
+- Distances `7..28`; polar angle `0.2..0.475π` keeps the camera above the floating plane.
 - Reset button remounts the target/position through a signal; no page reload.
-- The task drawer occupies the top-right, so the default framing keeps the starter island in the left/center of the viewport.
+- The task bar occupies the top-right (and the full tab covers the viewport), so the default framing keeps the island in the left/center of the viewport.
 
 ## Lighting and post-processing
 

@@ -7,7 +7,7 @@
 - [ ] docs/ARCHITECTURE.md, docs/ART_PIPELINE.md, docs/DESIGN.md, docs/QA.md, docs/REPRODUCTION.md, docs/RELEASE_CHECKLIST.md.
 - [ ] CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, CHANGELOG.md, LICENSE.
 - [ ] .github/workflows/ci.yml, issue templates, PR template, Dependabot.
-- [ ] public/models/README.md and 13 GLBs.
+- [ ] public/models/README.md and 16 GLBs.
 - [ ] STATE.md.
 
 ## Quality gates
@@ -21,9 +21,9 @@ npm run build
 npm run preview -- --port 4183
 ```
 
-- [ ] 24 store tests pass.
+- [ ] 61 tests pass.
 - [ ] Headless QA passes with zero console/page errors.
-- [ ] All 13 GLBs load, no fallback labels.
+- [ ] All 16 GLBs load, no fallback labels.
 - [ ] Six pooled lights; day 0 intensity, night nearest six.
 - [ ] Instanced pieces still raycast for select/rotate/move/store.
 - [ ] Low quality skips post-processing and lowers DPR/shadow size.

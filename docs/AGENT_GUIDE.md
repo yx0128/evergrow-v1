@@ -14,7 +14,7 @@ npm run build
 npm run dev
 ```
 
-Open the app at `1440×900`. You should see a floating courtyard, a task drawer on the right, and a hotbar at the bottom. If a prop is missing, a labeled beveled block appears — check `public/models/` and the browser console.
+Open the app at `1440×900`. You should see a floating world, a task bar on the right (or a full task tab), and a hotbar at the bottom. If a prop is missing, a labeled beveled block appears — check `public/models/` and the browser console.
 
 ## Mental model
 
@@ -26,19 +26,24 @@ Open the app at `1440×900`. You should see a floating courtyard, a task drawer 
 - `src/components/canvas/LightingPool.tsx` owns the fixed ten point lights.
 - `src/components/canvas/Effects.tsx` is the lazy post-processing entry point.
 - `src/components/canvas/Scene.tsx` owns camera, lights, post-processing, and day/night.
-- `src/App.tsx` owns keyboard shortcuts, toasts, feedback sounds, and HUD composition.
+- `src/App.tsx` owns keyboard shortcuts, toasts, feedback sounds, audio/focus hooks, and HUD composition.
+- `src/components/ui/TaskDrawer.tsx` owns the task bar/tab, filters, and calendar view switch.
+- `src/components/ui/TaskCalendarBoard.tsx` owns month/week/day rendering and drag-to-reschedule.
+- `src/hooks/useAudioPlayer.ts` and `src/hooks/useFocusSession.ts` own media playback and timers.
 - `scripts/generate_models.py` is the source of truth for the committed GLBs.
 
 ## Invariants to protect
 
 1. Base tiles are exactly `0.2333` tall in world space; props sit at `y=0.2333`.
-2. `placedItems` has at most one base and one prop per cell; props require a base. Selecting a piece does not move it; rotating a selected base rotates its prop; moving a base moves its prop.
-3. Task completion pays once and is one-way.
-4. Persisted data is untrusted; extend the sanitizer with every new field.
-5. Never persist transient UI state.
-6. Never commit tokens, `dist/`, `node_modules/`, or Blender backups.
-7. Left click builds, right drag orbits, middle drag pans.
-8. The design palette is cream/sand/sage/terracotta/rose/gold/slate only.
+2. New worlds start empty. Task creation lives in the side task bar; the full tab is read/plan/edit only.
+3. Audio never autoplays. Focus timers keep running while their panel is closed.
+4. `placedItems` has at most one base and one prop per cell; props require a base. Selecting a piece does not move it; rotating a selected base rotates its prop; moving a base moves its prop.
+5. Task completion pays once and is one-way. Subtasks never pay coins. Selling refunds the full catalog price.
+6. Persisted data is untrusted; extend the sanitizer with every new field.
+7. Never persist transient UI state.
+8. Never commit tokens, `dist/`, `node_modules/`, or Blender backups.
+9. Left click builds, right drag orbits, middle drag pans.
+10. The design palette is cream/sand/sage/terracotta/rose/gold/slate only.
 
 ## Common tasks
 
@@ -60,7 +65,7 @@ Keep the light count at ten, keep placed items instanced, and keep `Effects.tsx`
 
 **Change the shop economy**
 
-Edit `TASK_REWARDS` and item `cost` values. Update the README catalog and tests. Do not change the starter coins without updating the default-world test.
+Edit `TASK_REWARDS` and item `cost` values. Update the README catalog and tests. New worlds start empty in `createDefaultData`.
 
 **Fix a placement bug**
 
@@ -68,7 +73,7 @@ Reproduce with a seeded save, inspect `placedItems` in `localStorage`, then trac
 
 **Change the camera**
 
-Edit `DAY_CAMERA` and `CAMERA_TARGET` in `src/components/canvas/Scene.tsx`. Keep `fov 32` and the polar clamp. Verify with the task drawer open and closed.
+Edit `DAY_CAMERA` and `CAMERA_TARGET` in `src/components/canvas/Scene.tsx`. Keep `fov 32` and the polar clamp. Verify with the task bar and full tab open and closed.
 
 **Publish**
 
@@ -84,7 +89,7 @@ npm run build
 npm run preview -- --port 4183
 ```
 
-Then run `docs/qa/visual-check.mjs` per [QA.md](QA.md). It seeds a rich world and asserts task payout, purchase, placement, and reload persistence, and captures the README screenshots.
+Then run `docs/qa/visual-check.mjs` per [QA.md](QA.md). It seeds a rich world and asserts task payout, editing, purchase, placement, selling, calendar interactions, and reload persistence, then captures the README screenshots including the task tab, sound player, and focus panel.
 
 ## When something looks wrong
 
@@ -97,6 +102,8 @@ Then run `docs/qa/visual-check.mjs` per [QA.md](QA.md). It seeds a rich world an
 | Bloom is overwhelming | Bloom intensity, not threshold |
 | Model appears tiny | GLB bounding box, `FOOTPRINT`, exporter units |
 | Task pays twice | `toggleTask` must reject `done` tasks |
+| Audio starts on load | `isPlaying` must start false; only Play may start playback |
+| Focus capsule time shows while open | `focusRemaining` should be null while the panel is visible |
 | Save resets on reload | `partialize`, storage key/version, sanitizer |
 | Preview shows another project | Explicit port; check page title |
 | Push asks for credentials repeatedly | One token, askpass, disabled credential helper |
