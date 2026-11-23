@@ -46,4 +46,4 @@ body:
     id: save
     attributes:
       label: Save state (optional)
-      description: Paste the value of localStorage["moss-and-ember-v1"].
+      description: Paste the value of localStorage["evergrow-v1"].

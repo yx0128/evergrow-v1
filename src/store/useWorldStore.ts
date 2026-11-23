@@ -19,7 +19,8 @@ import type {
   ThemeMode,
 } from '../types';
 
-const STORAGE_KEY = 'moss-and-ember-v1';
+const STORAGE_KEY = 'evergrow-v1';
+const LEGACY_STORAGE_KEY = 'moss-and-ember-v1';
 const MAX_TASKS = 200;
 const MAX_SUBTASKS = 50;
 const MAX_PLACED = 4000;
@@ -261,12 +262,25 @@ function memoryStorage(): Storage {
   };
 }
 
+export function migrateLegacyStorage(storage: Storage): void {
+  try {
+    if (storage.getItem(STORAGE_KEY) !== null) return;
+    const legacy = storage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy === null) return;
+    storage.setItem(STORAGE_KEY, legacy);
+    storage.removeItem(LEGACY_STORAGE_KEY);
+  } catch {
+    // Storage can be unavailable or full; keep the safe fallback path.
+  }
+}
+
 function safeStorage(): Storage {
   if (typeof window !== 'undefined' && window.localStorage) {
     try {
       const probe = '__gg_probe__';
       window.localStorage.setItem(probe, '1');
       window.localStorage.removeItem(probe);
+      migrateLegacyStorage(window.localStorage);
       return window.localStorage;
     } catch {
       return memoryStorage();
